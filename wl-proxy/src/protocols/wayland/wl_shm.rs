@@ -930,6 +930,16 @@ impl WlShm {
     pub const ENM__FORMAT_S216__SINCE: u32 = 1;
     /// Since when the format.s416 enum variant is available.
     pub const ENM__FORMAT_S416__SINCE: u32 = 1;
+    /// Since when the format.xvuy2101010 enum variant is available.
+    pub const ENM__FORMAT_XVUY2101010__SINCE: u32 = 1;
+    /// Since when the format.p230 enum variant is available.
+    pub const ENM__FORMAT_P230__SINCE: u32 = 1;
+    /// Since when the format.t430 enum variant is available.
+    pub const ENM__FORMAT_T430__SINCE: u32 = 1;
+    /// Since when the format.y8 enum variant is available.
+    pub const ENM__FORMAT_Y8__SINCE: u32 = 1;
+    /// Since when the format.xyyy2101010 enum variant is available.
+    pub const ENM__FORMAT_XYYY2101010__SINCE: u32 = 1;
 }
 
 /// wl_shm error values
@@ -1013,7 +1023,7 @@ impl WlShmFormat {
     /// 16-bit ABGR format, [15:0] A:B:G:R 4:4:4:4 little endian
     pub const ABGR4444: Self = Self(0x32314241);
 
-    /// 16-bit RBGA format, [15:0] R:G:B:A 4:4:4:4 little endian
+    /// 16-bit RGBA format, [15:0] R:G:B:A 4:4:4:4 little endian
     pub const RGBA4444: Self = Self(0x32314152);
 
     /// 16-bit BGRA format, [15:0] B:G:R:A 4:4:4:4 little endian
@@ -1355,13 +1365,13 @@ impl WlShmFormat {
     /// [31:0] R 32 little endian
     pub const R32F: Self = Self(0x46202052);
 
-    /// [63:0] R:G 32:32 little endian
+    /// [63:0] G:R 32:32 little endian
     pub const GR3232F: Self = Self(0x46205247);
 
-    /// [95:0] R:G:B 32:32:32 little endian
+    /// [95:0] B:G:R 32:32:32 little endian
     pub const BGR323232F: Self = Self(0x46524742);
 
-    /// [127:0] R:G:B:A 32:32:32:32 little endian
+    /// [127:0] A:B:G:R 32:32:32:32 little endian
     pub const ABGR32323232F: Self = Self(0x46384241);
 
     /// 2x1 subsampled Cr:Cb plane
@@ -1396,6 +1406,20 @@ impl WlShmFormat {
 
     /// non-subsampled Cb (1) and Cr (2) planes 16 bits per channel
     pub const S416: Self = Self(0x36313453);
+
+    /// [31:0] x:Cr:Cb:Y 2:10:10:10 little endian
+    pub const XVUY2101010: Self = Self(0x30335958);
+
+    /// 2x1 subsampled Cr:Cb plane 10 bits per channel packed
+    pub const P230: Self = Self(0x30333250);
+
+    pub const T430: Self = Self(0x30333454);
+
+    /// 8-bit Y-only
+    pub const Y8: Self = Self(0x59455247);
+
+    /// [31:0] x:Y2:Y1:Y0 2:10:10:10 little endian
+    pub const XYYY2101010: Self = Self(0x34415059);
 }
 
 impl Debug for WlShmFormat {
@@ -1544,6 +1568,11 @@ impl Debug for WlShmFormat {
             Self::S016 => "S016",
             Self::S216 => "S216",
             Self::S416 => "S416",
+            Self::XVUY2101010 => "XVUY2101010",
+            Self::P230 => "P230",
+            Self::T430 => "T430",
+            Self::Y8 => "Y8",
+            Self::XYYY2101010 => "XYYY2101010",
             _ => return Debug::fmt(&self.0, f),
         };
         f.write_str(name)
