@@ -1114,6 +1114,12 @@ fn format_object_impl(w: &mut impl Write, interface: &Interface) -> io::Result<(
     wl!(r#"    fn get_event_name(&self, id: u32) -> Option<&'static str> {{"#)?;
     format_object_message_name(w, interface, false)?;
     wl!(r#"    }}"#)?;
+    wl!()?;
+    wl!(r#"    fn create_zombie(&self) -> Rc<dyn Object> {{"#)?;
+    wl!(r#"        let slf = Self::new(&self.core.state, self.core.version);"#)?;
+    wl!(r#"        slf.core.make_zombie();"#)?;
+    wl!(r#"        slf"#)?;
+    wl!(r#"    }}"#)?;
     wl!(r#"}}"#)?;
     wl!()?;
     wl!(r#"impl Object for {PREFIX}{camel} {{"#)?;

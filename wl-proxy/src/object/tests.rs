@@ -19,16 +19,7 @@ use {
 #[test]
 fn server_sent() {
     let tp = test_proxy();
-    tp.client.test.send_send_object();
-    struct H(Option<Rc<WlproxyTestServerSent>>);
-    impl WlproxyTestHandler for H {
-        fn handle_sent_object(&mut self, _slf: &Rc<WlproxyTest>, echo: &Rc<WlproxyTestServerSent>) {
-            self.0 = Some(echo.clone());
-        }
-    }
-    tp.client.test.set_handler(H(None));
-    tp.sync();
-    let sent = tp.client.test.get_handler_mut::<H>().0.take().unwrap();
+    let (_, sent) = tp.get_server_sent_object();
     struct S(bool);
     impl WlproxyTestServerSentHandler for S {
         fn handle_destroyed(&mut self, _slf: &Rc<WlproxyTestServerSent>) {
@@ -267,4 +258,58 @@ fn forward() {
     non_forward.send_echo();
     tp.sync();
     assert!(non_forward.get_handler_mut::<Nfh>().0);
+}
+
+#[test]
+fn event_on_zombie() {
+    let tp = test_proxy();
+    let (_, c) = tp.get_server_sent_object();
+    c.send_send_event_x();
+    c.send_destroy();
+    struct H(bool);
+    impl WlproxyTestServerSentHandler for H {
+        fn handle_event_x(&mut self, _slf: &Rc<WlproxyTestServerSent>) {
+            self.0 = true;
+        }
+    }
+    c.set_handler(H(false));
+    tp.sync();
+    assert!(!c.get_handler_ref::<H>().0);
+}
+
+#[test]
+fn zombie_id_reuse() {
+    let tp = test_proxy();
+
+    let (p1, c1) = tp.get_server_sent_object();
+    let p1_id = p1.server_id();
+
+    c1.send_destroy();
+
+    let (p2, c1) = tp.get_server_sent_object();
+    let p2_id = p2.server_id();
+
+    assert_eq!(p1_id, p2_id);
+
+    struct H(bool);
+    impl WlproxyTestServerSentHandler for H {
+        fn handle_event_x(&mut self, _slf: &Rc<WlproxyTestServerSent>) {
+            self.0 = true;
+        }
+    }
+
+    c1.send_send_event_x();
+    c1.set_handler(H(false));
+    tp.sync();
+    assert!(c1.get_handler_mut::<H>().0);
+}
+
+#[test]
+fn reuse_normal() {
+    let tp = test_proxy();
+    let c1 = tp.client.test.new_try_send_create_server_sent().unwrap();
+    c1.try_send_destroy().unwrap();
+    tp.sync();
+    tp.client.test.try_send_create_server_sent(&c1).unwrap();
+    tp.sync();
 }

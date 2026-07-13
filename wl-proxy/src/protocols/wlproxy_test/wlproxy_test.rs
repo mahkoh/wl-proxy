@@ -925,6 +925,97 @@ impl WlproxyTest {
         echo
     }
 
+    /// Since when the create_server_sent message is available.
+    pub const MSG__CREATE_SERVER_SENT__SINCE: u32 = 1;
+
+    /// # Arguments
+    ///
+    /// - `echo`:
+    #[inline]
+    pub fn try_send_create_server_sent(
+        &self,
+        echo: &Rc<WlproxyTestServerSent>,
+    ) -> Result<(), ObjectError> {
+        let (
+            arg0,
+        ) = (
+            echo,
+        );
+        let arg0_obj = arg0;
+        let arg0 = arg0_obj.core();
+        let core = self.core();
+        let Some(id) = core.server_obj_id.get() else {
+            return Err(ObjectError(ObjectErrorKind::ReceiverNoServerId));
+        };
+        arg0.generate_server_id(arg0_obj.clone())
+            .map_err(|e| ObjectError(ObjectErrorKind::GenerateServerId("echo", e)))?;
+        let arg0_id = arg0.server_obj_id.get().unwrap_or(0);
+        #[cfg(feature = "logging")]
+        if self.core.state.log {
+            #[cold]
+            fn log(state: &State, id: u32, arg0: u32) {
+                let (millis, micros) = time_since_epoch();
+                let prefix = &state.log_prefix;
+                let args = format_args!("[{millis:7}.{micros:03}] {prefix}server      <= wlproxy_test#{}.create_server_sent(echo: wlproxy_test_server_sent#{})\n", id, arg0);
+                state.log(args);
+            }
+            log(&self.core.state, id, arg0_id);
+        }
+        let Some(endpoint) = &self.core.state.server else {
+            return Ok(());
+        };
+        if !endpoint.flush_queued.replace(true) {
+            self.core.state.add_flushable_endpoint(endpoint, None);
+        }
+        let mut outgoing_ref = endpoint.outgoing.borrow_mut();
+        let outgoing = &mut *outgoing_ref;
+        let mut fmt = outgoing.formatter();
+        fmt.words([
+            id,
+            9,
+            arg0_id,
+        ]);
+        Ok(())
+    }
+
+    /// # Arguments
+    ///
+    /// - `echo`:
+    #[inline]
+    pub fn send_create_server_sent(
+        &self,
+        echo: &Rc<WlproxyTestServerSent>,
+    ) {
+        let res = self.try_send_create_server_sent(
+            echo,
+        );
+        if let Err(e) = res {
+            log_send("wlproxy_test.create_server_sent", &e);
+        }
+    }
+
+    #[inline]
+    pub fn new_try_send_create_server_sent(
+        &self,
+    ) -> Result<Rc<WlproxyTestServerSent>, ObjectError> {
+        let echo = self.core.create_child();
+        self.try_send_create_server_sent(
+            &echo,
+        )?;
+        Ok(echo)
+    }
+
+    #[inline]
+    pub fn new_send_create_server_sent(
+        &self,
+    ) -> Rc<WlproxyTestServerSent> {
+        let echo = self.core.create_child();
+        self.send_create_server_sent(
+            &echo,
+        );
+        echo
+    }
+
     /// Since when the create_non_forward message is available.
     pub const MSG__CREATE_NON_FORWARD__SINCE: u32 = 1;
 
@@ -972,7 +1063,7 @@ impl WlproxyTest {
         let mut fmt = outgoing.formatter();
         fmt.words([
             id,
-            9,
+            10,
             arg0_id,
         ]);
         Ok(())
@@ -1239,6 +1330,26 @@ pub trait WlproxyTestHandler: Any {
         );
         if let Err(e) = res {
             log_forward("wlproxy_test.sent_object", &e);
+        }
+    }
+
+    /// # Arguments
+    ///
+    /// - `echo`:
+    #[inline]
+    fn handle_create_server_sent(
+        &mut self,
+        slf: &Rc<WlproxyTest>,
+        echo: &Rc<WlproxyTestServerSent>,
+    ) {
+        if !slf.core.forward_to_server.get() {
+            return;
+        }
+        let res = slf.try_send_create_server_sent(
+            echo,
+        );
+        if let Err(e) = res {
+            log_forward("wlproxy_test.create_server_sent", &e);
         }
     }
 
@@ -1548,6 +1659,34 @@ impl ObjectPrivate for WlproxyTest {
                     fn log(state: &State, client_id: u64, id: u32, arg0: u32) {
                         let (millis, micros) = time_since_epoch();
                         let prefix = &state.log_prefix;
+                        let args = format_args!("[{millis:7}.{micros:03}] {prefix}client#{:<4} -> wlproxy_test#{}.create_server_sent(echo: wlproxy_test_server_sent#{})\n", client_id, id, arg0);
+                        state.log(args);
+                    }
+                    log(&self.core.state, client.endpoint.id, msg[0], arg0);
+                }
+                let arg0_id = arg0;
+                let arg0 = WlproxyTestServerSent::new(&self.core.state, self.core.version);
+                arg0.core().set_client_id(client, arg0_id, arg0.clone())
+                    .map_err(|e| ObjectError(ObjectErrorKind::SetClientId(arg0_id, "echo", e)))?;
+                let arg0 = &arg0;
+                if let Some(handler) = handler {
+                    (**handler).handle_create_server_sent(&self, arg0);
+                } else {
+                    DefaultHandler.handle_create_server_sent(&self, arg0);
+                }
+            }
+            10 => {
+                let [
+                    arg0,
+                ] = msg[2..] else {
+                    return Err(ObjectError(ObjectErrorKind::WrongMessageSize(msg.len() as u32 * 4, 12)));
+                };
+                #[cfg(feature = "logging")]
+                if self.core.state.log {
+                    #[cold]
+                    fn log(state: &State, client_id: u64, id: u32, arg0: u32) {
+                        let (millis, micros) = time_since_epoch();
+                        let prefix = &state.log_prefix;
                         let args = format_args!("[{millis:7}.{micros:03}] {prefix}client#{:<4} -> wlproxy_test#{}.create_non_forward(id: wlproxy_test_non_forward#{})\n", client_id, id, arg0);
                         state.log(args);
                     }
@@ -1652,7 +1791,8 @@ impl ObjectPrivate for WlproxyTest {
             6 => "create_dummy",
             7 => "echo_object",
             8 => "send_object",
-            9 => "create_non_forward",
+            9 => "create_server_sent",
+            10 => "create_non_forward",
             _ => return None,
         };
         Some(name)
@@ -1665,6 +1805,12 @@ impl ObjectPrivate for WlproxyTest {
             _ => return None,
         };
         Some(name)
+    }
+
+    fn create_zombie(&self) -> Rc<dyn Object> {
+        let slf = Self::new(&self.core.state, self.core.version);
+        slf.core.make_zombie();
+        slf
     }
 }
 

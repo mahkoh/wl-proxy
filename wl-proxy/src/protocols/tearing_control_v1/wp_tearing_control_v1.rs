@@ -368,6 +368,12 @@ impl ObjectPrivate for WpTearingControlV1 {
         let _ = id;
         None
     }
+
+    fn create_zombie(&self) -> Rc<dyn Object> {
+        let slf = Self::new(&self.core.state, self.core.version);
+        slf.core.make_zombie();
+        slf
+    }
 }
 
 impl Object for WpTearingControlV1 {
