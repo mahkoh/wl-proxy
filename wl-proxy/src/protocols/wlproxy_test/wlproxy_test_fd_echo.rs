@@ -251,6 +251,12 @@ impl ObjectPrivate for WlproxyTestFdEcho {
         };
         Some(name)
     }
+
+    fn create_zombie(&self) -> Rc<dyn Object> {
+        let slf = Self::new(&self.core.state, self.core.version);
+        slf.core.make_zombie();
+        slf
+    }
 }
 
 impl Object for WlproxyTestFdEcho {

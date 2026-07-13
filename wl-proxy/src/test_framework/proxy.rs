@@ -9,7 +9,10 @@ use {
                 wl_display::{WlDisplay, WlDisplayHandler},
                 wl_registry::{WlRegistry, WlRegistryHandler},
             },
-            wlproxy_test::wlproxy_test::WlproxyTest,
+            wlproxy_test::{
+                wlproxy_test::{WlproxyTest, WlproxyTestHandler},
+                wlproxy_test_server_sent::WlproxyTestServerSent,
+            },
         },
         state::{Destructor, State, StateError},
         test_framework::{install_logger, server::test_server},
@@ -99,7 +102,7 @@ fn test_proxy_client(proxy_state: &Rc<State>, log: bool) -> TestProxyClient {
         if let Some(obj) = proxy_test.borrow_mut().take() {
             break obj;
         }
-        dispatch_blocking([&client_state, &proxy_state]).unwrap();
+        dispatch_blocking([&client_state, proxy_state]).unwrap();
     };
     TestProxyClient {
         _destructor: client_state.create_destructor(),
@@ -172,5 +175,35 @@ impl TestProxy {
 
     pub fn create_client(&self) -> TestProxyClient {
         test_proxy_client(&self.proxy_state, self.log)
+    }
+
+    pub fn get_server_sent_object(&self) -> (Rc<WlproxyTestServerSent>, Rc<WlproxyTestServerSent>) {
+        self.client.test.send_send_object();
+        struct H(Option<Rc<WlproxyTestServerSent>>, bool);
+        impl WlproxyTestHandler for H {
+            fn handle_sent_object(
+                &mut self,
+                slf: &Rc<WlproxyTest>,
+                echo: &Rc<WlproxyTestServerSent>,
+            ) {
+                self.0 = Some(echo.clone());
+                if self.1 {
+                    slf.send_sent_object(echo);
+                }
+            }
+        }
+
+        let client = &self.client.test;
+        let server = &self.client.proxy_test;
+
+        server.set_handler(H(None, true));
+        client.set_handler(H(None, false));
+
+        self.sync();
+
+        let server = server.get_handler_mut::<H>().0.take().unwrap();
+        let client = client.get_handler_mut::<H>().0.take().unwrap();
+
+        (server, client)
     }
 }

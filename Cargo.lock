@@ -2908,8 +2908,10 @@ version = "0.1.0"
 dependencies = [
  "clap",
  "clap_complete",
+ "env_logger",
  "error_reporter",
  "linearize",
+ "log",
  "thiserror 2.0.17",
  "wl-proxy",
 ]

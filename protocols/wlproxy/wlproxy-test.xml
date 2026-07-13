@@ -41,6 +41,10 @@
       <arg name="echo" type="new_id" interface="wlproxy_test_server_sent"/>
     </event>
 
+    <request name="create_server_sent">
+      <arg name="echo" type="new_id" interface="wlproxy_test_server_sent"/>
+    </request>
+
     <request name="create_non_forward">
       <arg name="id" type="new_id" interface="wlproxy_test_non_forward"/>
     </request>
@@ -77,6 +81,11 @@
     <request name="send_destroy"/>
 
     <event name="destroyed" type="destructor"/>
+
+    <request name="send_event_x"/>
+    <event name="event_x"/>
+
+    <request name="destroy" type="destructor"/>
   </interface>
 
   <interface name="wlproxy_test_non_forward" version="1">

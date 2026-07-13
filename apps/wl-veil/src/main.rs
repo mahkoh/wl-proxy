@@ -1,4 +1,7 @@
-use {error_reporter::Report, std::io, thiserror::Error, wl_proxy::simple::SimpleProxyError};
+use {
+    error_reporter::Report, log::LevelFilter, std::io, thiserror::Error,
+    wl_proxy::simple::SimpleProxyError,
+};
 
 mod cli;
 mod veil;
@@ -14,5 +17,9 @@ enum VeilError {
 }
 
 fn main() -> Result<(), Report<VeilError>> {
+    env_logger::builder()
+        .filter_level(LevelFilter::Info)
+        .parse_default_env()
+        .init();
     cli::main().map_err(Report::new)
 }

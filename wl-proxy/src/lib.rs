@@ -1,7 +1,9 @@
-#![expect(
+#![allow(
     clippy::single_char_add_str,
     clippy::manual_is_multiple_of,
-    clippy::manual_div_ceil
+    clippy::manual_div_ceil,
+    clippy::len_zero,
+    clippy::bool_assert_comparison
 )]
 
 //! This crate can be used to proxy wayland connections and manipulate wayland messages.
