@@ -474,10 +474,14 @@ impl ObjectCore {
             return Err(IdError::NoServer);
         };
         let objects = &mut *server.objects.borrow_mut();
-        let Entry::Vacant(entry) = objects.entry(id) else {
-            return Err(IdError::ServerIdInUse(id));
+        match objects.entry(id) {
+            Entry::Vacant(entry) => {
+                entry.insert(slf);
+            }
+            Entry::Occupied(_) => {
+                return Err(IdError::ServerIdInUse(id));
+            }
         };
-        entry.insert(slf);
         self.server_obj_id.set(Some(id));
         Ok(())
     }
