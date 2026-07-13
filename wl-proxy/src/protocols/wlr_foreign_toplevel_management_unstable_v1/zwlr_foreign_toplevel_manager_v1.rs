@@ -344,6 +344,9 @@ pub trait ZwlrForeignToplevelManagerV1Handler: Any {
         if !slf.core.forward_to_client.get() {
             return;
         }
+        if slf.core.zombie.get() {
+            return;
+        }
         let res = slf.try_send_toplevel(
             toplevel,
         );
@@ -386,6 +389,9 @@ pub trait ZwlrForeignToplevelManagerV1Handler: Any {
         slf: &Rc<ZwlrForeignToplevelManagerV1>,
     ) {
         if !slf.core.forward_to_client.get() {
+            return;
+        }
+        if slf.core.zombie.get() {
             return;
         }
         let res = slf.try_send_finished(

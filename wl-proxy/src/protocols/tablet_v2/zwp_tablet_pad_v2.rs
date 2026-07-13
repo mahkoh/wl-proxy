@@ -1057,6 +1057,9 @@ pub trait ZwpTabletPadV2Handler: Any {
         if !slf.core.forward_to_client.get() {
             return;
         }
+        if slf.core.zombie.get() {
+            return;
+        }
         let res = slf.try_send_group(
             pad_group,
         );
@@ -1090,6 +1093,9 @@ pub trait ZwpTabletPadV2Handler: Any {
         if !slf.core.forward_to_client.get() {
             return;
         }
+        if slf.core.zombie.get() {
+            return;
+        }
         let res = slf.try_send_path(
             path,
         );
@@ -1119,6 +1125,9 @@ pub trait ZwpTabletPadV2Handler: Any {
         if !slf.core.forward_to_client.get() {
             return;
         }
+        if slf.core.zombie.get() {
+            return;
+        }
         let res = slf.try_send_buttons(
             buttons,
         );
@@ -1138,6 +1147,9 @@ pub trait ZwpTabletPadV2Handler: Any {
         slf: &Rc<ZwpTabletPadV2>,
     ) {
         if !slf.core.forward_to_client.get() {
+            return;
+        }
+        if slf.core.zombie.get() {
             return;
         }
         let res = slf.try_send_done(
@@ -1165,6 +1177,9 @@ pub trait ZwpTabletPadV2Handler: Any {
         state: ZwpTabletPadV2ButtonState,
     ) {
         if !slf.core.forward_to_client.get() {
+            return;
+        }
+        if slf.core.zombie.get() {
             return;
         }
         let res = slf.try_send_button(
@@ -1198,6 +1213,9 @@ pub trait ZwpTabletPadV2Handler: Any {
         surface: &Rc<WlSurface>,
     ) {
         if !slf.core.forward_to_client.get() {
+            return;
+        }
+        if slf.core.zombie.get() {
             return;
         }
         if let Some(client_id) = slf.core.client_id.get() {
@@ -1244,6 +1262,9 @@ pub trait ZwpTabletPadV2Handler: Any {
         if !slf.core.forward_to_client.get() {
             return;
         }
+        if slf.core.zombie.get() {
+            return;
+        }
         if let Some(client_id) = slf.core.client_id.get() {
             if let Some(client_id_2) = surface.core().client_id.get() {
                 if client_id != client_id_2 {
@@ -1274,6 +1295,9 @@ pub trait ZwpTabletPadV2Handler: Any {
         slf: &Rc<ZwpTabletPadV2>,
     ) {
         if !slf.core.forward_to_client.get() {
+            return;
+        }
+        if slf.core.zombie.get() {
             return;
         }
         let res = slf.try_send_removed(

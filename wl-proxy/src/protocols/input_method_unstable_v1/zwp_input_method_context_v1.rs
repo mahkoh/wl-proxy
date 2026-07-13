@@ -2211,6 +2211,9 @@ pub trait ZwpInputMethodContextV1Handler: Any {
         if !slf.core.forward_to_client.get() {
             return;
         }
+        if slf.core.zombie.get() {
+            return;
+        }
         let res = slf.try_send_surrounding_text(
             text,
             cursor,
@@ -2227,6 +2230,9 @@ pub trait ZwpInputMethodContextV1Handler: Any {
         slf: &Rc<ZwpInputMethodContextV1>,
     ) {
         if !slf.core.forward_to_client.get() {
+            return;
+        }
+        if slf.core.zombie.get() {
             return;
         }
         let res = slf.try_send_reset(
@@ -2248,6 +2254,9 @@ pub trait ZwpInputMethodContextV1Handler: Any {
         purpose: u32,
     ) {
         if !slf.core.forward_to_client.get() {
+            return;
+        }
+        if slf.core.zombie.get() {
             return;
         }
         let res = slf.try_send_content_type(
@@ -2273,6 +2282,9 @@ pub trait ZwpInputMethodContextV1Handler: Any {
         if !slf.core.forward_to_client.get() {
             return;
         }
+        if slf.core.zombie.get() {
+            return;
+        }
         let res = slf.try_send_invoke_action(
             button,
             index,
@@ -2294,6 +2306,9 @@ pub trait ZwpInputMethodContextV1Handler: Any {
         if !slf.core.forward_to_client.get() {
             return;
         }
+        if slf.core.zombie.get() {
+            return;
+        }
         let res = slf.try_send_commit_state(
             serial,
         );
@@ -2312,6 +2327,9 @@ pub trait ZwpInputMethodContextV1Handler: Any {
         language: &str,
     ) {
         if !slf.core.forward_to_client.get() {
+            return;
+        }
+        if slf.core.zombie.get() {
             return;
         }
         let res = slf.try_send_preferred_language(

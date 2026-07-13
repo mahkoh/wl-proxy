@@ -2100,6 +2100,9 @@ pub trait WpColorManagerV1Handler: Any {
         if !slf.core.forward_to_client.get() {
             return;
         }
+        if slf.core.zombie.get() {
+            return;
+        }
         let res = slf.try_send_supported_intent(
             render_intent,
         );
@@ -2126,6 +2129,9 @@ pub trait WpColorManagerV1Handler: Any {
         feature: WpColorManagerV1Feature,
     ) {
         if !slf.core.forward_to_client.get() {
+            return;
+        }
+        if slf.core.zombie.get() {
             return;
         }
         let res = slf.try_send_supported_feature(
@@ -2157,6 +2163,9 @@ pub trait WpColorManagerV1Handler: Any {
         if !slf.core.forward_to_client.get() {
             return;
         }
+        if slf.core.zombie.get() {
+            return;
+        }
         let res = slf.try_send_supported_tf_named(
             tf,
         );
@@ -2186,6 +2195,9 @@ pub trait WpColorManagerV1Handler: Any {
         if !slf.core.forward_to_client.get() {
             return;
         }
+        if slf.core.zombie.get() {
+            return;
+        }
         let res = slf.try_send_supported_primaries_named(
             primaries,
         );
@@ -2204,6 +2216,9 @@ pub trait WpColorManagerV1Handler: Any {
         slf: &Rc<WpColorManagerV1>,
     ) {
         if !slf.core.forward_to_client.get() {
+            return;
+        }
+        if slf.core.zombie.get() {
             return;
         }
         let res = slf.try_send_done(

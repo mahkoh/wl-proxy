@@ -144,6 +144,9 @@ pub trait WlproxyTestObjectEchoHandler: Any {
         if !slf.core.forward_to_client.get() {
             return;
         }
+        if slf.core.zombie.get() {
+            return;
+        }
         if let Some(client_id) = slf.core.client_id.get() {
             if let Some(client_id_2) = obj.core().client_id.get() {
                 if client_id != client_id_2 {

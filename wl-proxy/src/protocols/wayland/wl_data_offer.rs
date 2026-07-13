@@ -968,6 +968,9 @@ pub trait WlDataOfferHandler: Any {
         if !slf.core.forward_to_client.get() {
             return;
         }
+        if slf.core.zombie.get() {
+            return;
+        }
         let res = slf.try_send_offer(
             mime_type,
         );
@@ -1083,6 +1086,9 @@ pub trait WlDataOfferHandler: Any {
         if !slf.core.forward_to_client.get() {
             return;
         }
+        if slf.core.zombie.get() {
+            return;
+        }
         let res = slf.try_send_source_actions(
             source_actions,
         );
@@ -1139,6 +1145,9 @@ pub trait WlDataOfferHandler: Any {
         dnd_action: WlDataDeviceManagerDndAction,
     ) {
         if !slf.core.forward_to_client.get() {
+            return;
+        }
+        if slf.core.zombie.get() {
             return;
         }
         let res = slf.try_send_action(

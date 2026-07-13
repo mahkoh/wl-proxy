@@ -654,6 +654,9 @@ pub trait ZwpTabletV2Handler: Any {
         if !slf.core.forward_to_client.get() {
             return;
         }
+        if slf.core.zombie.get() {
+            return;
+        }
         let res = slf.try_send_name(
             name,
         );
@@ -689,6 +692,9 @@ pub trait ZwpTabletV2Handler: Any {
         pid: u32,
     ) {
         if !slf.core.forward_to_client.get() {
+            return;
+        }
+        if slf.core.zombie.get() {
             return;
         }
         let res = slf.try_send_id(
@@ -729,6 +735,9 @@ pub trait ZwpTabletV2Handler: Any {
         if !slf.core.forward_to_client.get() {
             return;
         }
+        if slf.core.zombie.get() {
+            return;
+        }
         let res = slf.try_send_path(
             path,
         );
@@ -751,6 +760,9 @@ pub trait ZwpTabletV2Handler: Any {
         if !slf.core.forward_to_client.get() {
             return;
         }
+        if slf.core.zombie.get() {
+            return;
+        }
         let res = slf.try_send_done(
         );
         if let Err(e) = res {
@@ -771,6 +783,9 @@ pub trait ZwpTabletV2Handler: Any {
         slf: &Rc<ZwpTabletV2>,
     ) {
         if !slf.core.forward_to_client.get() {
+            return;
+        }
+        if slf.core.zombie.get() {
             return;
         }
         let res = slf.try_send_removed(
@@ -801,6 +816,9 @@ pub trait ZwpTabletV2Handler: Any {
         bustype: ZwpTabletV2Bustype,
     ) {
         if !slf.core.forward_to_client.get() {
+            return;
+        }
+        if slf.core.zombie.get() {
             return;
         }
         let res = slf.try_send_bustype(

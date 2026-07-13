@@ -669,6 +669,9 @@ pub trait ZwpTabletPadRingV2Handler: Any {
         if !slf.core.forward_to_client.get() {
             return;
         }
+        if slf.core.zombie.get() {
+            return;
+        }
         let res = slf.try_send_source(
             source,
         );
@@ -694,6 +697,9 @@ pub trait ZwpTabletPadRingV2Handler: Any {
         degrees: Fixed,
     ) {
         if !slf.core.forward_to_client.get() {
+            return;
+        }
+        if slf.core.zombie.get() {
             return;
         }
         let res = slf.try_send_angle(
@@ -722,6 +728,9 @@ pub trait ZwpTabletPadRingV2Handler: Any {
         slf: &Rc<ZwpTabletPadRingV2>,
     ) {
         if !slf.core.forward_to_client.get() {
+            return;
+        }
+        if slf.core.zombie.get() {
             return;
         }
         let res = slf.try_send_stop(
@@ -757,6 +766,9 @@ pub trait ZwpTabletPadRingV2Handler: Any {
         time: u32,
     ) {
         if !slf.core.forward_to_client.get() {
+            return;
+        }
+        if slf.core.zombie.get() {
             return;
         }
         let res = slf.try_send_frame(

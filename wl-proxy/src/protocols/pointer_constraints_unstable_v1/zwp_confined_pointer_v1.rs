@@ -432,6 +432,9 @@ pub trait ZwpConfinedPointerV1Handler: Any {
         if !slf.core.forward_to_client.get() {
             return;
         }
+        if slf.core.zombie.get() {
+            return;
+        }
         let res = slf.try_send_confined(
         );
         if let Err(e) = res {
@@ -453,6 +456,9 @@ pub trait ZwpConfinedPointerV1Handler: Any {
         slf: &Rc<ZwpConfinedPointerV1>,
     ) {
         if !slf.core.forward_to_client.get() {
+            return;
+        }
+        if slf.core.zombie.get() {
             return;
         }
         let res = slf.try_send_unconfined(

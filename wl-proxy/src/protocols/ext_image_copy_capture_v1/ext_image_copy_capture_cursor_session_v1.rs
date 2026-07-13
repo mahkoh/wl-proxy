@@ -639,6 +639,9 @@ pub trait ExtImageCopyCaptureCursorSessionV1Handler: Any {
         if !slf.core.forward_to_client.get() {
             return;
         }
+        if slf.core.zombie.get() {
+            return;
+        }
         let res = slf.try_send_enter(
         );
         if let Err(e) = res {
@@ -657,6 +660,9 @@ pub trait ExtImageCopyCaptureCursorSessionV1Handler: Any {
         slf: &Rc<ExtImageCopyCaptureCursorSessionV1>,
     ) {
         if !slf.core.forward_to_client.get() {
+            return;
+        }
+        if slf.core.zombie.get() {
             return;
         }
         let res = slf.try_send_leave(
@@ -688,6 +694,9 @@ pub trait ExtImageCopyCaptureCursorSessionV1Handler: Any {
         y: i32,
     ) {
         if !slf.core.forward_to_client.get() {
+            return;
+        }
+        if slf.core.zombie.get() {
             return;
         }
         let res = slf.try_send_position(
@@ -724,6 +733,9 @@ pub trait ExtImageCopyCaptureCursorSessionV1Handler: Any {
         y: i32,
     ) {
         if !slf.core.forward_to_client.get() {
+            return;
+        }
+        if slf.core.zombie.get() {
             return;
         }
         let res = slf.try_send_hotspot(

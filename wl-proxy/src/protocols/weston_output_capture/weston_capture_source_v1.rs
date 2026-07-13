@@ -808,6 +808,9 @@ pub trait WestonCaptureSourceV1Handler: Any {
         if !slf.core.forward_to_client.get() {
             return;
         }
+        if slf.core.zombie.get() {
+            return;
+        }
         let res = slf.try_send_format(
             drm_format,
         );
@@ -842,6 +845,9 @@ pub trait WestonCaptureSourceV1Handler: Any {
         if !slf.core.forward_to_client.get() {
             return;
         }
+        if slf.core.zombie.get() {
+            return;
+        }
         let res = slf.try_send_size(
             width,
             height,
@@ -866,6 +872,9 @@ pub trait WestonCaptureSourceV1Handler: Any {
         if !slf.core.forward_to_client.get() {
             return;
         }
+        if slf.core.zombie.get() {
+            return;
+        }
         let res = slf.try_send_complete(
         );
         if let Err(e) = res {
@@ -885,6 +894,9 @@ pub trait WestonCaptureSourceV1Handler: Any {
         slf: &Rc<WestonCaptureSourceV1>,
     ) {
         if !slf.core.forward_to_client.get() {
+            return;
+        }
+        if slf.core.zombie.get() {
             return;
         }
         let res = slf.try_send_retry(
@@ -917,6 +929,9 @@ pub trait WestonCaptureSourceV1Handler: Any {
         if !slf.core.forward_to_client.get() {
             return;
         }
+        if slf.core.zombie.get() {
+            return;
+        }
         let res = slf.try_send_failed(
             msg,
         );
@@ -934,6 +949,9 @@ pub trait WestonCaptureSourceV1Handler: Any {
         slf: &Rc<WestonCaptureSourceV1>,
     ) {
         if !slf.core.forward_to_client.get() {
+            return;
+        }
+        if slf.core.zombie.get() {
             return;
         }
         let res = slf.try_send_formats_done(

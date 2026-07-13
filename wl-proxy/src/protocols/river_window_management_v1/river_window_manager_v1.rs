@@ -1478,6 +1478,9 @@ pub trait RiverWindowManagerV1Handler: Any {
         if !slf.core.forward_to_client.get() {
             return;
         }
+        if slf.core.zombie.get() {
+            return;
+        }
         let res = slf.try_send_unavailable(
         );
         if let Err(e) = res {
@@ -1520,6 +1523,9 @@ pub trait RiverWindowManagerV1Handler: Any {
         slf: &Rc<RiverWindowManagerV1>,
     ) {
         if !slf.core.forward_to_client.get() {
+            return;
+        }
+        if slf.core.zombie.get() {
             return;
         }
         let res = slf.try_send_finished(
@@ -1571,6 +1577,9 @@ pub trait RiverWindowManagerV1Handler: Any {
         slf: &Rc<RiverWindowManagerV1>,
     ) {
         if !slf.core.forward_to_client.get() {
+            return;
+        }
+        if slf.core.zombie.get() {
             return;
         }
         let res = slf.try_send_manage_start(
@@ -1652,6 +1661,9 @@ pub trait RiverWindowManagerV1Handler: Any {
         if !slf.core.forward_to_client.get() {
             return;
         }
+        if slf.core.zombie.get() {
+            return;
+        }
         let res = slf.try_send_render_start(
         );
         if let Err(e) = res {
@@ -1704,6 +1716,9 @@ pub trait RiverWindowManagerV1Handler: Any {
         if !slf.core.forward_to_client.get() {
             return;
         }
+        if slf.core.zombie.get() {
+            return;
+        }
         let res = slf.try_send_session_locked(
         );
         if let Err(e) = res {
@@ -1723,6 +1738,9 @@ pub trait RiverWindowManagerV1Handler: Any {
         slf: &Rc<RiverWindowManagerV1>,
     ) {
         if !slf.core.forward_to_client.get() {
+            return;
+        }
+        if slf.core.zombie.get() {
             return;
         }
         let res = slf.try_send_session_unlocked(
@@ -1749,6 +1767,9 @@ pub trait RiverWindowManagerV1Handler: Any {
         id: &Rc<RiverWindowV1>,
     ) {
         if !slf.core.forward_to_client.get() {
+            return;
+        }
+        if slf.core.zombie.get() {
             return;
         }
         let res = slf.try_send_window(
@@ -1780,6 +1801,9 @@ pub trait RiverWindowManagerV1Handler: Any {
         if !slf.core.forward_to_client.get() {
             return;
         }
+        if slf.core.zombie.get() {
+            return;
+        }
         let res = slf.try_send_output(
             id,
         );
@@ -1805,6 +1829,9 @@ pub trait RiverWindowManagerV1Handler: Any {
         id: &Rc<RiverSeatV1>,
     ) {
         if !slf.core.forward_to_client.get() {
+            return;
+        }
+        if slf.core.zombie.get() {
             return;
         }
         let res = slf.try_send_seat(

@@ -836,6 +836,9 @@ pub trait WlKeyboardHandler: Any {
         if !slf.core.forward_to_client.get() {
             return;
         }
+        if slf.core.zombie.get() {
+            return;
+        }
         let res = slf.try_send_keymap(
             format,
             fd,
@@ -879,6 +882,9 @@ pub trait WlKeyboardHandler: Any {
         keys: &[u8],
     ) {
         if !slf.core.forward_to_client.get() {
+            return;
+        }
+        if slf.core.zombie.get() {
             return;
         }
         if let Some(client_id) = slf.core.client_id.get() {
@@ -926,6 +932,9 @@ pub trait WlKeyboardHandler: Any {
         surface: &Rc<WlSurface>,
     ) {
         if !slf.core.forward_to_client.get() {
+            return;
+        }
+        if slf.core.zombie.get() {
             return;
         }
         if let Some(client_id) = slf.core.client_id.get() {
@@ -988,6 +997,9 @@ pub trait WlKeyboardHandler: Any {
         if !slf.core.forward_to_client.get() {
             return;
         }
+        if slf.core.zombie.get() {
+            return;
+        }
         let res = slf.try_send_key(
             serial,
             time,
@@ -1033,6 +1045,9 @@ pub trait WlKeyboardHandler: Any {
         group: u32,
     ) {
         if !slf.core.forward_to_client.get() {
+            return;
+        }
+        if slf.core.zombie.get() {
             return;
         }
         let res = slf.try_send_modifiers(
@@ -1090,6 +1105,9 @@ pub trait WlKeyboardHandler: Any {
         delay: i32,
     ) {
         if !slf.core.forward_to_client.get() {
+            return;
+        }
+        if slf.core.zombie.get() {
             return;
         }
         let res = slf.try_send_repeat_info(

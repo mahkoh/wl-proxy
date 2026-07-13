@@ -130,6 +130,14 @@ impl WlproxyTestHandler for TestHandler {
         obj.set_handler(SentObjectHandler);
     }
 
+    fn handle_create_server_sent(
+        &mut self,
+        _slf: &Rc<WlproxyTest>,
+        echo: &Rc<WlproxyTestServerSent>,
+    ) {
+        echo.set_handler(SentObjectHandler);
+    }
+
     fn handle_create_non_forward(
         &mut self,
         _slf: &Rc<WlproxyTest>,
@@ -144,6 +152,18 @@ struct SentObjectHandler;
 impl WlproxyTestServerSentHandler for SentObjectHandler {
     fn handle_send_destroy(&mut self, slf: &Rc<WlproxyTestServerSent>) {
         slf.send_destroyed();
+    }
+
+    fn handle_send_event_x(&mut self, slf: &Rc<WlproxyTestServerSent>) {
+        slf.send_event_x();
+    }
+
+    fn handle_destroy(&mut self, slf: &Rc<WlproxyTestServerSent>) {
+        if let Some(id) = slf.client_id()
+            && id < 0xff000000
+        {
+            slf.delete_id();
+        }
     }
 }
 

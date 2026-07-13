@@ -734,6 +734,9 @@ pub trait RiverOutputV1Handler: Any {
         if !slf.core.forward_to_client.get() {
             return;
         }
+        if slf.core.zombie.get() {
+            return;
+        }
         let res = slf.try_send_removed(
         );
         if let Err(e) = res {
@@ -774,6 +777,9 @@ pub trait RiverOutputV1Handler: Any {
         if !slf.core.forward_to_client.get() {
             return;
         }
+        if slf.core.zombie.get() {
+            return;
+        }
         let res = slf.try_send_wl_output(
             name,
         );
@@ -810,6 +816,9 @@ pub trait RiverOutputV1Handler: Any {
         y: i32,
     ) {
         if !slf.core.forward_to_client.get() {
+            return;
+        }
+        if slf.core.zombie.get() {
             return;
         }
         let res = slf.try_send_position(
@@ -849,6 +858,9 @@ pub trait RiverOutputV1Handler: Any {
         height: i32,
     ) {
         if !slf.core.forward_to_client.get() {
+            return;
+        }
+        if slf.core.zombie.get() {
             return;
         }
         let res = slf.try_send_dimensions(
@@ -910,6 +922,9 @@ pub trait RiverOutputV1Handler: Any {
         count: u32,
     ) {
         if !slf.core.forward_to_client.get() {
+            return;
+        }
+        if slf.core.zombie.get() {
             return;
         }
         let res = slf.try_send_capture_sessions(

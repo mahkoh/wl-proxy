@@ -817,6 +817,9 @@ pub trait ZwlrOutputConfigurationV1Handler: Any {
         if !slf.core.forward_to_client.get() {
             return;
         }
+        if slf.core.zombie.get() {
+            return;
+        }
         let res = slf.try_send_succeeded(
         );
         if let Err(e) = res {
@@ -837,6 +840,9 @@ pub trait ZwlrOutputConfigurationV1Handler: Any {
         slf: &Rc<ZwlrOutputConfigurationV1>,
     ) {
         if !slf.core.forward_to_client.get() {
+            return;
+        }
+        if slf.core.zombie.get() {
             return;
         }
         let res = slf.try_send_failed(
@@ -862,6 +868,9 @@ pub trait ZwlrOutputConfigurationV1Handler: Any {
         slf: &Rc<ZwlrOutputConfigurationV1>,
     ) {
         if !slf.core.forward_to_client.get() {
+            return;
+        }
+        if slf.core.zombie.get() {
             return;
         }
         let res = slf.try_send_cancelled(

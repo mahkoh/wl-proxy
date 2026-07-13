@@ -1383,6 +1383,9 @@ pub trait ZwlrForeignToplevelHandleV1Handler: Any {
         if !slf.core.forward_to_client.get() {
             return;
         }
+        if slf.core.zombie.get() {
+            return;
+        }
         let res = slf.try_send_title(
             title,
         );
@@ -1405,6 +1408,9 @@ pub trait ZwlrForeignToplevelHandleV1Handler: Any {
         app_id: &str,
     ) {
         if !slf.core.forward_to_client.get() {
+            return;
+        }
+        if slf.core.zombie.get() {
             return;
         }
         let res = slf.try_send_app_id(
@@ -1433,6 +1439,9 @@ pub trait ZwlrForeignToplevelHandleV1Handler: Any {
         output: &Rc<WlOutput>,
     ) {
         if !slf.core.forward_to_client.get() {
+            return;
+        }
+        if slf.core.zombie.get() {
             return;
         }
         if let Some(client_id) = slf.core.client_id.get() {
@@ -1469,6 +1478,9 @@ pub trait ZwlrForeignToplevelHandleV1Handler: Any {
         output: &Rc<WlOutput>,
     ) {
         if !slf.core.forward_to_client.get() {
+            return;
+        }
+        if slf.core.zombie.get() {
             return;
         }
         if let Some(client_id) = slf.core.client_id.get() {
@@ -1608,6 +1620,9 @@ pub trait ZwlrForeignToplevelHandleV1Handler: Any {
         if !slf.core.forward_to_client.get() {
             return;
         }
+        if slf.core.zombie.get() {
+            return;
+        }
         let res = slf.try_send_state(
             state,
         );
@@ -1629,6 +1644,9 @@ pub trait ZwlrForeignToplevelHandleV1Handler: Any {
         slf: &Rc<ZwlrForeignToplevelHandleV1>,
     ) {
         if !slf.core.forward_to_client.get() {
+            return;
+        }
+        if slf.core.zombie.get() {
             return;
         }
         let res = slf.try_send_done(
@@ -1722,6 +1740,9 @@ pub trait ZwlrForeignToplevelHandleV1Handler: Any {
         slf: &Rc<ZwlrForeignToplevelHandleV1>,
     ) {
         if !slf.core.forward_to_client.get() {
+            return;
+        }
+        if slf.core.zombie.get() {
             return;
         }
         let res = slf.try_send_closed(
@@ -1825,6 +1846,9 @@ pub trait ZwlrForeignToplevelHandleV1Handler: Any {
         parent: Option<&Rc<ZwlrForeignToplevelHandleV1>>,
     ) {
         if !slf.core.forward_to_client.get() {
+            return;
+        }
+        if slf.core.zombie.get() {
             return;
         }
         if let Some(client_id) = slf.core.client_id.get() {

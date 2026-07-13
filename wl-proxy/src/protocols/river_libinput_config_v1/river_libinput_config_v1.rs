@@ -538,6 +538,9 @@ pub trait RiverLibinputConfigV1Handler: Any {
         if !slf.core.forward_to_client.get() {
             return;
         }
+        if slf.core.zombie.get() {
+            return;
+        }
         let res = slf.try_send_finished(
         );
         if let Err(e) = res {
@@ -588,6 +591,9 @@ pub trait RiverLibinputConfigV1Handler: Any {
         id: &Rc<RiverLibinputDeviceV1>,
     ) {
         if !slf.core.forward_to_client.get() {
+            return;
+        }
+        if slf.core.zombie.get() {
             return;
         }
         let res = slf.try_send_libinput_device(

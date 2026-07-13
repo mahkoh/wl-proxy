@@ -1738,6 +1738,9 @@ pub trait RiverSeatV1Handler: Any {
         if !slf.core.forward_to_client.get() {
             return;
         }
+        if slf.core.zombie.get() {
+            return;
+        }
         let res = slf.try_send_removed(
         );
         if let Err(e) = res {
@@ -1776,6 +1779,9 @@ pub trait RiverSeatV1Handler: Any {
         name: u32,
     ) {
         if !slf.core.forward_to_client.get() {
+            return;
+        }
+        if slf.core.zombie.get() {
             return;
         }
         let res = slf.try_send_wl_seat(
@@ -1900,6 +1906,9 @@ pub trait RiverSeatV1Handler: Any {
         if !slf.core.forward_to_client.get() {
             return;
         }
+        if slf.core.zombie.get() {
+            return;
+        }
         if let Some(client_id) = slf.core.client_id.get() {
             if let Some(client_id_2) = window.core().client_id.get() {
                 if client_id != client_id_2 {
@@ -1928,6 +1937,9 @@ pub trait RiverSeatV1Handler: Any {
         slf: &Rc<RiverSeatV1>,
     ) {
         if !slf.core.forward_to_client.get() {
+            return;
+        }
+        if slf.core.zombie.get() {
             return;
         }
         let res = slf.try_send_pointer_leave(
@@ -1968,6 +1980,9 @@ pub trait RiverSeatV1Handler: Any {
         window: &Rc<RiverWindowV1>,
     ) {
         if !slf.core.forward_to_client.get() {
+            return;
+        }
+        if slf.core.zombie.get() {
             return;
         }
         if let Some(client_id) = slf.core.client_id.get() {
@@ -2017,6 +2032,9 @@ pub trait RiverSeatV1Handler: Any {
         shell_surface: &Rc<RiverShellSurfaceV1>,
     ) {
         if !slf.core.forward_to_client.get() {
+            return;
+        }
+        if slf.core.zombie.get() {
             return;
         }
         if let Some(client_id) = slf.core.client_id.get() {
@@ -2094,6 +2112,9 @@ pub trait RiverSeatV1Handler: Any {
         if !slf.core.forward_to_client.get() {
             return;
         }
+        if slf.core.zombie.get() {
+            return;
+        }
         let res = slf.try_send_op_delta(
             dx,
             dy,
@@ -2121,6 +2142,9 @@ pub trait RiverSeatV1Handler: Any {
         slf: &Rc<RiverSeatV1>,
     ) {
         if !slf.core.forward_to_client.get() {
+            return;
+        }
+        if slf.core.zombie.get() {
             return;
         }
         let res = slf.try_send_op_release(
@@ -2246,6 +2270,9 @@ pub trait RiverSeatV1Handler: Any {
         y: i32,
     ) {
         if !slf.core.forward_to_client.get() {
+            return;
+        }
+        if slf.core.zombie.get() {
             return;
         }
         let res = slf.try_send_pointer_position(

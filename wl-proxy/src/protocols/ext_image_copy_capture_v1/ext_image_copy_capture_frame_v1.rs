@@ -1003,6 +1003,9 @@ pub trait ExtImageCopyCaptureFrameV1Handler: Any {
         if !slf.core.forward_to_client.get() {
             return;
         }
+        if slf.core.zombie.get() {
+            return;
+        }
         let res = slf.try_send_transform(
             transform,
         );
@@ -1038,6 +1041,9 @@ pub trait ExtImageCopyCaptureFrameV1Handler: Any {
         height: i32,
     ) {
         if !slf.core.forward_to_client.get() {
+            return;
+        }
+        if slf.core.zombie.get() {
             return;
         }
         let res = slf.try_send_damage(
@@ -1079,6 +1085,9 @@ pub trait ExtImageCopyCaptureFrameV1Handler: Any {
         if !slf.core.forward_to_client.get() {
             return;
         }
+        if slf.core.zombie.get() {
+            return;
+        }
         let res = slf.try_send_presentation_time(
             tv_sec_hi,
             tv_sec_lo,
@@ -1105,6 +1114,9 @@ pub trait ExtImageCopyCaptureFrameV1Handler: Any {
         if !slf.core.forward_to_client.get() {
             return;
         }
+        if slf.core.zombie.get() {
+            return;
+        }
         let res = slf.try_send_ready(
         );
         if let Err(e) = res {
@@ -1128,6 +1140,9 @@ pub trait ExtImageCopyCaptureFrameV1Handler: Any {
         reason: ExtImageCopyCaptureFrameV1FailureReason,
     ) {
         if !slf.core.forward_to_client.get() {
+            return;
+        }
+        if slf.core.zombie.get() {
             return;
         }
         let res = slf.try_send_failed(

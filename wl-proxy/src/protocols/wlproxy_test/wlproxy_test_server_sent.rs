@@ -146,6 +146,154 @@ impl WlproxyTestServerSent {
             log_send("wlproxy_test_server_sent.destroyed", &e);
         }
     }
+
+    /// Since when the send_event_x message is available.
+    pub const MSG__SEND_EVENT_X__SINCE: u32 = 1;
+
+    #[inline]
+    pub fn try_send_send_event_x(
+        &self,
+    ) -> Result<(), ObjectError> {
+        let core = self.core();
+        let Some(id) = core.server_obj_id.get() else {
+            return Err(ObjectError(ObjectErrorKind::ReceiverNoServerId));
+        };
+        #[cfg(feature = "logging")]
+        if self.core.state.log {
+            #[cold]
+            fn log(state: &State, id: u32) {
+                let (millis, micros) = time_since_epoch();
+                let prefix = &state.log_prefix;
+                let args = format_args!("[{millis:7}.{micros:03}] {prefix}server      <= wlproxy_test_server_sent#{}.send_event_x()\n", id);
+                state.log(args);
+            }
+            log(&self.core.state, id);
+        }
+        let Some(endpoint) = &self.core.state.server else {
+            return Ok(());
+        };
+        if !endpoint.flush_queued.replace(true) {
+            self.core.state.add_flushable_endpoint(endpoint, None);
+        }
+        let mut outgoing_ref = endpoint.outgoing.borrow_mut();
+        let outgoing = &mut *outgoing_ref;
+        let mut fmt = outgoing.formatter();
+        fmt.words([
+            id,
+            1,
+        ]);
+        Ok(())
+    }
+
+    #[inline]
+    pub fn send_send_event_x(
+        &self,
+    ) {
+        let res = self.try_send_send_event_x(
+        );
+        if let Err(e) = res {
+            log_send("wlproxy_test_server_sent.send_event_x", &e);
+        }
+    }
+
+    /// Since when the event_x message is available.
+    pub const MSG__EVENT_X__SINCE: u32 = 1;
+
+    #[inline]
+    pub fn try_send_event_x(
+        &self,
+    ) -> Result<(), ObjectError> {
+        let core = self.core();
+        let client_ref = core.client.borrow();
+        let Some(client) = &*client_ref else {
+            return Err(ObjectError(ObjectErrorKind::ReceiverNoClient));
+        };
+        let id = core.client_obj_id.get().unwrap_or(0);
+        #[cfg(feature = "logging")]
+        if self.core.state.log {
+            #[cold]
+            fn log(state: &State, client_id: u64, id: u32) {
+                let (millis, micros) = time_since_epoch();
+                let prefix = &state.log_prefix;
+                let args = format_args!("[{millis:7}.{micros:03}] {prefix}client#{:<4} <= wlproxy_test_server_sent#{}.event_x()\n", client_id, id);
+                state.log(args);
+            }
+            log(&self.core.state, client.endpoint.id, id);
+        }
+        let endpoint = &client.endpoint;
+        if !endpoint.flush_queued.replace(true) {
+            self.core.state.add_flushable_endpoint(endpoint, Some(client));
+        }
+        let mut outgoing_ref = endpoint.outgoing.borrow_mut();
+        let outgoing = &mut *outgoing_ref;
+        let mut fmt = outgoing.formatter();
+        fmt.words([
+            id,
+            1,
+        ]);
+        Ok(())
+    }
+
+    #[inline]
+    pub fn send_event_x(
+        &self,
+    ) {
+        let res = self.try_send_event_x(
+        );
+        if let Err(e) = res {
+            log_send("wlproxy_test_server_sent.event_x", &e);
+        }
+    }
+
+    /// Since when the destroy message is available.
+    pub const MSG__DESTROY__SINCE: u32 = 1;
+
+    #[inline]
+    pub fn try_send_destroy(
+        &self,
+    ) -> Result<(), ObjectError> {
+        let core = self.core();
+        let Some(id) = core.server_obj_id.get() else {
+            return Err(ObjectError(ObjectErrorKind::ReceiverNoServerId));
+        };
+        #[cfg(feature = "logging")]
+        if self.core.state.log {
+            #[cold]
+            fn log(state: &State, id: u32) {
+                let (millis, micros) = time_since_epoch();
+                let prefix = &state.log_prefix;
+                let args = format_args!("[{millis:7}.{micros:03}] {prefix}server      <= wlproxy_test_server_sent#{}.destroy()\n", id);
+                state.log(args);
+            }
+            log(&self.core.state, id);
+        }
+        let Some(endpoint) = &self.core.state.server else {
+            return Ok(());
+        };
+        if !endpoint.flush_queued.replace(true) {
+            self.core.state.add_flushable_endpoint(endpoint, None);
+        }
+        let mut outgoing_ref = endpoint.outgoing.borrow_mut();
+        let outgoing = &mut *outgoing_ref;
+        let mut fmt = outgoing.formatter();
+        fmt.words([
+            id,
+            2,
+        ]);
+        self.core.handle_server_destroy();
+        Ok(())
+    }
+
+    #[inline]
+    pub fn send_destroy(
+        &self,
+    ) {
+        let res = self.try_send_destroy(
+        );
+        if let Err(e) = res {
+            log_send("wlproxy_test_server_sent.destroy", &e);
+        }
+    }
 }
 
 /// A message handler for [`WlproxyTestServerSent`] proxies.
@@ -181,10 +329,61 @@ pub trait WlproxyTestServerSentHandler: Any {
         if !slf.core.forward_to_client.get() {
             return;
         }
+        if slf.core.zombie.get() {
+            return;
+        }
         let res = slf.try_send_destroyed(
         );
         if let Err(e) = res {
             log_forward("wlproxy_test_server_sent.destroyed", &e);
+        }
+    }
+
+    #[inline]
+    fn handle_send_event_x(
+        &mut self,
+        slf: &Rc<WlproxyTestServerSent>,
+    ) {
+        if !slf.core.forward_to_server.get() {
+            return;
+        }
+        let res = slf.try_send_send_event_x(
+        );
+        if let Err(e) = res {
+            log_forward("wlproxy_test_server_sent.send_event_x", &e);
+        }
+    }
+
+    #[inline]
+    fn handle_event_x(
+        &mut self,
+        slf: &Rc<WlproxyTestServerSent>,
+    ) {
+        if !slf.core.forward_to_client.get() {
+            return;
+        }
+        if slf.core.zombie.get() {
+            return;
+        }
+        let res = slf.try_send_event_x(
+        );
+        if let Err(e) = res {
+            log_forward("wlproxy_test_server_sent.event_x", &e);
+        }
+    }
+
+    #[inline]
+    fn handle_destroy(
+        &mut self,
+        slf: &Rc<WlproxyTestServerSent>,
+    ) {
+        if !slf.core.forward_to_server.get() {
+            return;
+        }
+        let res = slf.try_send_destroy(
+        );
+        if let Err(e) = res {
+            log_forward("wlproxy_test_server_sent.destroy", &e);
         }
     }
 }
@@ -236,6 +435,49 @@ impl ObjectPrivate for WlproxyTestServerSent {
                     DefaultHandler.handle_send_destroy(&self);
                 }
             }
+            1 => {
+                if msg.len() != 2 {
+                    return Err(ObjectError(ObjectErrorKind::WrongMessageSize(msg.len() as u32 * 4, 8)));
+                }
+                #[cfg(feature = "logging")]
+                if self.core.state.log {
+                    #[cold]
+                    fn log(state: &State, client_id: u64, id: u32) {
+                        let (millis, micros) = time_since_epoch();
+                        let prefix = &state.log_prefix;
+                        let args = format_args!("[{millis:7}.{micros:03}] {prefix}client#{:<4} -> wlproxy_test_server_sent#{}.send_event_x()\n", client_id, id);
+                        state.log(args);
+                    }
+                    log(&self.core.state, client.endpoint.id, msg[0]);
+                }
+                if let Some(handler) = handler {
+                    (**handler).handle_send_event_x(&self);
+                } else {
+                    DefaultHandler.handle_send_event_x(&self);
+                }
+            }
+            2 => {
+                if msg.len() != 2 {
+                    return Err(ObjectError(ObjectErrorKind::WrongMessageSize(msg.len() as u32 * 4, 8)));
+                }
+                #[cfg(feature = "logging")]
+                if self.core.state.log {
+                    #[cold]
+                    fn log(state: &State, client_id: u64, id: u32) {
+                        let (millis, micros) = time_since_epoch();
+                        let prefix = &state.log_prefix;
+                        let args = format_args!("[{millis:7}.{micros:03}] {prefix}client#{:<4} -> wlproxy_test_server_sent#{}.destroy()\n", client_id, id);
+                        state.log(args);
+                    }
+                    log(&self.core.state, client.endpoint.id, msg[0]);
+                }
+                self.core.handle_client_destroy();
+                if let Some(handler) = handler {
+                    (**handler).handle_destroy(&self);
+                } else {
+                    DefaultHandler.handle_destroy(&self);
+                }
+            }
             n => {
                 let _ = client;
                 let _ = msg;
@@ -275,6 +517,27 @@ impl ObjectPrivate for WlproxyTestServerSent {
                     DefaultHandler.handle_destroyed(&self);
                 }
             }
+            1 => {
+                if msg.len() != 2 {
+                    return Err(ObjectError(ObjectErrorKind::WrongMessageSize(msg.len() as u32 * 4, 8)));
+                }
+                #[cfg(feature = "logging")]
+                if self.core.state.log {
+                    #[cold]
+                    fn log(state: &State, id: u32) {
+                        let (millis, micros) = time_since_epoch();
+                        let prefix = &state.log_prefix;
+                        let args = format_args!("[{millis:7}.{micros:03}] {prefix}server      -> wlproxy_test_server_sent#{}.event_x()\n", id);
+                        state.log(args);
+                    }
+                    log(&self.core.state, msg[0]);
+                }
+                if let Some(handler) = handler {
+                    (**handler).handle_event_x(&self);
+                } else {
+                    DefaultHandler.handle_event_x(&self);
+                }
+            }
             n => {
                 let _ = server;
                 let _ = msg;
@@ -289,6 +552,8 @@ impl ObjectPrivate for WlproxyTestServerSent {
     fn get_request_name(&self, id: u32) -> Option<&'static str> {
         let name = match id {
             0 => "send_destroy",
+            1 => "send_event_x",
+            2 => "destroy",
             _ => return None,
         };
         Some(name)
@@ -297,6 +562,7 @@ impl ObjectPrivate for WlproxyTestServerSent {
     fn get_event_name(&self, id: u32) -> Option<&'static str> {
         let name = match id {
             0 => "destroyed",
+            1 => "event_x",
             _ => return None,
         };
         Some(name)

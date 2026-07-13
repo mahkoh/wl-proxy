@@ -1793,6 +1793,9 @@ pub trait WlPointerHandler: Any {
         if !slf.core.forward_to_client.get() {
             return;
         }
+        if slf.core.zombie.get() {
+            return;
+        }
         if let Some(client_id) = slf.core.client_id.get() {
             if let Some(client_id_2) = surface.core().client_id.get() {
                 if client_id != client_id_2 {
@@ -1836,6 +1839,9 @@ pub trait WlPointerHandler: Any {
         if !slf.core.forward_to_client.get() {
             return;
         }
+        if slf.core.zombie.get() {
+            return;
+        }
         if let Some(client_id) = slf.core.client_id.get() {
             if let Some(client_id_2) = surface.core().client_id.get() {
                 if client_id != client_id_2 {
@@ -1872,6 +1878,9 @@ pub trait WlPointerHandler: Any {
         surface_y: Fixed,
     ) {
         if !slf.core.forward_to_client.get() {
+            return;
+        }
+        if slf.core.zombie.get() {
             return;
         }
         let res = slf.try_send_motion(
@@ -1919,6 +1928,9 @@ pub trait WlPointerHandler: Any {
         if !slf.core.forward_to_client.get() {
             return;
         }
+        if slf.core.zombie.get() {
+            return;
+        }
         let res = slf.try_send_button(
             serial,
             time,
@@ -1963,6 +1975,9 @@ pub trait WlPointerHandler: Any {
         value: Fixed,
     ) {
         if !slf.core.forward_to_client.get() {
+            return;
+        }
+        if slf.core.zombie.get() {
             return;
         }
         let res = slf.try_send_axis(
@@ -2041,6 +2056,9 @@ pub trait WlPointerHandler: Any {
         if !slf.core.forward_to_client.get() {
             return;
         }
+        if slf.core.zombie.get() {
+            return;
+        }
         let res = slf.try_send_frame(
         );
         if let Err(e) = res {
@@ -2088,6 +2106,9 @@ pub trait WlPointerHandler: Any {
         if !slf.core.forward_to_client.get() {
             return;
         }
+        if slf.core.zombie.get() {
+            return;
+        }
         let res = slf.try_send_axis_source(
             axis_source,
         );
@@ -2125,6 +2146,9 @@ pub trait WlPointerHandler: Any {
         axis: WlPointerAxis,
     ) {
         if !slf.core.forward_to_client.get() {
+            return;
+        }
+        if slf.core.zombie.get() {
             return;
         }
         let res = slf.try_send_axis_stop(
@@ -2183,6 +2207,9 @@ pub trait WlPointerHandler: Any {
         if !slf.core.forward_to_client.get() {
             return;
         }
+        if slf.core.zombie.get() {
+            return;
+        }
         let res = slf.try_send_axis_discrete(
             axis,
             discrete,
@@ -2228,6 +2255,9 @@ pub trait WlPointerHandler: Any {
         value120: i32,
     ) {
         if !slf.core.forward_to_client.get() {
+            return;
+        }
+        if slf.core.zombie.get() {
             return;
         }
         let res = slf.try_send_axis_value120(
@@ -2291,6 +2321,9 @@ pub trait WlPointerHandler: Any {
         if !slf.core.forward_to_client.get() {
             return;
         }
+        if slf.core.zombie.get() {
+            return;
+        }
         let res = slf.try_send_axis_relative_direction(
             axis,
             direction,
@@ -2328,6 +2361,9 @@ pub trait WlPointerHandler: Any {
         surface_y: Fixed,
     ) {
         if !slf.core.forward_to_client.get() {
+            return;
+        }
+        if slf.core.zombie.get() {
             return;
         }
         let res = slf.try_send_warp(

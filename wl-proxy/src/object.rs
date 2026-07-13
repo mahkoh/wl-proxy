@@ -373,6 +373,7 @@ pub struct ObjectCore {
     pub(crate) forward_to_client: Cell<bool>,
     pub(crate) forward_to_server: Cell<bool>,
     pub(crate) awaiting_delete_id: Cell<bool>,
+    pub(crate) zombie: Cell<bool>,
     pub(crate) server_obj_id: Cell<Option<u32>>,
     pub(crate) client_obj_id: Cell<Option<u32>>,
     pub(crate) client_id: Cell<Option<u64>>,
@@ -425,6 +426,7 @@ impl ObjectCore {
             forward_to_client: Cell::new(state.forward_to_client.get()),
             forward_to_server: Cell::new(state.forward_to_server.get()),
             awaiting_delete_id: Default::default(),
+            zombie: Default::default(),
             server_obj_id: Default::default(),
             client_obj_id: Default::default(),
             client_id: Default::default(),
@@ -478,8 +480,12 @@ impl ObjectCore {
             Entry::Vacant(entry) => {
                 entry.insert(slf);
             }
-            Entry::Occupied(_) => {
-                return Err(IdError::ServerIdInUse(id));
+            Entry::Occupied(entry) => {
+                let entry = entry.into_mut();
+                if !entry.core().zombie.get() {
+                    return Err(IdError::ServerIdInUse(id));
+                }
+                *entry = slf;
             }
         };
         self.server_obj_id.set(Some(id));
@@ -556,15 +562,7 @@ impl ObjectCore {
         if id < MIN_SERVER_ID {
             return;
         }
-        self.server_obj_id.take();
-        let _object = self
-            .state
-            .server
-            .as_ref()
-            .unwrap()
-            .objects
-            .borrow_mut()
-            .remove(&id);
+        self.zombie.set(true);
     }
 }
 

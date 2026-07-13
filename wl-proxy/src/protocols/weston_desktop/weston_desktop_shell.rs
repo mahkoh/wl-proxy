@@ -939,6 +939,9 @@ pub trait WestonDesktopShellHandler: Any {
         if !slf.core.forward_to_client.get() {
             return;
         }
+        if slf.core.zombie.get() {
+            return;
+        }
         if let Some(client_id) = slf.core.client_id.get() {
             if let Some(client_id_2) = surface.core().client_id.get() {
                 if client_id != client_id_2 {
@@ -972,6 +975,9 @@ pub trait WestonDesktopShellHandler: Any {
         if !slf.core.forward_to_client.get() {
             return;
         }
+        if slf.core.zombie.get() {
+            return;
+        }
         let res = slf.try_send_prepare_lock_surface(
         );
         if let Err(e) = res {
@@ -994,6 +1000,9 @@ pub trait WestonDesktopShellHandler: Any {
         cursor: u32,
     ) {
         if !slf.core.forward_to_client.get() {
+            return;
+        }
+        if slf.core.zombie.get() {
             return;
         }
         let res = slf.try_send_grab_cursor(

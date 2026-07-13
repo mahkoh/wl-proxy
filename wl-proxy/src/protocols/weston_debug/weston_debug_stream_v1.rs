@@ -322,6 +322,9 @@ pub trait WestonDebugStreamV1Handler: Any {
         if !slf.core.forward_to_client.get() {
             return;
         }
+        if slf.core.zombie.get() {
+            return;
+        }
         let res = slf.try_send_complete(
         );
         if let Err(e) = res {
@@ -349,6 +352,9 @@ pub trait WestonDebugStreamV1Handler: Any {
         message: Option<&str>,
     ) {
         if !slf.core.forward_to_client.get() {
+            return;
+        }
+        if slf.core.zombie.get() {
             return;
         }
         let res = slf.try_send_failure(

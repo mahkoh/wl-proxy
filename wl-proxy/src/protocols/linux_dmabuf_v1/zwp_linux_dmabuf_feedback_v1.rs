@@ -857,6 +857,9 @@ pub trait ZwpLinuxDmabufFeedbackV1Handler: Any {
         if !slf.core.forward_to_client.get() {
             return;
         }
+        if slf.core.zombie.get() {
+            return;
+        }
         let res = slf.try_send_done(
         );
         if let Err(e) = res {
@@ -893,6 +896,9 @@ pub trait ZwpLinuxDmabufFeedbackV1Handler: Any {
         size: u32,
     ) {
         if !slf.core.forward_to_client.get() {
+            return;
+        }
+        if slf.core.zombie.get() {
             return;
         }
         let res = slf.try_send_format_table(
@@ -945,6 +951,9 @@ pub trait ZwpLinuxDmabufFeedbackV1Handler: Any {
         if !slf.core.forward_to_client.get() {
             return;
         }
+        if slf.core.zombie.get() {
+            return;
+        }
         let res = slf.try_send_main_device(
             device,
         );
@@ -965,6 +974,9 @@ pub trait ZwpLinuxDmabufFeedbackV1Handler: Any {
         slf: &Rc<ZwpLinuxDmabufFeedbackV1>,
     ) {
         if !slf.core.forward_to_client.get() {
+            return;
+        }
+        if slf.core.zombie.get() {
             return;
         }
         let res = slf.try_send_tranche_done(
@@ -1015,6 +1027,9 @@ pub trait ZwpLinuxDmabufFeedbackV1Handler: Any {
         if !slf.core.forward_to_client.get() {
             return;
         }
+        if slf.core.zombie.get() {
+            return;
+        }
         let res = slf.try_send_tranche_target_device(
             device,
         );
@@ -1062,6 +1077,9 @@ pub trait ZwpLinuxDmabufFeedbackV1Handler: Any {
         if !slf.core.forward_to_client.get() {
             return;
         }
+        if slf.core.zombie.get() {
+            return;
+        }
         let res = slf.try_send_tranche_formats(
             indices,
         );
@@ -1087,6 +1105,9 @@ pub trait ZwpLinuxDmabufFeedbackV1Handler: Any {
         flags: ZwpLinuxDmabufFeedbackV1TrancheFlags,
     ) {
         if !slf.core.forward_to_client.get() {
+            return;
+        }
+        if slf.core.zombie.get() {
             return;
         }
         let res = slf.try_send_tranche_flags(

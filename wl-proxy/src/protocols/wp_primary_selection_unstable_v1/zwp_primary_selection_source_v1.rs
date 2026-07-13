@@ -396,6 +396,9 @@ pub trait ZwpPrimarySelectionSourceV1Handler: Any {
         if !slf.core.forward_to_client.get() {
             return;
         }
+        if slf.core.zombie.get() {
+            return;
+        }
         let res = slf.try_send_send(
             mime_type,
             fd,
@@ -415,6 +418,9 @@ pub trait ZwpPrimarySelectionSourceV1Handler: Any {
         slf: &Rc<ZwpPrimarySelectionSourceV1>,
     ) {
         if !slf.core.forward_to_client.get() {
+            return;
+        }
+        if slf.core.zombie.get() {
             return;
         }
         let res = slf.try_send_cancelled(

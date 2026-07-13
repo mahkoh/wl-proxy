@@ -831,6 +831,9 @@ pub trait XdgPopupHandler: Any {
         if !slf.core.forward_to_client.get() {
             return;
         }
+        if slf.core.zombie.get() {
+            return;
+        }
         let res = slf.try_send_configure(
             x,
             y,
@@ -853,6 +856,9 @@ pub trait XdgPopupHandler: Any {
         slf: &Rc<XdgPopup>,
     ) {
         if !slf.core.forward_to_client.get() {
+            return;
+        }
+        if slf.core.zombie.get() {
             return;
         }
         let res = slf.try_send_popup_done(
@@ -942,6 +948,9 @@ pub trait XdgPopupHandler: Any {
         token: u32,
     ) {
         if !slf.core.forward_to_client.get() {
+            return;
+        }
+        if slf.core.zombie.get() {
             return;
         }
         let res = slf.try_send_repositioned(

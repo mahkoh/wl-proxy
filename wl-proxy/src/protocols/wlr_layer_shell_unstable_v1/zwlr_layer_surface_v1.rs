@@ -1511,6 +1511,9 @@ pub trait ZwlrLayerSurfaceV1Handler: Any {
         if !slf.core.forward_to_client.get() {
             return;
         }
+        if slf.core.zombie.get() {
+            return;
+        }
         let res = slf.try_send_configure(
             serial,
             width,
@@ -1534,6 +1537,9 @@ pub trait ZwlrLayerSurfaceV1Handler: Any {
         slf: &Rc<ZwlrLayerSurfaceV1>,
     ) {
         if !slf.core.forward_to_client.get() {
+            return;
+        }
+        if slf.core.zombie.get() {
             return;
         }
         let res = slf.try_send_closed(

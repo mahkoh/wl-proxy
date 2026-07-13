@@ -681,6 +681,9 @@ pub trait ExtSessionLockV1Handler: Any {
         if !slf.core.forward_to_client.get() {
             return;
         }
+        if slf.core.zombie.get() {
+            return;
+        }
         let res = slf.try_send_locked(
         );
         if let Err(e) = res {
@@ -718,6 +721,9 @@ pub trait ExtSessionLockV1Handler: Any {
         slf: &Rc<ExtSessionLockV1>,
     ) {
         if !slf.core.forward_to_client.get() {
+            return;
+        }
+        if slf.core.zombie.get() {
             return;
         }
         let res = slf.try_send_finished(

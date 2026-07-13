@@ -572,6 +572,9 @@ pub trait ZcosmicOverlapNotificationV1Handler: Any {
         if !slf.core.forward_to_client.get() {
             return;
         }
+        if slf.core.zombie.get() {
+            return;
+        }
         if let Some(client_id) = slf.core.client_id.get() {
             if let Some(client_id_2) = toplevel.core().client_id.get() {
                 if client_id != client_id_2 {
@@ -611,6 +614,9 @@ pub trait ZcosmicOverlapNotificationV1Handler: Any {
         toplevel: &Rc<ExtForeignToplevelHandleV1>,
     ) {
         if !slf.core.forward_to_client.get() {
+            return;
+        }
+        if slf.core.zombie.get() {
             return;
         }
         if let Some(client_id) = slf.core.client_id.get() {
@@ -665,6 +671,9 @@ pub trait ZcosmicOverlapNotificationV1Handler: Any {
         if !slf.core.forward_to_client.get() {
             return;
         }
+        if slf.core.zombie.get() {
+            return;
+        }
         let res = slf.try_send_layer_enter(
             identifier,
             namespace,
@@ -694,6 +703,9 @@ pub trait ZcosmicOverlapNotificationV1Handler: Any {
         identifier: &str,
     ) {
         if !slf.core.forward_to_client.get() {
+            return;
+        }
+        if slf.core.zombie.get() {
             return;
         }
         let res = slf.try_send_layer_leave(

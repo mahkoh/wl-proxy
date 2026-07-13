@@ -2422,6 +2422,9 @@ pub trait ZwpTextInputV3Handler: Any {
         if !slf.core.forward_to_client.get() {
             return;
         }
+        if slf.core.zombie.get() {
+            return;
+        }
         if let Some(client_id) = slf.core.client_id.get() {
             if let Some(client_id_2) = surface.core().client_id.get() {
                 if client_id != client_id_2 {
@@ -2464,6 +2467,9 @@ pub trait ZwpTextInputV3Handler: Any {
         surface: &Rc<WlSurface>,
     ) {
         if !slf.core.forward_to_client.get() {
+            return;
+        }
+        if slf.core.zombie.get() {
             return;
         }
         if let Some(client_id) = slf.core.client_id.get() {
@@ -2518,6 +2524,9 @@ pub trait ZwpTextInputV3Handler: Any {
         if !slf.core.forward_to_client.get() {
             return;
         }
+        if slf.core.zombie.get() {
+            return;
+        }
         let res = slf.try_send_preedit_string(
             text,
             cursor_begin,
@@ -2549,6 +2558,9 @@ pub trait ZwpTextInputV3Handler: Any {
         text: Option<&str>,
     ) {
         if !slf.core.forward_to_client.get() {
+            return;
+        }
+        if slf.core.zombie.get() {
             return;
         }
         let res = slf.try_send_commit_string(
@@ -2588,6 +2600,9 @@ pub trait ZwpTextInputV3Handler: Any {
         after_length: u32,
     ) {
         if !slf.core.forward_to_client.get() {
+            return;
+        }
+        if slf.core.zombie.get() {
             return;
         }
         let res = slf.try_send_delete_surrounding_text(
@@ -2644,6 +2659,9 @@ pub trait ZwpTextInputV3Handler: Any {
         if !slf.core.forward_to_client.get() {
             return;
         }
+        if slf.core.zombie.get() {
+            return;
+        }
         let res = slf.try_send_done(
             serial,
         );
@@ -2675,6 +2693,9 @@ pub trait ZwpTextInputV3Handler: Any {
         if !slf.core.forward_to_client.get() {
             return;
         }
+        if slf.core.zombie.get() {
+            return;
+        }
         let res = slf.try_send_action(
             action,
             serial,
@@ -2703,6 +2724,9 @@ pub trait ZwpTextInputV3Handler: Any {
         language: &str,
     ) {
         if !slf.core.forward_to_client.get() {
+            return;
+        }
+        if slf.core.zombie.get() {
             return;
         }
         let res = slf.try_send_language(
@@ -2828,6 +2852,9 @@ pub trait ZwpTextInputV3Handler: Any {
         hint: ZwpTextInputV3PreeditHint,
     ) {
         if !slf.core.forward_to_client.get() {
+            return;
+        }
+        if slf.core.zombie.get() {
             return;
         }
         let res = slf.try_send_preedit_hint(

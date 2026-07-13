@@ -1113,6 +1113,9 @@ pub trait WlDrmHandler: Any {
         if !slf.core.forward_to_client.get() {
             return;
         }
+        if slf.core.zombie.get() {
+            return;
+        }
         let res = slf.try_send_device(
             name,
         );
@@ -1133,6 +1136,9 @@ pub trait WlDrmHandler: Any {
         if !slf.core.forward_to_client.get() {
             return;
         }
+        if slf.core.zombie.get() {
+            return;
+        }
         let res = slf.try_send_format(
             format,
         );
@@ -1147,6 +1153,9 @@ pub trait WlDrmHandler: Any {
         slf: &Rc<WlDrm>,
     ) {
         if !slf.core.forward_to_client.get() {
+            return;
+        }
+        if slf.core.zombie.get() {
             return;
         }
         let res = slf.try_send_authenticated(
@@ -1166,6 +1175,9 @@ pub trait WlDrmHandler: Any {
         value: u32,
     ) {
         if !slf.core.forward_to_client.get() {
+            return;
+        }
+        if slf.core.zombie.get() {
             return;
         }
         let res = slf.try_send_capabilities(

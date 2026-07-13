@@ -2040,6 +2040,9 @@ pub trait ZwpTabletToolV2Handler: Any {
         if !slf.core.forward_to_client.get() {
             return;
         }
+        if slf.core.zombie.get() {
+            return;
+        }
         let res = slf.try_send_type(
             tool_type,
         );
@@ -2080,6 +2083,9 @@ pub trait ZwpTabletToolV2Handler: Any {
         if !slf.core.forward_to_client.get() {
             return;
         }
+        if slf.core.zombie.get() {
+            return;
+        }
         let res = slf.try_send_hardware_serial(
             hardware_serial_hi,
             hardware_serial_lo,
@@ -2116,6 +2122,9 @@ pub trait ZwpTabletToolV2Handler: Any {
         if !slf.core.forward_to_client.get() {
             return;
         }
+        if slf.core.zombie.get() {
+            return;
+        }
         let res = slf.try_send_hardware_id_wacom(
             hardware_id_hi,
             hardware_id_lo,
@@ -2147,6 +2156,9 @@ pub trait ZwpTabletToolV2Handler: Any {
         if !slf.core.forward_to_client.get() {
             return;
         }
+        if slf.core.zombie.get() {
+            return;
+        }
         let res = slf.try_send_capability(
             capability,
         );
@@ -2166,6 +2178,9 @@ pub trait ZwpTabletToolV2Handler: Any {
         slf: &Rc<ZwpTabletToolV2>,
     ) {
         if !slf.core.forward_to_client.get() {
+            return;
+        }
+        if slf.core.zombie.get() {
             return;
         }
         let res = slf.try_send_done(
@@ -2197,6 +2212,9 @@ pub trait ZwpTabletToolV2Handler: Any {
         slf: &Rc<ZwpTabletToolV2>,
     ) {
         if !slf.core.forward_to_client.get() {
+            return;
+        }
+        if slf.core.zombie.get() {
             return;
         }
         let res = slf.try_send_removed(
@@ -2235,6 +2253,9 @@ pub trait ZwpTabletToolV2Handler: Any {
         surface: &Rc<WlSurface>,
     ) {
         if !slf.core.forward_to_client.get() {
+            return;
+        }
+        if slf.core.zombie.get() {
             return;
         }
         if let Some(client_id) = slf.core.client_id.get() {
@@ -2281,6 +2302,9 @@ pub trait ZwpTabletToolV2Handler: Any {
         if !slf.core.forward_to_client.get() {
             return;
         }
+        if slf.core.zombie.get() {
+            return;
+        }
         let res = slf.try_send_proximity_out(
         );
         if let Err(e) = res {
@@ -2313,6 +2337,9 @@ pub trait ZwpTabletToolV2Handler: Any {
         serial: u32,
     ) {
         if !slf.core.forward_to_client.get() {
+            return;
+        }
+        if slf.core.zombie.get() {
             return;
         }
         let res = slf.try_send_down(
@@ -2349,6 +2376,9 @@ pub trait ZwpTabletToolV2Handler: Any {
         if !slf.core.forward_to_client.get() {
             return;
         }
+        if slf.core.zombie.get() {
+            return;
+        }
         let res = slf.try_send_up(
         );
         if let Err(e) = res {
@@ -2372,6 +2402,9 @@ pub trait ZwpTabletToolV2Handler: Any {
         y: Fixed,
     ) {
         if !slf.core.forward_to_client.get() {
+            return;
+        }
+        if slf.core.zombie.get() {
             return;
         }
         let res = slf.try_send_motion(
@@ -2403,6 +2436,9 @@ pub trait ZwpTabletToolV2Handler: Any {
         if !slf.core.forward_to_client.get() {
             return;
         }
+        if slf.core.zombie.get() {
+            return;
+        }
         let res = slf.try_send_pressure(
             pressure,
         );
@@ -2429,6 +2465,9 @@ pub trait ZwpTabletToolV2Handler: Any {
         distance: u32,
     ) {
         if !slf.core.forward_to_client.get() {
+            return;
+        }
+        if slf.core.zombie.get() {
             return;
         }
         let res = slf.try_send_distance(
@@ -2460,6 +2499,9 @@ pub trait ZwpTabletToolV2Handler: Any {
         if !slf.core.forward_to_client.get() {
             return;
         }
+        if slf.core.zombie.get() {
+            return;
+        }
         let res = slf.try_send_tilt(
             tilt_x,
             tilt_y,
@@ -2485,6 +2527,9 @@ pub trait ZwpTabletToolV2Handler: Any {
         degrees: Fixed,
     ) {
         if !slf.core.forward_to_client.get() {
+            return;
+        }
+        if slf.core.zombie.get() {
             return;
         }
         let res = slf.try_send_rotation(
@@ -2513,6 +2558,9 @@ pub trait ZwpTabletToolV2Handler: Any {
         position: i32,
     ) {
         if !slf.core.forward_to_client.get() {
+            return;
+        }
+        if slf.core.zombie.get() {
             return;
         }
         let res = slf.try_send_slider(
@@ -2552,6 +2600,9 @@ pub trait ZwpTabletToolV2Handler: Any {
         if !slf.core.forward_to_client.get() {
             return;
         }
+        if slf.core.zombie.get() {
+            return;
+        }
         let res = slf.try_send_wheel(
             degrees,
             clicks,
@@ -2586,6 +2637,9 @@ pub trait ZwpTabletToolV2Handler: Any {
         if !slf.core.forward_to_client.get() {
             return;
         }
+        if slf.core.zombie.get() {
+            return;
+        }
         let res = slf.try_send_button(
             serial,
             button,
@@ -2613,6 +2667,9 @@ pub trait ZwpTabletToolV2Handler: Any {
         time: u32,
     ) {
         if !slf.core.forward_to_client.get() {
+            return;
+        }
+        if slf.core.zombie.get() {
             return;
         }
         let res = slf.try_send_frame(

@@ -929,6 +929,9 @@ pub trait ZwlrScreencopyFrameV1Handler: Any {
         if !slf.core.forward_to_client.get() {
             return;
         }
+        if slf.core.zombie.get() {
+            return;
+        }
         let res = slf.try_send_buffer(
             format,
             width,
@@ -990,6 +993,9 @@ pub trait ZwlrScreencopyFrameV1Handler: Any {
         if !slf.core.forward_to_client.get() {
             return;
         }
+        if slf.core.zombie.get() {
+            return;
+        }
         let res = slf.try_send_flags(
             flags,
         );
@@ -1028,6 +1034,9 @@ pub trait ZwlrScreencopyFrameV1Handler: Any {
         if !slf.core.forward_to_client.get() {
             return;
         }
+        if slf.core.zombie.get() {
+            return;
+        }
         let res = slf.try_send_ready(
             tv_sec_hi,
             tv_sec_lo,
@@ -1049,6 +1058,9 @@ pub trait ZwlrScreencopyFrameV1Handler: Any {
         slf: &Rc<ZwlrScreencopyFrameV1>,
     ) {
         if !slf.core.forward_to_client.get() {
+            return;
+        }
+        if slf.core.zombie.get() {
             return;
         }
         let res = slf.try_send_failed(
@@ -1134,6 +1146,9 @@ pub trait ZwlrScreencopyFrameV1Handler: Any {
         if !slf.core.forward_to_client.get() {
             return;
         }
+        if slf.core.zombie.get() {
+            return;
+        }
         let res = slf.try_send_damage(
             x,
             y,
@@ -1167,6 +1182,9 @@ pub trait ZwlrScreencopyFrameV1Handler: Any {
         if !slf.core.forward_to_client.get() {
             return;
         }
+        if slf.core.zombie.get() {
+            return;
+        }
         let res = slf.try_send_linux_dmabuf(
             format,
             width,
@@ -1189,6 +1207,9 @@ pub trait ZwlrScreencopyFrameV1Handler: Any {
         slf: &Rc<ZwlrScreencopyFrameV1>,
     ) {
         if !slf.core.forward_to_client.get() {
+            return;
+        }
+        if slf.core.zombie.get() {
             return;
         }
         let res = slf.try_send_buffer_done(

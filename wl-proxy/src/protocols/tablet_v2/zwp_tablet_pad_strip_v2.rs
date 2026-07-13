@@ -673,6 +673,9 @@ pub trait ZwpTabletPadStripV2Handler: Any {
         if !slf.core.forward_to_client.get() {
             return;
         }
+        if slf.core.zombie.get() {
+            return;
+        }
         let res = slf.try_send_source(
             source,
         );
@@ -701,6 +704,9 @@ pub trait ZwpTabletPadStripV2Handler: Any {
         if !slf.core.forward_to_client.get() {
             return;
         }
+        if slf.core.zombie.get() {
+            return;
+        }
         let res = slf.try_send_position(
             position,
         );
@@ -727,6 +733,9 @@ pub trait ZwpTabletPadStripV2Handler: Any {
         slf: &Rc<ZwpTabletPadStripV2>,
     ) {
         if !slf.core.forward_to_client.get() {
+            return;
+        }
+        if slf.core.zombie.get() {
             return;
         }
         let res = slf.try_send_stop(
@@ -763,6 +772,9 @@ pub trait ZwpTabletPadStripV2Handler: Any {
         time: u32,
     ) {
         if !slf.core.forward_to_client.get() {
+            return;
+        }
+        if slf.core.zombie.get() {
             return;
         }
         let res = slf.try_send_frame(
