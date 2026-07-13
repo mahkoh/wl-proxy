@@ -846,6 +846,9 @@ pub trait JayTrayItemV1Handler: Any {
         if !slf.core.forward_to_client.get() {
             return;
         }
+        if slf.core.zombie.get() {
+            return;
+        }
         let res = slf.try_send_configure_size(
             width,
             height,
@@ -876,6 +879,9 @@ pub trait JayTrayItemV1Handler: Any {
         anchor: XdgPositionerAnchor,
     ) {
         if !slf.core.forward_to_client.get() {
+            return;
+        }
+        if slf.core.zombie.get() {
             return;
         }
         let res = slf.try_send_preferred_anchor(
@@ -909,6 +915,9 @@ pub trait JayTrayItemV1Handler: Any {
         if !slf.core.forward_to_client.get() {
             return;
         }
+        if slf.core.zombie.get() {
+            return;
+        }
         let res = slf.try_send_preferred_gravity(
             gravity,
         );
@@ -935,6 +944,9 @@ pub trait JayTrayItemV1Handler: Any {
         serial: u32,
     ) {
         if !slf.core.forward_to_client.get() {
+            return;
+        }
+        if slf.core.zombie.get() {
             return;
         }
         let res = slf.try_send_configure(

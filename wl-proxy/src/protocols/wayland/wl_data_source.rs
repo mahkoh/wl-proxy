@@ -869,6 +869,9 @@ pub trait WlDataSourceHandler: Any {
         if !slf.core.forward_to_client.get() {
             return;
         }
+        if slf.core.zombie.get() {
+            return;
+        }
         let res = slf.try_send_target(
             mime_type,
         );
@@ -895,6 +898,9 @@ pub trait WlDataSourceHandler: Any {
         fd: &Rc<OwnedFd>,
     ) {
         if !slf.core.forward_to_client.get() {
+            return;
+        }
+        if slf.core.zombie.get() {
             return;
         }
         let res = slf.try_send_send(
@@ -934,6 +940,9 @@ pub trait WlDataSourceHandler: Any {
         slf: &Rc<WlDataSource>,
     ) {
         if !slf.core.forward_to_client.get() {
+            return;
+        }
+        if slf.core.zombie.get() {
             return;
         }
         let res = slf.try_send_cancelled(
@@ -998,6 +1007,9 @@ pub trait WlDataSourceHandler: Any {
         if !slf.core.forward_to_client.get() {
             return;
         }
+        if slf.core.zombie.get() {
+            return;
+        }
         let res = slf.try_send_dnd_drop_performed(
         );
         if let Err(e) = res {
@@ -1019,6 +1031,9 @@ pub trait WlDataSourceHandler: Any {
         slf: &Rc<WlDataSource>,
     ) {
         if !slf.core.forward_to_client.get() {
+            return;
+        }
+        if slf.core.zombie.get() {
             return;
         }
         let res = slf.try_send_dnd_finished(
@@ -1066,6 +1081,9 @@ pub trait WlDataSourceHandler: Any {
         dnd_action: WlDataDeviceManagerDndAction,
     ) {
         if !slf.core.forward_to_client.get() {
+            return;
+        }
+        if slf.core.zombie.get() {
             return;
         }
         let res = slf.try_send_action(

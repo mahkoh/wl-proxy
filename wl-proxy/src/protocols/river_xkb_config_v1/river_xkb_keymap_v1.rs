@@ -284,6 +284,9 @@ pub trait RiverXkbKeymapV1Handler: Any {
         if !slf.core.forward_to_client.get() {
             return;
         }
+        if slf.core.zombie.get() {
+            return;
+        }
         let res = slf.try_send_success(
         );
         if let Err(e) = res {
@@ -308,6 +311,9 @@ pub trait RiverXkbKeymapV1Handler: Any {
         error_msg: &str,
     ) {
         if !slf.core.forward_to_client.get() {
+            return;
+        }
+        if slf.core.zombie.get() {
             return;
         }
         let res = slf.try_send_failure(

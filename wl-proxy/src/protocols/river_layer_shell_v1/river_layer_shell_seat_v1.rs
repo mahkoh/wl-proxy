@@ -391,6 +391,9 @@ pub trait RiverLayerShellSeatV1Handler: Any {
         if !slf.core.forward_to_client.get() {
             return;
         }
+        if slf.core.zombie.get() {
+            return;
+        }
         let res = slf.try_send_focus_exclusive(
         );
         if let Err(e) = res {
@@ -424,6 +427,9 @@ pub trait RiverLayerShellSeatV1Handler: Any {
         if !slf.core.forward_to_client.get() {
             return;
         }
+        if slf.core.zombie.get() {
+            return;
+        }
         let res = slf.try_send_focus_non_exclusive(
         );
         if let Err(e) = res {
@@ -445,6 +451,9 @@ pub trait RiverLayerShellSeatV1Handler: Any {
         slf: &Rc<RiverLayerShellSeatV1>,
     ) {
         if !slf.core.forward_to_client.get() {
+            return;
+        }
+        if slf.core.zombie.get() {
             return;
         }
         let res = slf.try_send_focus_none(

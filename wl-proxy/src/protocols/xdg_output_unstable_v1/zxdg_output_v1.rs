@@ -688,6 +688,9 @@ pub trait ZxdgOutputV1Handler: Any {
         if !slf.core.forward_to_client.get() {
             return;
         }
+        if slf.core.zombie.get() {
+            return;
+        }
         let res = slf.try_send_logical_position(
             x,
             y,
@@ -744,6 +747,9 @@ pub trait ZxdgOutputV1Handler: Any {
         if !slf.core.forward_to_client.get() {
             return;
         }
+        if slf.core.zombie.get() {
+            return;
+        }
         let res = slf.try_send_logical_size(
             width,
             height,
@@ -770,6 +776,9 @@ pub trait ZxdgOutputV1Handler: Any {
         slf: &Rc<ZxdgOutputV1>,
     ) {
         if !slf.core.forward_to_client.get() {
+            return;
+        }
+        if slf.core.zombie.get() {
             return;
         }
         let res = slf.try_send_done(
@@ -815,6 +824,9 @@ pub trait ZxdgOutputV1Handler: Any {
         if !slf.core.forward_to_client.get() {
             return;
         }
+        if slf.core.zombie.get() {
+            return;
+        }
         let res = slf.try_send_name(
             name,
         );
@@ -854,6 +866,9 @@ pub trait ZxdgOutputV1Handler: Any {
         description: &str,
     ) {
         if !slf.core.forward_to_client.get() {
+            return;
+        }
+        if slf.core.zombie.get() {
             return;
         }
         let res = slf.try_send_description(

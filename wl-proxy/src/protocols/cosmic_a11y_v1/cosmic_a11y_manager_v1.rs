@@ -647,6 +647,9 @@ pub trait CosmicA11yManagerV1Handler: Any {
         if !slf.core.forward_to_client.get() {
             return;
         }
+        if slf.core.zombie.get() {
+            return;
+        }
         let res = slf.try_send_magnifier(
             active,
         );
@@ -706,6 +709,9 @@ pub trait CosmicA11yManagerV1Handler: Any {
         filter: CosmicA11yManagerV1Filter,
     ) {
         if !slf.core.forward_to_client.get() {
+            return;
+        }
+        if slf.core.zombie.get() {
             return;
         }
         let res = slf.try_send_screen_filter(
@@ -780,6 +786,9 @@ pub trait CosmicA11yManagerV1Handler: Any {
         filter_state: CosmicA11yManagerV1ActiveState,
     ) {
         if !slf.core.forward_to_client.get() {
+            return;
+        }
+        if slf.core.zombie.get() {
             return;
         }
         let res = slf.try_send_screen_filter2(

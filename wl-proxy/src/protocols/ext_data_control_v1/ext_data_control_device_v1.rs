@@ -787,6 +787,9 @@ pub trait ExtDataControlDeviceV1Handler: Any {
         if !slf.core.forward_to_client.get() {
             return;
         }
+        if slf.core.zombie.get() {
+            return;
+        }
         let res = slf.try_send_data_offer(
             id,
         );
@@ -826,6 +829,9 @@ pub trait ExtDataControlDeviceV1Handler: Any {
         if !slf.core.forward_to_client.get() {
             return;
         }
+        if slf.core.zombie.get() {
+            return;
+        }
         if let Some(client_id) = slf.core.client_id.get() {
             if let Some(id) = id {
                 if let Some(client_id_2) = id.core().client_id.get() {
@@ -853,6 +859,9 @@ pub trait ExtDataControlDeviceV1Handler: Any {
         slf: &Rc<ExtDataControlDeviceV1>,
     ) {
         if !slf.core.forward_to_client.get() {
+            return;
+        }
+        if slf.core.zombie.get() {
             return;
         }
         let res = slf.try_send_finished(
@@ -893,6 +902,9 @@ pub trait ExtDataControlDeviceV1Handler: Any {
         id: Option<&Rc<ExtDataControlOfferV1>>,
     ) {
         if !slf.core.forward_to_client.get() {
+            return;
+        }
+        if slf.core.zombie.get() {
             return;
         }
         if let Some(client_id) = slf.core.client_id.get() {

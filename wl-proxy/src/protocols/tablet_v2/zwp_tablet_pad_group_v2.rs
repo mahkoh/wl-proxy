@@ -936,6 +936,9 @@ pub trait ZwpTabletPadGroupV2Handler: Any {
         if !slf.core.forward_to_client.get() {
             return;
         }
+        if slf.core.zombie.get() {
+            return;
+        }
         let res = slf.try_send_buttons(
             buttons,
         );
@@ -964,6 +967,9 @@ pub trait ZwpTabletPadGroupV2Handler: Any {
         if !slf.core.forward_to_client.get() {
             return;
         }
+        if slf.core.zombie.get() {
+            return;
+        }
         let res = slf.try_send_ring(
             ring,
         );
@@ -990,6 +996,9 @@ pub trait ZwpTabletPadGroupV2Handler: Any {
         strip: &Rc<ZwpTabletPadStripV2>,
     ) {
         if !slf.core.forward_to_client.get() {
+            return;
+        }
+        if slf.core.zombie.get() {
             return;
         }
         let res = slf.try_send_strip(
@@ -1027,6 +1036,9 @@ pub trait ZwpTabletPadGroupV2Handler: Any {
         if !slf.core.forward_to_client.get() {
             return;
         }
+        if slf.core.zombie.get() {
+            return;
+        }
         let res = slf.try_send_modes(
             modes,
         );
@@ -1047,6 +1059,9 @@ pub trait ZwpTabletPadGroupV2Handler: Any {
         slf: &Rc<ZwpTabletPadGroupV2>,
     ) {
         if !slf.core.forward_to_client.get() {
+            return;
+        }
+        if slf.core.zombie.get() {
             return;
         }
         let res = slf.try_send_done(
@@ -1102,6 +1117,9 @@ pub trait ZwpTabletPadGroupV2Handler: Any {
         if !slf.core.forward_to_client.get() {
             return;
         }
+        if slf.core.zombie.get() {
+            return;
+        }
         let res = slf.try_send_mode_switch(
             time,
             serial,
@@ -1130,6 +1148,9 @@ pub trait ZwpTabletPadGroupV2Handler: Any {
         dial: &Rc<ZwpTabletPadDialV2>,
     ) {
         if !slf.core.forward_to_client.get() {
+            return;
+        }
+        if slf.core.zombie.get() {
             return;
         }
         let res = slf.try_send_dial(

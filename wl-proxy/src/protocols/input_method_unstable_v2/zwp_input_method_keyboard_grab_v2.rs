@@ -532,6 +532,9 @@ pub trait ZwpInputMethodKeyboardGrabV2Handler: Any {
         if !slf.core.forward_to_client.get() {
             return;
         }
+        if slf.core.zombie.get() {
+            return;
+        }
         let res = slf.try_send_keymap(
             format,
             fd,
@@ -564,6 +567,9 @@ pub trait ZwpInputMethodKeyboardGrabV2Handler: Any {
         state: WlKeyboardKeyState,
     ) {
         if !slf.core.forward_to_client.get() {
+            return;
+        }
+        if slf.core.zombie.get() {
             return;
         }
         let res = slf.try_send_key(
@@ -600,6 +606,9 @@ pub trait ZwpInputMethodKeyboardGrabV2Handler: Any {
         group: u32,
     ) {
         if !slf.core.forward_to_client.get() {
+            return;
+        }
+        if slf.core.zombie.get() {
             return;
         }
         let res = slf.try_send_modifiers(
@@ -657,6 +666,9 @@ pub trait ZwpInputMethodKeyboardGrabV2Handler: Any {
         delay: i32,
     ) {
         if !slf.core.forward_to_client.get() {
+            return;
+        }
+        if slf.core.zombie.get() {
             return;
         }
         let res = slf.try_send_repeat_info(

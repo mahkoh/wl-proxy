@@ -356,6 +356,9 @@ pub trait ZwpRelativePointerV1Handler: Any {
         if !slf.core.forward_to_client.get() {
             return;
         }
+        if slf.core.zombie.get() {
+            return;
+        }
         let res = slf.try_send_relative_motion(
             utime_hi,
             utime_lo,

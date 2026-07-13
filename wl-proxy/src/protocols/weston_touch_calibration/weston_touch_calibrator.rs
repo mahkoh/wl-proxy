@@ -1092,6 +1092,9 @@ pub trait WestonTouchCalibratorHandler: Any {
         if !slf.core.forward_to_client.get() {
             return;
         }
+        if slf.core.zombie.get() {
+            return;
+        }
         let res = slf.try_send_configure(
             width,
             height,
@@ -1115,6 +1118,9 @@ pub trait WestonTouchCalibratorHandler: Any {
         slf: &Rc<WestonTouchCalibrator>,
     ) {
         if !slf.core.forward_to_client.get() {
+            return;
+        }
+        if slf.core.zombie.get() {
             return;
         }
         let res = slf.try_send_cancel_calibration(
@@ -1144,6 +1150,9 @@ pub trait WestonTouchCalibratorHandler: Any {
         slf: &Rc<WestonTouchCalibrator>,
     ) {
         if !slf.core.forward_to_client.get() {
+            return;
+        }
+        if slf.core.zombie.get() {
             return;
         }
         let res = slf.try_send_invalid_touch(
@@ -1180,6 +1189,9 @@ pub trait WestonTouchCalibratorHandler: Any {
         if !slf.core.forward_to_client.get() {
             return;
         }
+        if slf.core.zombie.get() {
+            return;
+        }
         let res = slf.try_send_down(
             time,
             id,
@@ -1209,6 +1221,9 @@ pub trait WestonTouchCalibratorHandler: Any {
         id: i32,
     ) {
         if !slf.core.forward_to_client.get() {
+            return;
+        }
+        if slf.core.zombie.get() {
             return;
         }
         let res = slf.try_send_up(
@@ -1244,6 +1259,9 @@ pub trait WestonTouchCalibratorHandler: Any {
         if !slf.core.forward_to_client.get() {
             return;
         }
+        if slf.core.zombie.get() {
+            return;
+        }
         let res = slf.try_send_motion(
             time,
             id,
@@ -1273,6 +1291,9 @@ pub trait WestonTouchCalibratorHandler: Any {
         if !slf.core.forward_to_client.get() {
             return;
         }
+        if slf.core.zombie.get() {
+            return;
+        }
         let res = slf.try_send_frame(
         );
         if let Err(e) = res {
@@ -1294,6 +1315,9 @@ pub trait WestonTouchCalibratorHandler: Any {
         slf: &Rc<WestonTouchCalibrator>,
     ) {
         if !slf.core.forward_to_client.get() {
+            return;
+        }
+        if slf.core.zombie.get() {
             return;
         }
         let res = slf.try_send_cancel(

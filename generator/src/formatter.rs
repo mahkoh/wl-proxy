@@ -588,6 +588,9 @@ fn format_interface_message_handler(w: &mut impl Write, interface: &Interface) -
             wl!(r#"        if !{slf}.core.forward_to_client.get() {{"#)?;
             wl!(r#"            return;"#)?;
             wl!(r#"        }}"#)?;
+            wl!(r#"        if {slf}.core.zombie.get() {{"#)?;
+            wl!(r#"            return;"#)?;
+            wl!(r#"        }}"#)?;
         }
         if !msg.is_request && msg.args.iter().any(|a| matches!(a.ty, ArgType::Object)) {
             wl!(r#"        if let Some(client_id) = {slf}.core.client_id.get() {{"#)?;

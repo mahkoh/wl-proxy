@@ -529,6 +529,9 @@ pub trait WpDrmLeaseConnectorV1Handler: Any {
         if !slf.core.forward_to_client.get() {
             return;
         }
+        if slf.core.zombie.get() {
+            return;
+        }
         let res = slf.try_send_name(
             name,
         );
@@ -554,6 +557,9 @@ pub trait WpDrmLeaseConnectorV1Handler: Any {
         description: &str,
     ) {
         if !slf.core.forward_to_client.get() {
+            return;
+        }
+        if slf.core.zombie.get() {
             return;
         }
         let res = slf.try_send_description(
@@ -583,6 +589,9 @@ pub trait WpDrmLeaseConnectorV1Handler: Any {
         if !slf.core.forward_to_client.get() {
             return;
         }
+        if slf.core.zombie.get() {
+            return;
+        }
         let res = slf.try_send_connector_id(
             connector_id,
         );
@@ -602,6 +611,9 @@ pub trait WpDrmLeaseConnectorV1Handler: Any {
         slf: &Rc<WpDrmLeaseConnectorV1>,
     ) {
         if !slf.core.forward_to_client.get() {
+            return;
+        }
+        if slf.core.zombie.get() {
             return;
         }
         let res = slf.try_send_done(
@@ -630,6 +642,9 @@ pub trait WpDrmLeaseConnectorV1Handler: Any {
         slf: &Rc<WpDrmLeaseConnectorV1>,
     ) {
         if !slf.core.forward_to_client.get() {
+            return;
+        }
+        if slf.core.zombie.get() {
             return;
         }
         let res = slf.try_send_withdrawn(

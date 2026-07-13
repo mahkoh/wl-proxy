@@ -622,6 +622,9 @@ pub trait ExtWorkspaceManagerV1Handler: Any {
         if !slf.core.forward_to_client.get() {
             return;
         }
+        if slf.core.zombie.get() {
+            return;
+        }
         let res = slf.try_send_workspace_group(
             workspace_group,
         );
@@ -650,6 +653,9 @@ pub trait ExtWorkspaceManagerV1Handler: Any {
         workspace: &Rc<ExtWorkspaceHandleV1>,
     ) {
         if !slf.core.forward_to_client.get() {
+            return;
+        }
+        if slf.core.zombie.get() {
             return;
         }
         let res = slf.try_send_workspace(
@@ -706,6 +712,9 @@ pub trait ExtWorkspaceManagerV1Handler: Any {
         if !slf.core.forward_to_client.get() {
             return;
         }
+        if slf.core.zombie.get() {
+            return;
+        }
         let res = slf.try_send_done(
         );
         if let Err(e) = res {
@@ -724,6 +733,9 @@ pub trait ExtWorkspaceManagerV1Handler: Any {
         slf: &Rc<ExtWorkspaceManagerV1>,
     ) {
         if !slf.core.forward_to_client.get() {
+            return;
+        }
+        if slf.core.zombie.get() {
             return;
         }
         let res = slf.try_send_finished(

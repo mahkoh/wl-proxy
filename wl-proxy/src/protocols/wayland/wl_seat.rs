@@ -782,6 +782,9 @@ pub trait WlSeatHandler: Any {
         if !slf.core.forward_to_client.get() {
             return;
         }
+        if slf.core.zombie.get() {
+            return;
+        }
         let res = slf.try_send_capabilities(
             capabilities,
         );
@@ -912,6 +915,9 @@ pub trait WlSeatHandler: Any {
         name: &str,
     ) {
         if !slf.core.forward_to_client.get() {
+            return;
+        }
+        if slf.core.zombie.get() {
             return;
         }
         let res = slf.try_send_name(

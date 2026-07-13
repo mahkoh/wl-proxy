@@ -698,6 +698,9 @@ pub trait WpDrmLeaseDeviceV1Handler: Any {
         if !slf.core.forward_to_client.get() {
             return;
         }
+        if slf.core.zombie.get() {
+            return;
+        }
         let res = slf.try_send_drm_fd(
             fd,
         );
@@ -731,6 +734,9 @@ pub trait WpDrmLeaseDeviceV1Handler: Any {
         if !slf.core.forward_to_client.get() {
             return;
         }
+        if slf.core.zombie.get() {
+            return;
+        }
         let res = slf.try_send_connector(
             id,
         );
@@ -755,6 +761,9 @@ pub trait WpDrmLeaseDeviceV1Handler: Any {
         if !slf.core.forward_to_client.get() {
             return;
         }
+        if slf.core.zombie.get() {
+            return;
+        }
         let res = slf.try_send_done(
         );
         if let Err(e) = res {
@@ -775,6 +784,9 @@ pub trait WpDrmLeaseDeviceV1Handler: Any {
         slf: &Rc<WpDrmLeaseDeviceV1>,
     ) {
         if !slf.core.forward_to_client.get() {
+            return;
+        }
+        if slf.core.zombie.get() {
             return;
         }
         let res = slf.try_send_released(

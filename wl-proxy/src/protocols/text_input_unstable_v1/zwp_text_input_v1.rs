@@ -2374,6 +2374,9 @@ pub trait ZwpTextInputV1Handler: Any {
         if !slf.core.forward_to_client.get() {
             return;
         }
+        if slf.core.zombie.get() {
+            return;
+        }
         if let Some(client_id) = slf.core.client_id.get() {
             if let Some(client_id_2) = surface.core().client_id.get() {
                 if client_id != client_id_2 {
@@ -2402,6 +2405,9 @@ pub trait ZwpTextInputV1Handler: Any {
         if !slf.core.forward_to_client.get() {
             return;
         }
+        if slf.core.zombie.get() {
+            return;
+        }
         let res = slf.try_send_leave(
         );
         if let Err(e) = res {
@@ -2427,6 +2433,9 @@ pub trait ZwpTextInputV1Handler: Any {
         if !slf.core.forward_to_client.get() {
             return;
         }
+        if slf.core.zombie.get() {
+            return;
+        }
         let res = slf.try_send_modifiers_map(
             map,
         );
@@ -2449,6 +2458,9 @@ pub trait ZwpTextInputV1Handler: Any {
         state: u32,
     ) {
         if !slf.core.forward_to_client.get() {
+            return;
+        }
+        if slf.core.zombie.get() {
             return;
         }
         let res = slf.try_send_input_panel_state(
@@ -2487,6 +2499,9 @@ pub trait ZwpTextInputV1Handler: Any {
         if !slf.core.forward_to_client.get() {
             return;
         }
+        if slf.core.zombie.get() {
+            return;
+        }
         let res = slf.try_send_preedit_string(
             serial,
             text,
@@ -2523,6 +2538,9 @@ pub trait ZwpTextInputV1Handler: Any {
         if !slf.core.forward_to_client.get() {
             return;
         }
+        if slf.core.zombie.get() {
+            return;
+        }
         let res = slf.try_send_preedit_styling(
             index,
             length,
@@ -2551,6 +2569,9 @@ pub trait ZwpTextInputV1Handler: Any {
         index: i32,
     ) {
         if !slf.core.forward_to_client.get() {
+            return;
+        }
+        if slf.core.zombie.get() {
             return;
         }
         let res = slf.try_send_preedit_cursor(
@@ -2585,6 +2606,9 @@ pub trait ZwpTextInputV1Handler: Any {
         if !slf.core.forward_to_client.get() {
             return;
         }
+        if slf.core.zombie.get() {
+            return;
+        }
         let res = slf.try_send_commit_string(
             serial,
             text,
@@ -2613,6 +2637,9 @@ pub trait ZwpTextInputV1Handler: Any {
         anchor: i32,
     ) {
         if !slf.core.forward_to_client.get() {
+            return;
+        }
+        if slf.core.zombie.get() {
             return;
         }
         let res = slf.try_send_cursor_position(
@@ -2647,6 +2674,9 @@ pub trait ZwpTextInputV1Handler: Any {
         length: u32,
     ) {
         if !slf.core.forward_to_client.get() {
+            return;
+        }
+        if slf.core.zombie.get() {
             return;
         }
         let res = slf.try_send_delete_surrounding_text(
@@ -2687,6 +2717,9 @@ pub trait ZwpTextInputV1Handler: Any {
         if !slf.core.forward_to_client.get() {
             return;
         }
+        if slf.core.zombie.get() {
+            return;
+        }
         let res = slf.try_send_keysym(
             serial,
             time,
@@ -2718,6 +2751,9 @@ pub trait ZwpTextInputV1Handler: Any {
         if !slf.core.forward_to_client.get() {
             return;
         }
+        if slf.core.zombie.get() {
+            return;
+        }
         let res = slf.try_send_language(
             serial,
             language,
@@ -2747,6 +2783,9 @@ pub trait ZwpTextInputV1Handler: Any {
         direction: ZwpTextInputV1TextDirection,
     ) {
         if !slf.core.forward_to_client.get() {
+            return;
+        }
+        if slf.core.zombie.get() {
             return;
         }
         let res = slf.try_send_text_direction(

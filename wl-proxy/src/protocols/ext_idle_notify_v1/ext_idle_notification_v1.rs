@@ -293,6 +293,9 @@ pub trait ExtIdleNotificationV1Handler: Any {
         if !slf.core.forward_to_client.get() {
             return;
         }
+        if slf.core.zombie.get() {
+            return;
+        }
         let res = slf.try_send_idled(
         );
         if let Err(e) = res {
@@ -313,6 +316,9 @@ pub trait ExtIdleNotificationV1Handler: Any {
         slf: &Rc<ExtIdleNotificationV1>,
     ) {
         if !slf.core.forward_to_client.get() {
+            return;
+        }
+        if slf.core.zombie.get() {
             return;
         }
         let res = slf.try_send_resumed(

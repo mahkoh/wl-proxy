@@ -533,6 +533,9 @@ pub trait ZwpTabletSeatV2Handler: Any {
         if !slf.core.forward_to_client.get() {
             return;
         }
+        if slf.core.zombie.get() {
+            return;
+        }
         let res = slf.try_send_tablet_added(
             id,
         );
@@ -558,6 +561,9 @@ pub trait ZwpTabletSeatV2Handler: Any {
         id: &Rc<ZwpTabletToolV2>,
     ) {
         if !slf.core.forward_to_client.get() {
+            return;
+        }
+        if slf.core.zombie.get() {
             return;
         }
         let res = slf.try_send_tool_added(
@@ -591,6 +597,9 @@ pub trait ZwpTabletSeatV2Handler: Any {
         id: &Rc<ZwpTabletPadV2>,
     ) {
         if !slf.core.forward_to_client.get() {
+            return;
+        }
+        if slf.core.zombie.get() {
             return;
         }
         let res = slf.try_send_pad_added(

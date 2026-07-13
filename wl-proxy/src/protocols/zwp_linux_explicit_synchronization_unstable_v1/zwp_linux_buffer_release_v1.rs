@@ -277,6 +277,9 @@ pub trait ZwpLinuxBufferReleaseV1Handler: Any {
         if !slf.core.forward_to_client.get() {
             return;
         }
+        if slf.core.zombie.get() {
+            return;
+        }
         let res = slf.try_send_fenced_release(
             fence,
         );
@@ -304,6 +307,9 @@ pub trait ZwpLinuxBufferReleaseV1Handler: Any {
         slf: &Rc<ZwpLinuxBufferReleaseV1>,
     ) {
         if !slf.core.forward_to_client.get() {
+            return;
+        }
+        if slf.core.zombie.get() {
             return;
         }
         let res = slf.try_send_immediate_release(

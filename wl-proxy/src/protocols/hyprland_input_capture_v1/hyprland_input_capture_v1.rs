@@ -864,6 +864,9 @@ pub trait HyprlandInputCaptureV1Handler: Any {
         if !slf.core.forward_to_client.get() {
             return;
         }
+        if slf.core.zombie.get() {
+            return;
+        }
         let res = slf.try_send_eis_fd(
             fd,
         );
@@ -881,6 +884,9 @@ pub trait HyprlandInputCaptureV1Handler: Any {
         slf: &Rc<HyprlandInputCaptureV1>,
     ) {
         if !slf.core.forward_to_client.get() {
+            return;
+        }
+        if slf.core.zombie.get() {
             return;
         }
         let res = slf.try_send_disabled(
@@ -912,6 +918,9 @@ pub trait HyprlandInputCaptureV1Handler: Any {
         if !slf.core.forward_to_client.get() {
             return;
         }
+        if slf.core.zombie.get() {
+            return;
+        }
         let res = slf.try_send_activated(
             activation_id,
             x,
@@ -937,6 +946,9 @@ pub trait HyprlandInputCaptureV1Handler: Any {
         activation_id: u32,
     ) {
         if !slf.core.forward_to_client.get() {
+            return;
+        }
+        if slf.core.zombie.get() {
             return;
         }
         let res = slf.try_send_deactivated(

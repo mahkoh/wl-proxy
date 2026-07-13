@@ -860,6 +860,9 @@ pub trait WlTouchHandler: Any {
         if !slf.core.forward_to_client.get() {
             return;
         }
+        if slf.core.zombie.get() {
+            return;
+        }
         if let Some(client_id) = slf.core.client_id.get() {
             if let Some(client_id_2) = surface.core().client_id.get() {
                 if client_id != client_id_2 {
@@ -902,6 +905,9 @@ pub trait WlTouchHandler: Any {
         if !slf.core.forward_to_client.get() {
             return;
         }
+        if slf.core.zombie.get() {
+            return;
+        }
         let res = slf.try_send_up(
             serial,
             time,
@@ -934,6 +940,9 @@ pub trait WlTouchHandler: Any {
         if !slf.core.forward_to_client.get() {
             return;
         }
+        if slf.core.zombie.get() {
+            return;
+        }
         let res = slf.try_send_motion(
             time,
             id,
@@ -963,6 +972,9 @@ pub trait WlTouchHandler: Any {
         if !slf.core.forward_to_client.get() {
             return;
         }
+        if slf.core.zombie.get() {
+            return;
+        }
         let res = slf.try_send_frame(
         );
         if let Err(e) = res {
@@ -986,6 +998,9 @@ pub trait WlTouchHandler: Any {
         slf: &Rc<WlTouch>,
     ) {
         if !slf.core.forward_to_client.get() {
+            return;
+        }
+        if slf.core.zombie.get() {
             return;
         }
         let res = slf.try_send_cancel(
@@ -1055,6 +1070,9 @@ pub trait WlTouchHandler: Any {
         if !slf.core.forward_to_client.get() {
             return;
         }
+        if slf.core.zombie.get() {
+            return;
+        }
         let res = slf.try_send_shape(
             id,
             major,
@@ -1103,6 +1121,9 @@ pub trait WlTouchHandler: Any {
         orientation: Fixed,
     ) {
         if !slf.core.forward_to_client.get() {
+            return;
+        }
+        if slf.core.zombie.get() {
             return;
         }
         let res = slf.try_send_orientation(

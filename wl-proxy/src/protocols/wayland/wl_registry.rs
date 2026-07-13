@@ -412,6 +412,9 @@ pub trait WlRegistryHandler: Any {
         if !slf.core.forward_to_client.get() {
             return;
         }
+        if slf.core.zombie.get() {
+            return;
+        }
         let res = slf.try_send_global(
             name,
             interface,
@@ -445,6 +448,9 @@ pub trait WlRegistryHandler: Any {
         name: u32,
     ) {
         if !slf.core.forward_to_client.get() {
+            return;
+        }
+        if slf.core.zombie.get() {
             return;
         }
         let res = slf.try_send_global_remove(

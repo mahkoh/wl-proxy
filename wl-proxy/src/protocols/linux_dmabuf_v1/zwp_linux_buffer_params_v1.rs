@@ -1221,6 +1221,9 @@ pub trait ZwpLinuxBufferParamsV1Handler: Any {
         if !slf.core.forward_to_client.get() {
             return;
         }
+        if slf.core.zombie.get() {
+            return;
+        }
         let res = slf.try_send_created(
             buffer,
         );
@@ -1243,6 +1246,9 @@ pub trait ZwpLinuxBufferParamsV1Handler: Any {
         slf: &Rc<ZwpLinuxBufferParamsV1>,
     ) {
         if !slf.core.forward_to_client.get() {
+            return;
+        }
+        if slf.core.zombie.get() {
             return;
         }
         let res = slf.try_send_failed(

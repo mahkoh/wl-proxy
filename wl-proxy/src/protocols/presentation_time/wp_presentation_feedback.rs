@@ -456,6 +456,9 @@ pub trait WpPresentationFeedbackHandler: Any {
         if !slf.core.forward_to_client.get() {
             return;
         }
+        if slf.core.zombie.get() {
+            return;
+        }
         if let Some(client_id) = slf.core.client_id.get() {
             if let Some(client_id_2) = output.core().client_id.get() {
                 if client_id != client_id_2 {
@@ -542,6 +545,9 @@ pub trait WpPresentationFeedbackHandler: Any {
         if !slf.core.forward_to_client.get() {
             return;
         }
+        if slf.core.zombie.get() {
+            return;
+        }
         let res = slf.try_send_presented(
             tv_sec_hi,
             tv_sec_lo,
@@ -565,6 +571,9 @@ pub trait WpPresentationFeedbackHandler: Any {
         slf: &Rc<WpPresentationFeedback>,
     ) {
         if !slf.core.forward_to_client.get() {
+            return;
+        }
+        if slf.core.zombie.get() {
             return;
         }
         let res = slf.try_send_discarded(

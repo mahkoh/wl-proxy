@@ -420,6 +420,9 @@ pub trait ZwlrOutputModeV1Handler: Any {
         if !slf.core.forward_to_client.get() {
             return;
         }
+        if slf.core.zombie.get() {
+            return;
+        }
         let res = slf.try_send_size(
             width,
             height,
@@ -446,6 +449,9 @@ pub trait ZwlrOutputModeV1Handler: Any {
         if !slf.core.forward_to_client.get() {
             return;
         }
+        if slf.core.zombie.get() {
+            return;
+        }
         let res = slf.try_send_refresh(
             refresh,
         );
@@ -463,6 +469,9 @@ pub trait ZwlrOutputModeV1Handler: Any {
         slf: &Rc<ZwlrOutputModeV1>,
     ) {
         if !slf.core.forward_to_client.get() {
+            return;
+        }
+        if slf.core.zombie.get() {
             return;
         }
         let res = slf.try_send_preferred(
@@ -483,6 +492,9 @@ pub trait ZwlrOutputModeV1Handler: Any {
         slf: &Rc<ZwlrOutputModeV1>,
     ) {
         if !slf.core.forward_to_client.get() {
+            return;
+        }
+        if slf.core.zombie.get() {
             return;
         }
         let res = slf.try_send_finished(

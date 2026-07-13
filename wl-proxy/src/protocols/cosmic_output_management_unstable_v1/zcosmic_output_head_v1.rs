@@ -538,6 +538,9 @@ pub trait ZcosmicOutputHeadV1Handler: Any {
         if !slf.core.forward_to_client.get() {
             return;
         }
+        if slf.core.zombie.get() {
+            return;
+        }
         let res = slf.try_send_scale_1000(
             scale_1000,
         );
@@ -566,6 +569,9 @@ pub trait ZcosmicOutputHeadV1Handler: Any {
         name: Option<&str>,
     ) {
         if !slf.core.forward_to_client.get() {
+            return;
+        }
+        if slf.core.zombie.get() {
             return;
         }
         let res = slf.try_send_mirroring(
@@ -613,6 +619,9 @@ pub trait ZcosmicOutputHeadV1Handler: Any {
         if !slf.core.forward_to_client.get() {
             return;
         }
+        if slf.core.zombie.get() {
+            return;
+        }
         let res = slf.try_send_adaptive_sync_available(
             available,
         );
@@ -637,6 +646,9 @@ pub trait ZcosmicOutputHeadV1Handler: Any {
         state: ZcosmicOutputHeadV1AdaptiveSyncStateExt,
     ) {
         if !slf.core.forward_to_client.get() {
+            return;
+        }
+        if slf.core.zombie.get() {
             return;
         }
         let res = slf.try_send_adaptive_sync_ext(
@@ -664,6 +676,9 @@ pub trait ZcosmicOutputHeadV1Handler: Any {
         state: u32,
     ) {
         if !slf.core.forward_to_client.get() {
+            return;
+        }
+        if slf.core.zombie.get() {
             return;
         }
         let res = slf.try_send_xwayland_primary(

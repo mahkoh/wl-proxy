@@ -1418,6 +1418,9 @@ pub trait ZwlrOutputHeadV1Handler: Any {
         if !slf.core.forward_to_client.get() {
             return;
         }
+        if slf.core.zombie.get() {
+            return;
+        }
         let res = slf.try_send_name(
             name,
         );
@@ -1455,6 +1458,9 @@ pub trait ZwlrOutputHeadV1Handler: Any {
         if !slf.core.forward_to_client.get() {
             return;
         }
+        if slf.core.zombie.get() {
+            return;
+        }
         let res = slf.try_send_description(
             description,
         );
@@ -1487,6 +1493,9 @@ pub trait ZwlrOutputHeadV1Handler: Any {
         if !slf.core.forward_to_client.get() {
             return;
         }
+        if slf.core.zombie.get() {
+            return;
+        }
         let res = slf.try_send_physical_size(
             width,
             height,
@@ -1511,6 +1520,9 @@ pub trait ZwlrOutputHeadV1Handler: Any {
         mode: &Rc<ZwlrOutputModeV1>,
     ) {
         if !slf.core.forward_to_client.get() {
+            return;
+        }
+        if slf.core.zombie.get() {
             return;
         }
         let res = slf.try_send_mode(
@@ -1541,6 +1553,9 @@ pub trait ZwlrOutputHeadV1Handler: Any {
         if !slf.core.forward_to_client.get() {
             return;
         }
+        if slf.core.zombie.get() {
+            return;
+        }
         let res = slf.try_send_enabled(
             enabled,
         );
@@ -1567,6 +1582,9 @@ pub trait ZwlrOutputHeadV1Handler: Any {
         mode: &Rc<ZwlrOutputModeV1>,
     ) {
         if !slf.core.forward_to_client.get() {
+            return;
+        }
+        if slf.core.zombie.get() {
             return;
         }
         if let Some(client_id) = slf.core.client_id.get() {
@@ -1603,6 +1621,9 @@ pub trait ZwlrOutputHeadV1Handler: Any {
         if !slf.core.forward_to_client.get() {
             return;
         }
+        if slf.core.zombie.get() {
+            return;
+        }
         let res = slf.try_send_position(
             x,
             y,
@@ -1627,6 +1648,9 @@ pub trait ZwlrOutputHeadV1Handler: Any {
         transform: WlOutputTransform,
     ) {
         if !slf.core.forward_to_client.get() {
+            return;
+        }
+        if slf.core.zombie.get() {
             return;
         }
         let res = slf.try_send_transform(
@@ -1654,6 +1678,9 @@ pub trait ZwlrOutputHeadV1Handler: Any {
         if !slf.core.forward_to_client.get() {
             return;
         }
+        if slf.core.zombie.get() {
+            return;
+        }
         let res = slf.try_send_scale(
             scale,
         );
@@ -1673,6 +1700,9 @@ pub trait ZwlrOutputHeadV1Handler: Any {
         slf: &Rc<ZwlrOutputHeadV1>,
     ) {
         if !slf.core.forward_to_client.get() {
+            return;
+        }
+        if slf.core.zombie.get() {
             return;
         }
         let res = slf.try_send_finished(
@@ -1716,6 +1746,9 @@ pub trait ZwlrOutputHeadV1Handler: Any {
         if !slf.core.forward_to_client.get() {
             return;
         }
+        if slf.core.zombie.get() {
+            return;
+        }
         let res = slf.try_send_make(
             make,
         );
@@ -1756,6 +1789,9 @@ pub trait ZwlrOutputHeadV1Handler: Any {
         model: &str,
     ) {
         if !slf.core.forward_to_client.get() {
+            return;
+        }
+        if slf.core.zombie.get() {
             return;
         }
         let res = slf.try_send_model(
@@ -1801,6 +1837,9 @@ pub trait ZwlrOutputHeadV1Handler: Any {
         if !slf.core.forward_to_client.get() {
             return;
         }
+        if slf.core.zombie.get() {
+            return;
+        }
         let res = slf.try_send_serial_number(
             serial_number,
         );
@@ -1844,6 +1883,9 @@ pub trait ZwlrOutputHeadV1Handler: Any {
         state: ZwlrOutputHeadV1AdaptiveSyncState,
     ) {
         if !slf.core.forward_to_client.get() {
+            return;
+        }
+        if slf.core.zombie.get() {
             return;
         }
         let res = slf.try_send_adaptive_sync(

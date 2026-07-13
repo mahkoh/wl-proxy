@@ -1764,6 +1764,9 @@ pub trait WlShellSurfaceHandler: Any {
         if !slf.core.forward_to_client.get() {
             return;
         }
+        if slf.core.zombie.get() {
+            return;
+        }
         let res = slf.try_send_ping(
             serial,
         );
@@ -1808,6 +1811,9 @@ pub trait WlShellSurfaceHandler: Any {
         if !slf.core.forward_to_client.get() {
             return;
         }
+        if slf.core.zombie.get() {
+            return;
+        }
         let res = slf.try_send_configure(
             edges,
             width,
@@ -1829,6 +1835,9 @@ pub trait WlShellSurfaceHandler: Any {
         slf: &Rc<WlShellSurface>,
     ) {
         if !slf.core.forward_to_client.get() {
+            return;
+        }
+        if slf.core.zombie.get() {
             return;
         }
         let res = slf.try_send_popup_done(

@@ -374,6 +374,9 @@ pub trait ZwlrGammaControlV1Handler: Any {
         if !slf.core.forward_to_client.get() {
             return;
         }
+        if slf.core.zombie.get() {
+            return;
+        }
         let res = slf.try_send_gamma_size(
             size,
         );
@@ -428,6 +431,9 @@ pub trait ZwlrGammaControlV1Handler: Any {
         slf: &Rc<ZwlrGammaControlV1>,
     ) {
         if !slf.core.forward_to_client.get() {
+            return;
+        }
+        if slf.core.zombie.get() {
             return;
         }
         let res = slf.try_send_failed(

@@ -338,6 +338,9 @@ pub trait OrgKdeKwinServerDecorationHandler: Any {
         if !slf.core.forward_to_client.get() {
             return;
         }
+        if slf.core.zombie.get() {
+            return;
+        }
         let res = slf.try_send_mode(
             mode,
         );

@@ -497,6 +497,9 @@ pub trait ZwpPointerGesturePinchV1Handler: Any {
         if !slf.core.forward_to_client.get() {
             return;
         }
+        if slf.core.zombie.get() {
+            return;
+        }
         if let Some(client_id) = slf.core.client_id.get() {
             if let Some(client_id_2) = surface.core().client_id.get() {
                 if client_id != client_id_2 {
@@ -550,6 +553,9 @@ pub trait ZwpPointerGesturePinchV1Handler: Any {
         if !slf.core.forward_to_client.get() {
             return;
         }
+        if slf.core.zombie.get() {
+            return;
+        }
         let res = slf.try_send_update(
             time,
             dx,
@@ -586,6 +592,9 @@ pub trait ZwpPointerGesturePinchV1Handler: Any {
         cancelled: i32,
     ) {
         if !slf.core.forward_to_client.get() {
+            return;
+        }
+        if slf.core.zombie.get() {
             return;
         }
         let res = slf.try_send_end(

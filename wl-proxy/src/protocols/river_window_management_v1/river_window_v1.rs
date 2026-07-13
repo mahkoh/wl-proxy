@@ -4168,6 +4168,9 @@ pub trait RiverWindowV1Handler: Any {
         if !slf.core.forward_to_client.get() {
             return;
         }
+        if slf.core.zombie.get() {
+            return;
+        }
         let res = slf.try_send_closed(
         );
         if let Err(e) = res {
@@ -4262,6 +4265,9 @@ pub trait RiverWindowV1Handler: Any {
         if !slf.core.forward_to_client.get() {
             return;
         }
+        if slf.core.zombie.get() {
+            return;
+        }
         let res = slf.try_send_dimensions_hint(
             min_width,
             min_height,
@@ -4305,6 +4311,9 @@ pub trait RiverWindowV1Handler: Any {
         height: i32,
     ) {
         if !slf.core.forward_to_client.get() {
+            return;
+        }
+        if slf.core.zombie.get() {
             return;
         }
         let res = slf.try_send_dimensions(
@@ -4441,6 +4450,9 @@ pub trait RiverWindowV1Handler: Any {
         if !slf.core.forward_to_client.get() {
             return;
         }
+        if slf.core.zombie.get() {
+            return;
+        }
         let res = slf.try_send_app_id(
             app_id,
         );
@@ -4470,6 +4482,9 @@ pub trait RiverWindowV1Handler: Any {
         title: Option<&str>,
     ) {
         if !slf.core.forward_to_client.get() {
+            return;
+        }
+        if slf.core.zombie.get() {
             return;
         }
         let res = slf.try_send_title(
@@ -4511,6 +4526,9 @@ pub trait RiverWindowV1Handler: Any {
         if !slf.core.forward_to_client.get() {
             return;
         }
+        if slf.core.zombie.get() {
+            return;
+        }
         if let Some(client_id) = slf.core.client_id.get() {
             if let Some(parent) = parent {
                 if let Some(client_id_2) = parent.core().client_id.get() {
@@ -4549,6 +4567,9 @@ pub trait RiverWindowV1Handler: Any {
         hint: RiverWindowV1DecorationHint,
     ) {
         if !slf.core.forward_to_client.get() {
+            return;
+        }
+        if slf.core.zombie.get() {
             return;
         }
         let res = slf.try_send_decoration_hint(
@@ -4815,6 +4836,9 @@ pub trait RiverWindowV1Handler: Any {
         if !slf.core.forward_to_client.get() {
             return;
         }
+        if slf.core.zombie.get() {
+            return;
+        }
         if let Some(client_id) = slf.core.client_id.get() {
             if let Some(client_id_2) = seat.core().client_id.get() {
                 if client_id != client_id_2 {
@@ -4865,6 +4889,9 @@ pub trait RiverWindowV1Handler: Any {
         edges: RiverWindowV1Edges,
     ) {
         if !slf.core.forward_to_client.get() {
+            return;
+        }
+        if slf.core.zombie.get() {
             return;
         }
         if let Some(client_id) = slf.core.client_id.get() {
@@ -5000,6 +5027,9 @@ pub trait RiverWindowV1Handler: Any {
         if !slf.core.forward_to_client.get() {
             return;
         }
+        if slf.core.zombie.get() {
+            return;
+        }
         let res = slf.try_send_show_window_menu_requested(
             x,
             y,
@@ -5027,6 +5057,9 @@ pub trait RiverWindowV1Handler: Any {
         if !slf.core.forward_to_client.get() {
             return;
         }
+        if slf.core.zombie.get() {
+            return;
+        }
         let res = slf.try_send_maximize_requested(
         );
         if let Err(e) = res {
@@ -5050,6 +5083,9 @@ pub trait RiverWindowV1Handler: Any {
         slf: &Rc<RiverWindowV1>,
     ) {
         if !slf.core.forward_to_client.get() {
+            return;
+        }
+        if slf.core.zombie.get() {
             return;
         }
         let res = slf.try_send_unmaximize_requested(
@@ -5137,6 +5173,9 @@ pub trait RiverWindowV1Handler: Any {
         if !slf.core.forward_to_client.get() {
             return;
         }
+        if slf.core.zombie.get() {
+            return;
+        }
         if let Some(client_id) = slf.core.client_id.get() {
             if let Some(output) = output {
                 if let Some(client_id_2) = output.core().client_id.get() {
@@ -5170,6 +5209,9 @@ pub trait RiverWindowV1Handler: Any {
         slf: &Rc<RiverWindowV1>,
     ) {
         if !slf.core.forward_to_client.get() {
+            return;
+        }
+        if slf.core.zombie.get() {
             return;
         }
         let res = slf.try_send_exit_fullscreen_requested(
@@ -5341,6 +5383,9 @@ pub trait RiverWindowV1Handler: Any {
         if !slf.core.forward_to_client.get() {
             return;
         }
+        if slf.core.zombie.get() {
+            return;
+        }
         let res = slf.try_send_minimize_requested(
         );
         if let Err(e) = res {
@@ -5417,6 +5462,9 @@ pub trait RiverWindowV1Handler: Any {
         unreliable_pid: i32,
     ) {
         if !slf.core.forward_to_client.get() {
+            return;
+        }
+        if slf.core.zombie.get() {
             return;
         }
         let res = slf.try_send_unreliable_pid(
@@ -5497,6 +5545,9 @@ pub trait RiverWindowV1Handler: Any {
         if !slf.core.forward_to_client.get() {
             return;
         }
+        if slf.core.zombie.get() {
+            return;
+        }
         let res = slf.try_send_presentation_hint(
             hint,
         );
@@ -5536,6 +5587,9 @@ pub trait RiverWindowV1Handler: Any {
         identifier: &str,
     ) {
         if !slf.core.forward_to_client.get() {
+            return;
+        }
+        if slf.core.zombie.get() {
             return;
         }
         let res = slf.try_send_identifier(
@@ -5607,6 +5661,9 @@ pub trait RiverWindowV1Handler: Any {
         count: u32,
     ) {
         if !slf.core.forward_to_client.get() {
+            return;
+        }
+        if slf.core.zombie.get() {
             return;
         }
         let res = slf.try_send_capture_sessions(

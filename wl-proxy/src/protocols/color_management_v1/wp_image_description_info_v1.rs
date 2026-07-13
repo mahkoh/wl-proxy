@@ -1121,6 +1121,9 @@ pub trait WpImageDescriptionInfoV1Handler: Any {
         if !slf.core.forward_to_client.get() {
             return;
         }
+        if slf.core.zombie.get() {
+            return;
+        }
         let res = slf.try_send_done(
         );
         if let Err(e) = res {
@@ -1151,6 +1154,9 @@ pub trait WpImageDescriptionInfoV1Handler: Any {
         icc_size: u32,
     ) {
         if !slf.core.forward_to_client.get() {
+            return;
+        }
+        if slf.core.zombie.get() {
             return;
         }
         let res = slf.try_send_icc_file(
@@ -1196,6 +1202,9 @@ pub trait WpImageDescriptionInfoV1Handler: Any {
         if !slf.core.forward_to_client.get() {
             return;
         }
+        if slf.core.zombie.get() {
+            return;
+        }
         let res = slf.try_send_primaries(
             r_x,
             r_y,
@@ -1228,6 +1237,9 @@ pub trait WpImageDescriptionInfoV1Handler: Any {
         if !slf.core.forward_to_client.get() {
             return;
         }
+        if slf.core.zombie.get() {
+            return;
+        }
         let res = slf.try_send_primaries_named(
             primaries,
         );
@@ -1258,6 +1270,9 @@ pub trait WpImageDescriptionInfoV1Handler: Any {
         if !slf.core.forward_to_client.get() {
             return;
         }
+        if slf.core.zombie.get() {
+            return;
+        }
         let res = slf.try_send_tf_power(
             eexp,
         );
@@ -1281,6 +1296,9 @@ pub trait WpImageDescriptionInfoV1Handler: Any {
         tf: WpColorManagerV1TransferFunction,
     ) {
         if !slf.core.forward_to_client.get() {
+            return;
+        }
+        if slf.core.zombie.get() {
             return;
         }
         let res = slf.try_send_tf_named(
@@ -1316,6 +1334,9 @@ pub trait WpImageDescriptionInfoV1Handler: Any {
         reference_lum: u32,
     ) {
         if !slf.core.forward_to_client.get() {
+            return;
+        }
+        if slf.core.zombie.get() {
             return;
         }
         let res = slf.try_send_luminances(
@@ -1366,6 +1387,9 @@ pub trait WpImageDescriptionInfoV1Handler: Any {
         if !slf.core.forward_to_client.get() {
             return;
         }
+        if slf.core.zombie.get() {
+            return;
+        }
         let res = slf.try_send_target_primaries(
             r_x,
             r_y,
@@ -1410,6 +1434,9 @@ pub trait WpImageDescriptionInfoV1Handler: Any {
         if !slf.core.forward_to_client.get() {
             return;
         }
+        if slf.core.zombie.get() {
+            return;
+        }
         let res = slf.try_send_target_luminance(
             min_lum,
             max_lum,
@@ -1439,6 +1466,9 @@ pub trait WpImageDescriptionInfoV1Handler: Any {
         if !slf.core.forward_to_client.get() {
             return;
         }
+        if slf.core.zombie.get() {
+            return;
+        }
         let res = slf.try_send_target_max_cll(
             max_cll,
         );
@@ -1465,6 +1495,9 @@ pub trait WpImageDescriptionInfoV1Handler: Any {
         max_fall: u32,
     ) {
         if !slf.core.forward_to_client.get() {
+            return;
+        }
+        if slf.core.zombie.get() {
             return;
         }
         let res = slf.try_send_target_max_fall(

@@ -507,6 +507,9 @@ pub trait ZwpTabletPadDialV2Handler: Any {
         if !slf.core.forward_to_client.get() {
             return;
         }
+        if slf.core.zombie.get() {
+            return;
+        }
         let res = slf.try_send_delta(
             value120,
         );
@@ -539,6 +542,9 @@ pub trait ZwpTabletPadDialV2Handler: Any {
         time: u32,
     ) {
         if !slf.core.forward_to_client.get() {
+            return;
+        }
+        if slf.core.zombie.get() {
             return;
         }
         let res = slf.try_send_frame(

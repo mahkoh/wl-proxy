@@ -1102,6 +1102,9 @@ pub trait WlDataDeviceHandler: Any {
         if !slf.core.forward_to_client.get() {
             return;
         }
+        if slf.core.zombie.get() {
+            return;
+        }
         let res = slf.try_send_data_offer(
             id,
         );
@@ -1138,6 +1141,9 @@ pub trait WlDataDeviceHandler: Any {
         id: Option<&Rc<WlDataOffer>>,
     ) {
         if !slf.core.forward_to_client.get() {
+            return;
+        }
+        if slf.core.zombie.get() {
             return;
         }
         if let Some(client_id) = slf.core.client_id.get() {
@@ -1179,6 +1185,9 @@ pub trait WlDataDeviceHandler: Any {
         if !slf.core.forward_to_client.get() {
             return;
         }
+        if slf.core.zombie.get() {
+            return;
+        }
         let res = slf.try_send_leave(
         );
         if let Err(e) = res {
@@ -1207,6 +1216,9 @@ pub trait WlDataDeviceHandler: Any {
         y: Fixed,
     ) {
         if !slf.core.forward_to_client.get() {
+            return;
+        }
+        if slf.core.zombie.get() {
             return;
         }
         let res = slf.try_send_motion(
@@ -1240,6 +1252,9 @@ pub trait WlDataDeviceHandler: Any {
         slf: &Rc<WlDataDevice>,
     ) {
         if !slf.core.forward_to_client.get() {
+            return;
+        }
+        if slf.core.zombie.get() {
             return;
         }
         let res = slf.try_send_drop(
@@ -1277,6 +1292,9 @@ pub trait WlDataDeviceHandler: Any {
         id: Option<&Rc<WlDataOffer>>,
     ) {
         if !slf.core.forward_to_client.get() {
+            return;
+        }
+        if slf.core.zombie.get() {
             return;
         }
         if let Some(client_id) = slf.core.client_id.get() {

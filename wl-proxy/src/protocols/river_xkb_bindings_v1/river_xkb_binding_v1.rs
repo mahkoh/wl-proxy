@@ -716,6 +716,9 @@ pub trait RiverXkbBindingV1Handler: Any {
         if !slf.core.forward_to_client.get() {
             return;
         }
+        if slf.core.zombie.get() {
+            return;
+        }
         let res = slf.try_send_pressed(
         );
         if let Err(e) = res {
@@ -750,6 +753,9 @@ pub trait RiverXkbBindingV1Handler: Any {
         if !slf.core.forward_to_client.get() {
             return;
         }
+        if slf.core.zombie.get() {
+            return;
+        }
         let res = slf.try_send_released(
         );
         if let Err(e) = res {
@@ -775,6 +781,9 @@ pub trait RiverXkbBindingV1Handler: Any {
         slf: &Rc<RiverXkbBindingV1>,
     ) {
         if !slf.core.forward_to_client.get() {
+            return;
+        }
+        if slf.core.zombie.get() {
             return;
         }
         let res = slf.try_send_stop_repeat(

@@ -6886,6 +6886,9 @@ pub trait RiverLibinputDeviceV1Handler: Any {
         if !slf.core.forward_to_client.get() {
             return;
         }
+        if slf.core.zombie.get() {
+            return;
+        }
         let res = slf.try_send_removed(
         );
         if let Err(e) = res {
@@ -6912,6 +6915,9 @@ pub trait RiverLibinputDeviceV1Handler: Any {
         device: &Rc<RiverInputDeviceV1>,
     ) {
         if !slf.core.forward_to_client.get() {
+            return;
+        }
+        if slf.core.zombie.get() {
             return;
         }
         if let Some(client_id) = slf.core.client_id.get() {
@@ -6945,6 +6951,9 @@ pub trait RiverLibinputDeviceV1Handler: Any {
         if !slf.core.forward_to_client.get() {
             return;
         }
+        if slf.core.zombie.get() {
+            return;
+        }
         let res = slf.try_send_send_events_support(
             modes,
         );
@@ -6969,6 +6978,9 @@ pub trait RiverLibinputDeviceV1Handler: Any {
         if !slf.core.forward_to_client.get() {
             return;
         }
+        if slf.core.zombie.get() {
+            return;
+        }
         let res = slf.try_send_send_events_default(
             mode,
         );
@@ -6991,6 +7003,9 @@ pub trait RiverLibinputDeviceV1Handler: Any {
         mode: RiverLibinputDeviceV1SendEventsModes,
     ) {
         if !slf.core.forward_to_client.get() {
+            return;
+        }
+        if slf.core.zombie.get() {
             return;
         }
         let res = slf.try_send_send_events_current(
@@ -7045,6 +7060,9 @@ pub trait RiverLibinputDeviceV1Handler: Any {
         if !slf.core.forward_to_client.get() {
             return;
         }
+        if slf.core.zombie.get() {
+            return;
+        }
         let res = slf.try_send_tap_support(
             finger_count,
         );
@@ -7069,6 +7087,9 @@ pub trait RiverLibinputDeviceV1Handler: Any {
         if !slf.core.forward_to_client.get() {
             return;
         }
+        if slf.core.zombie.get() {
+            return;
+        }
         let res = slf.try_send_tap_default(
             state,
         );
@@ -7091,6 +7112,9 @@ pub trait RiverLibinputDeviceV1Handler: Any {
         state: RiverLibinputDeviceV1TapState,
     ) {
         if !slf.core.forward_to_client.get() {
+            return;
+        }
+        if slf.core.zombie.get() {
             return;
         }
         let res = slf.try_send_tap_current(
@@ -7145,6 +7169,9 @@ pub trait RiverLibinputDeviceV1Handler: Any {
         if !slf.core.forward_to_client.get() {
             return;
         }
+        if slf.core.zombie.get() {
+            return;
+        }
         let res = slf.try_send_tap_button_map_default(
             button_map,
         );
@@ -7167,6 +7194,9 @@ pub trait RiverLibinputDeviceV1Handler: Any {
         button_map: RiverLibinputDeviceV1TapButtonMap,
     ) {
         if !slf.core.forward_to_client.get() {
+            return;
+        }
+        if slf.core.zombie.get() {
             return;
         }
         let res = slf.try_send_tap_button_map_current(
@@ -7222,6 +7252,9 @@ pub trait RiverLibinputDeviceV1Handler: Any {
         if !slf.core.forward_to_client.get() {
             return;
         }
+        if slf.core.zombie.get() {
+            return;
+        }
         let res = slf.try_send_drag_default(
             state,
         );
@@ -7244,6 +7277,9 @@ pub trait RiverLibinputDeviceV1Handler: Any {
         state: RiverLibinputDeviceV1DragState,
     ) {
         if !slf.core.forward_to_client.get() {
+            return;
+        }
+        if slf.core.zombie.get() {
             return;
         }
         let res = slf.try_send_drag_current(
@@ -7297,6 +7333,9 @@ pub trait RiverLibinputDeviceV1Handler: Any {
         if !slf.core.forward_to_client.get() {
             return;
         }
+        if slf.core.zombie.get() {
+            return;
+        }
         let res = slf.try_send_drag_lock_default(
             state,
         );
@@ -7319,6 +7358,9 @@ pub trait RiverLibinputDeviceV1Handler: Any {
         state: RiverLibinputDeviceV1DragLockState,
     ) {
         if !slf.core.forward_to_client.get() {
+            return;
+        }
+        if slf.core.zombie.get() {
             return;
         }
         let res = slf.try_send_drag_lock_current(
@@ -7377,6 +7419,9 @@ pub trait RiverLibinputDeviceV1Handler: Any {
         if !slf.core.forward_to_client.get() {
             return;
         }
+        if slf.core.zombie.get() {
+            return;
+        }
         let res = slf.try_send_three_finger_drag_support(
             finger_count,
         );
@@ -7401,6 +7446,9 @@ pub trait RiverLibinputDeviceV1Handler: Any {
         if !slf.core.forward_to_client.get() {
             return;
         }
+        if slf.core.zombie.get() {
+            return;
+        }
         let res = slf.try_send_three_finger_drag_default(
             state,
         );
@@ -7423,6 +7471,9 @@ pub trait RiverLibinputDeviceV1Handler: Any {
         state: RiverLibinputDeviceV1ThreeFingerDragState,
     ) {
         if !slf.core.forward_to_client.get() {
+            return;
+        }
+        if slf.core.zombie.get() {
             return;
         }
         let res = slf.try_send_three_finger_drag_current(
@@ -7476,6 +7527,9 @@ pub trait RiverLibinputDeviceV1Handler: Any {
         if !slf.core.forward_to_client.get() {
             return;
         }
+        if slf.core.zombie.get() {
+            return;
+        }
         let res = slf.try_send_calibration_matrix_support(
             supported,
         );
@@ -7500,6 +7554,9 @@ pub trait RiverLibinputDeviceV1Handler: Any {
         if !slf.core.forward_to_client.get() {
             return;
         }
+        if slf.core.zombie.get() {
+            return;
+        }
         let res = slf.try_send_calibration_matrix_default(
             matrix,
         );
@@ -7522,6 +7579,9 @@ pub trait RiverLibinputDeviceV1Handler: Any {
         matrix: &[u8],
     ) {
         if !slf.core.forward_to_client.get() {
+            return;
+        }
+        if slf.core.zombie.get() {
             return;
         }
         let res = slf.try_send_calibration_matrix_current(
@@ -7575,6 +7635,9 @@ pub trait RiverLibinputDeviceV1Handler: Any {
         if !slf.core.forward_to_client.get() {
             return;
         }
+        if slf.core.zombie.get() {
+            return;
+        }
         let res = slf.try_send_accel_profiles_support(
             profiles,
         );
@@ -7599,6 +7662,9 @@ pub trait RiverLibinputDeviceV1Handler: Any {
         if !slf.core.forward_to_client.get() {
             return;
         }
+        if slf.core.zombie.get() {
+            return;
+        }
         let res = slf.try_send_accel_profile_default(
             profile,
         );
@@ -7621,6 +7687,9 @@ pub trait RiverLibinputDeviceV1Handler: Any {
         profile: RiverLibinputDeviceV1AccelProfile,
     ) {
         if !slf.core.forward_to_client.get() {
+            return;
+        }
+        if slf.core.zombie.get() {
             return;
         }
         let res = slf.try_send_accel_profile_current(
@@ -7674,6 +7743,9 @@ pub trait RiverLibinputDeviceV1Handler: Any {
         if !slf.core.forward_to_client.get() {
             return;
         }
+        if slf.core.zombie.get() {
+            return;
+        }
         let res = slf.try_send_accel_speed_default(
             speed,
         );
@@ -7696,6 +7768,9 @@ pub trait RiverLibinputDeviceV1Handler: Any {
         speed: &[u8],
     ) {
         if !slf.core.forward_to_client.get() {
+            return;
+        }
+        if slf.core.zombie.get() {
             return;
         }
         let res = slf.try_send_accel_speed_current(
@@ -7781,6 +7856,9 @@ pub trait RiverLibinputDeviceV1Handler: Any {
         if !slf.core.forward_to_client.get() {
             return;
         }
+        if slf.core.zombie.get() {
+            return;
+        }
         let res = slf.try_send_natural_scroll_support(
             supported,
         );
@@ -7805,6 +7883,9 @@ pub trait RiverLibinputDeviceV1Handler: Any {
         if !slf.core.forward_to_client.get() {
             return;
         }
+        if slf.core.zombie.get() {
+            return;
+        }
         let res = slf.try_send_natural_scroll_default(
             state,
         );
@@ -7827,6 +7908,9 @@ pub trait RiverLibinputDeviceV1Handler: Any {
         state: RiverLibinputDeviceV1NaturalScrollState,
     ) {
         if !slf.core.forward_to_client.get() {
+            return;
+        }
+        if slf.core.zombie.get() {
             return;
         }
         let res = slf.try_send_natural_scroll_current(
@@ -7880,6 +7964,9 @@ pub trait RiverLibinputDeviceV1Handler: Any {
         if !slf.core.forward_to_client.get() {
             return;
         }
+        if slf.core.zombie.get() {
+            return;
+        }
         let res = slf.try_send_left_handed_support(
             supported,
         );
@@ -7904,6 +7991,9 @@ pub trait RiverLibinputDeviceV1Handler: Any {
         if !slf.core.forward_to_client.get() {
             return;
         }
+        if slf.core.zombie.get() {
+            return;
+        }
         let res = slf.try_send_left_handed_default(
             state,
         );
@@ -7926,6 +8016,9 @@ pub trait RiverLibinputDeviceV1Handler: Any {
         state: RiverLibinputDeviceV1LeftHandedState,
     ) {
         if !slf.core.forward_to_client.get() {
+            return;
+        }
+        if slf.core.zombie.get() {
             return;
         }
         let res = slf.try_send_left_handed_current(
@@ -7979,6 +8072,9 @@ pub trait RiverLibinputDeviceV1Handler: Any {
         if !slf.core.forward_to_client.get() {
             return;
         }
+        if slf.core.zombie.get() {
+            return;
+        }
         let res = slf.try_send_click_method_support(
             methods,
         );
@@ -8003,6 +8099,9 @@ pub trait RiverLibinputDeviceV1Handler: Any {
         if !slf.core.forward_to_client.get() {
             return;
         }
+        if slf.core.zombie.get() {
+            return;
+        }
         let res = slf.try_send_click_method_default(
             method,
         );
@@ -8025,6 +8124,9 @@ pub trait RiverLibinputDeviceV1Handler: Any {
         method: RiverLibinputDeviceV1ClickMethod,
     ) {
         if !slf.core.forward_to_client.get() {
+            return;
+        }
+        if slf.core.zombie.get() {
             return;
         }
         let res = slf.try_send_click_method_current(
@@ -8079,6 +8181,9 @@ pub trait RiverLibinputDeviceV1Handler: Any {
         if !slf.core.forward_to_client.get() {
             return;
         }
+        if slf.core.zombie.get() {
+            return;
+        }
         let res = slf.try_send_clickfinger_button_map_default(
             button_map,
         );
@@ -8102,6 +8207,9 @@ pub trait RiverLibinputDeviceV1Handler: Any {
         button_map: RiverLibinputDeviceV1ClickfingerButtonMap,
     ) {
         if !slf.core.forward_to_client.get() {
+            return;
+        }
+        if slf.core.zombie.get() {
             return;
         }
         let res = slf.try_send_clickfinger_button_map_current(
@@ -8157,6 +8265,9 @@ pub trait RiverLibinputDeviceV1Handler: Any {
         if !slf.core.forward_to_client.get() {
             return;
         }
+        if slf.core.zombie.get() {
+            return;
+        }
         let res = slf.try_send_middle_emulation_support(
             supported,
         );
@@ -8181,6 +8292,9 @@ pub trait RiverLibinputDeviceV1Handler: Any {
         if !slf.core.forward_to_client.get() {
             return;
         }
+        if slf.core.zombie.get() {
+            return;
+        }
         let res = slf.try_send_middle_emulation_default(
             state,
         );
@@ -8203,6 +8317,9 @@ pub trait RiverLibinputDeviceV1Handler: Any {
         state: RiverLibinputDeviceV1MiddleEmulationState,
     ) {
         if !slf.core.forward_to_client.get() {
+            return;
+        }
+        if slf.core.zombie.get() {
             return;
         }
         let res = slf.try_send_middle_emulation_current(
@@ -8256,6 +8373,9 @@ pub trait RiverLibinputDeviceV1Handler: Any {
         if !slf.core.forward_to_client.get() {
             return;
         }
+        if slf.core.zombie.get() {
+            return;
+        }
         let res = slf.try_send_scroll_method_support(
             methods,
         );
@@ -8280,6 +8400,9 @@ pub trait RiverLibinputDeviceV1Handler: Any {
         if !slf.core.forward_to_client.get() {
             return;
         }
+        if slf.core.zombie.get() {
+            return;
+        }
         let res = slf.try_send_scroll_method_default(
             method,
         );
@@ -8302,6 +8425,9 @@ pub trait RiverLibinputDeviceV1Handler: Any {
         method: RiverLibinputDeviceV1ScrollMethod,
     ) {
         if !slf.core.forward_to_client.get() {
+            return;
+        }
+        if slf.core.zombie.get() {
             return;
         }
         let res = slf.try_send_scroll_method_current(
@@ -8356,6 +8482,9 @@ pub trait RiverLibinputDeviceV1Handler: Any {
         if !slf.core.forward_to_client.get() {
             return;
         }
+        if slf.core.zombie.get() {
+            return;
+        }
         let res = slf.try_send_scroll_button_default(
             button,
         );
@@ -8379,6 +8508,9 @@ pub trait RiverLibinputDeviceV1Handler: Any {
         button: u32,
     ) {
         if !slf.core.forward_to_client.get() {
+            return;
+        }
+        if slf.core.zombie.get() {
             return;
         }
         let res = slf.try_send_scroll_button_current(
@@ -8434,6 +8566,9 @@ pub trait RiverLibinputDeviceV1Handler: Any {
         if !slf.core.forward_to_client.get() {
             return;
         }
+        if slf.core.zombie.get() {
+            return;
+        }
         let res = slf.try_send_scroll_button_lock_default(
             state,
         );
@@ -8457,6 +8592,9 @@ pub trait RiverLibinputDeviceV1Handler: Any {
         state: RiverLibinputDeviceV1ScrollButtonLockState,
     ) {
         if !slf.core.forward_to_client.get() {
+            return;
+        }
+        if slf.core.zombie.get() {
             return;
         }
         let res = slf.try_send_scroll_button_lock_current(
@@ -8512,6 +8650,9 @@ pub trait RiverLibinputDeviceV1Handler: Any {
         if !slf.core.forward_to_client.get() {
             return;
         }
+        if slf.core.zombie.get() {
+            return;
+        }
         let res = slf.try_send_dwt_support(
             supported,
         );
@@ -8536,6 +8677,9 @@ pub trait RiverLibinputDeviceV1Handler: Any {
         if !slf.core.forward_to_client.get() {
             return;
         }
+        if slf.core.zombie.get() {
+            return;
+        }
         let res = slf.try_send_dwt_default(
             state,
         );
@@ -8558,6 +8702,9 @@ pub trait RiverLibinputDeviceV1Handler: Any {
         state: RiverLibinputDeviceV1DwtState,
     ) {
         if !slf.core.forward_to_client.get() {
+            return;
+        }
+        if slf.core.zombie.get() {
             return;
         }
         let res = slf.try_send_dwt_current(
@@ -8612,6 +8759,9 @@ pub trait RiverLibinputDeviceV1Handler: Any {
         if !slf.core.forward_to_client.get() {
             return;
         }
+        if slf.core.zombie.get() {
+            return;
+        }
         let res = slf.try_send_dwtp_support(
             supported,
         );
@@ -8636,6 +8786,9 @@ pub trait RiverLibinputDeviceV1Handler: Any {
         if !slf.core.forward_to_client.get() {
             return;
         }
+        if slf.core.zombie.get() {
+            return;
+        }
         let res = slf.try_send_dwtp_default(
             state,
         );
@@ -8658,6 +8811,9 @@ pub trait RiverLibinputDeviceV1Handler: Any {
         state: RiverLibinputDeviceV1DwtpState,
     ) {
         if !slf.core.forward_to_client.get() {
+            return;
+        }
+        if slf.core.zombie.get() {
             return;
         }
         let res = slf.try_send_dwtp_current(
@@ -8711,6 +8867,9 @@ pub trait RiverLibinputDeviceV1Handler: Any {
         if !slf.core.forward_to_client.get() {
             return;
         }
+        if slf.core.zombie.get() {
+            return;
+        }
         let res = slf.try_send_rotation_support(
             supported,
         );
@@ -8735,6 +8894,9 @@ pub trait RiverLibinputDeviceV1Handler: Any {
         if !slf.core.forward_to_client.get() {
             return;
         }
+        if slf.core.zombie.get() {
+            return;
+        }
         let res = slf.try_send_rotation_default(
             angle,
         );
@@ -8757,6 +8919,9 @@ pub trait RiverLibinputDeviceV1Handler: Any {
         angle: u32,
     ) {
         if !slf.core.forward_to_client.get() {
+            return;
+        }
+        if slf.core.zombie.get() {
             return;
         }
         let res = slf.try_send_rotation_current(
@@ -8808,6 +8973,9 @@ pub trait RiverLibinputDeviceV1Handler: Any {
         slf: &Rc<RiverLibinputDeviceV1>,
     ) {
         if !slf.core.forward_to_client.get() {
+            return;
+        }
+        if slf.core.zombie.get() {
             return;
         }
         let res = slf.try_send_done(

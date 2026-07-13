@@ -2655,6 +2655,9 @@ pub trait XdgToplevelHandler: Any {
         if !slf.core.forward_to_client.get() {
             return;
         }
+        if slf.core.zombie.get() {
+            return;
+        }
         let res = slf.try_send_configure(
             width,
             height,
@@ -2681,6 +2684,9 @@ pub trait XdgToplevelHandler: Any {
         slf: &Rc<XdgToplevel>,
     ) {
         if !slf.core.forward_to_client.get() {
+            return;
+        }
+        if slf.core.zombie.get() {
             return;
         }
         let res = slf.try_send_close(
@@ -2720,6 +2726,9 @@ pub trait XdgToplevelHandler: Any {
         height: i32,
     ) {
         if !slf.core.forward_to_client.get() {
+            return;
+        }
+        if slf.core.zombie.get() {
             return;
         }
         let res = slf.try_send_configure_bounds(
@@ -2764,6 +2773,9 @@ pub trait XdgToplevelHandler: Any {
         capabilities: &[u8],
     ) {
         if !slf.core.forward_to_client.get() {
+            return;
+        }
+        if slf.core.zombie.get() {
             return;
         }
         let res = slf.try_send_wm_capabilities(

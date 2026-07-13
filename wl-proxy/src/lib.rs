@@ -140,10 +140,15 @@
 //! }
 //! ```
 //!
-//! An object becomes unassociated through destructor messages or through delete_id
-//! messages, if delete_id messages are used for the object. Once an object is
-//! unassociated, it can once again become associated if it is used in a subsequent
-//! constructor request or event.
+//! An object becomes unassociated from a client through delete_id messages, if delete_id
+//! messages are used for the object, or otherwise though destructor events.
+//!
+//! An object becomes unassociated from the compositor through delete_id messages.
+//! Therefore, objects created by the compositor cannot become unassociated from the
+//! compositor.
+//!
+//! Once an object is unassociated, it can once again become associated if it is used in a
+//! subsequent constructor request or event.
 //!
 //! It is valid for an object to never be associated with a compositor or client object.
 //! For example, this can happen if a client-created object is handled internally by the

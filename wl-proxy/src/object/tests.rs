@@ -19,26 +19,55 @@ use {
 #[test]
 fn server_sent() {
     let tp = test_proxy();
-    tp.client.test.send_send_object();
-    struct H(Option<Rc<WlproxyTestServerSent>>);
-    impl WlproxyTestHandler for H {
-        fn handle_sent_object(&mut self, _slf: &Rc<WlproxyTest>, echo: &Rc<WlproxyTestServerSent>) {
-            self.0 = Some(echo.clone());
+
+    {
+        struct H;
+        impl WlproxyTestHandler for H {
+            fn handle_sent_object(
+                &mut self,
+                slf: &Rc<WlproxyTest>,
+                echo: &Rc<WlproxyTestServerSent>,
+            ) {
+                echo.set_handler(H);
+                slf.send_sent_object(echo);
+            }
         }
+        impl WlproxyTestServerSentHandler for H {
+            fn handle_destroyed(&mut self, slf: &Rc<WlproxyTestServerSent>) {
+                // We need to implement this manually since the default handler does not
+                // forward destructor events for server-sent objects. Such events are
+                // illegal in the wayland spec.
+                slf.send_destroyed();
+            }
+        }
+        tp.client.proxy_test.set_handler(H);
     }
-    tp.client.test.set_handler(H(None));
-    tp.sync();
-    let sent = tp.client.test.get_handler_mut::<H>().0.take().unwrap();
+
+    let (server, client) = tp.get_server_sent_object();
+
+    {
+        struct H;
+        impl WlproxyTestServerSentHandler for H {
+            fn handle_destroyed(&mut self, slf: &Rc<WlproxyTestServerSent>) {
+                // We need to implement this manually since the default handler does not
+                // forward destructor events for server-sent objects. Such events are
+                // illegal in the wayland spec.
+                slf.send_destroyed();
+            }
+        }
+        server.set_handler(H);
+    }
+
     struct S(bool);
     impl WlproxyTestServerSentHandler for S {
         fn handle_destroyed(&mut self, _slf: &Rc<WlproxyTestServerSent>) {
             self.0 = true;
         }
     }
-    sent.set_handler(S(false));
-    sent.send_send_destroy();
+    client.set_handler(S(false));
+    client.send_send_destroy();
     tp.sync();
-    assert!(sent.get_handler_mut::<S>().0);
+    assert!(client.get_handler_mut::<S>().0);
 }
 
 #[test]
@@ -267,4 +296,93 @@ fn forward() {
     non_forward.send_echo();
     tp.sync();
     assert!(non_forward.get_handler_mut::<Nfh>().0);
+}
+
+#[test]
+fn event_on_zombie() {
+    let tp = test_proxy();
+
+    {
+        let (server, client) = tp.get_server_sent_object();
+        client.send_send_event_x();
+        client.send_destroy();
+
+        struct H(bool);
+        impl WlproxyTestServerSentHandler for H {
+            fn handle_event_x(&mut self, _slf: &Rc<WlproxyTestServerSent>) {
+                self.0 = true;
+            }
+        }
+
+        server.set_handler(H(false));
+        client.set_handler(H(false));
+
+        tp.sync();
+
+        assert!(server.get_handler_mut::<H>().0);
+        assert!(!client.get_handler_mut::<H>().0);
+    }
+
+    {
+        let (_, client) = tp.get_server_sent_object();
+        client.send_send_event_x();
+        client.send_destroy();
+
+        struct H(bool);
+        impl WlproxyTestServerSentHandler for H {
+            fn handle_event_x(&mut self, _slf: &Rc<WlproxyTestServerSent>) {
+                self.0 = true;
+            }
+        }
+
+        client.set_handler(H(false));
+        tp.sync();
+        assert!(!client.get_handler_mut::<H>().0);
+    }
+}
+
+#[test]
+fn zombie_id_reuse() {
+    let tp = test_proxy();
+
+    let (p1, c1) = tp.get_server_sent_object();
+    let p1_id = p1.server_id();
+
+    c1.send_destroy();
+
+    let (p2, c1) = tp.get_server_sent_object();
+    let p2_id = p2.server_id();
+
+    assert_eq!(p1_id, p2_id);
+
+    struct H(bool);
+    impl WlproxyTestServerSentHandler for H {
+        fn handle_event_x(&mut self, _slf: &Rc<WlproxyTestServerSent>) {
+            self.0 = true;
+        }
+    }
+
+    c1.send_send_event_x();
+    c1.set_handler(H(false));
+    tp.sync();
+    assert!(c1.get_handler_mut::<H>().0);
+}
+
+#[test]
+#[should_panic(expected = "HasServerId(4278190080)")]
+fn reuse_server_sent() {
+    let tp = test_proxy();
+    let (_, c1) = tp.get_server_sent_object();
+    c1.send_destroy();
+    tp.client.test.try_send_create_server_sent(&c1).unwrap();
+}
+
+#[test]
+fn reuse_normal() {
+    let tp = test_proxy();
+    let c1 = tp.client.test.new_try_send_create_server_sent().unwrap();
+    c1.try_send_destroy().unwrap();
+    tp.sync();
+    tp.client.test.try_send_create_server_sent(&c1).unwrap();
+    tp.sync();
 }

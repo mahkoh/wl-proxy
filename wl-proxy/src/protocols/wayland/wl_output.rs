@@ -893,6 +893,9 @@ pub trait WlOutputHandler: Any {
         if !slf.core.forward_to_client.get() {
             return;
         }
+        if slf.core.zombie.get() {
+            return;
+        }
         let res = slf.try_send_geometry(
             x,
             y,
@@ -962,6 +965,9 @@ pub trait WlOutputHandler: Any {
         if !slf.core.forward_to_client.get() {
             return;
         }
+        if slf.core.zombie.get() {
+            return;
+        }
         let res = slf.try_send_mode(
             flags,
             width,
@@ -986,6 +992,9 @@ pub trait WlOutputHandler: Any {
         slf: &Rc<WlOutput>,
     ) {
         if !slf.core.forward_to_client.get() {
+            return;
+        }
+        if slf.core.zombie.get() {
             return;
         }
         let res = slf.try_send_done(
@@ -1026,6 +1035,9 @@ pub trait WlOutputHandler: Any {
         factor: i32,
     ) {
         if !slf.core.forward_to_client.get() {
+            return;
+        }
+        if slf.core.zombie.get() {
             return;
         }
         let res = slf.try_send_scale(
@@ -1098,6 +1110,9 @@ pub trait WlOutputHandler: Any {
         if !slf.core.forward_to_client.get() {
             return;
         }
+        if slf.core.zombie.get() {
+            return;
+        }
         let res = slf.try_send_name(
             name,
         );
@@ -1133,6 +1148,9 @@ pub trait WlOutputHandler: Any {
         description: &str,
     ) {
         if !slf.core.forward_to_client.get() {
+            return;
+        }
+        if slf.core.zombie.get() {
             return;
         }
         let res = slf.try_send_description(

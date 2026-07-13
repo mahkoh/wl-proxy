@@ -748,6 +748,9 @@ pub trait ExtImageCopyCaptureSessionV1Handler: Any {
         if !slf.core.forward_to_client.get() {
             return;
         }
+        if slf.core.zombie.get() {
+            return;
+        }
         let res = slf.try_send_buffer_size(
             width,
             height,
@@ -774,6 +777,9 @@ pub trait ExtImageCopyCaptureSessionV1Handler: Any {
         format: WlShmFormat,
     ) {
         if !slf.core.forward_to_client.get() {
+            return;
+        }
+        if slf.core.zombie.get() {
             return;
         }
         let res = slf.try_send_shm_format(
@@ -804,6 +810,9 @@ pub trait ExtImageCopyCaptureSessionV1Handler: Any {
         device: &[u8],
     ) {
         if !slf.core.forward_to_client.get() {
+            return;
+        }
+        if slf.core.zombie.get() {
             return;
         }
         let res = slf.try_send_dmabuf_device(
@@ -838,6 +847,9 @@ pub trait ExtImageCopyCaptureSessionV1Handler: Any {
         if !slf.core.forward_to_client.get() {
             return;
         }
+        if slf.core.zombie.get() {
+            return;
+        }
         let res = slf.try_send_dmabuf_format(
             format,
             modifiers,
@@ -863,6 +875,9 @@ pub trait ExtImageCopyCaptureSessionV1Handler: Any {
         if !slf.core.forward_to_client.get() {
             return;
         }
+        if slf.core.zombie.get() {
+            return;
+        }
         let res = slf.try_send_done(
         );
         if let Err(e) = res {
@@ -884,6 +899,9 @@ pub trait ExtImageCopyCaptureSessionV1Handler: Any {
         slf: &Rc<ExtImageCopyCaptureSessionV1>,
     ) {
         if !slf.core.forward_to_client.get() {
+            return;
+        }
+        if slf.core.zombie.get() {
             return;
         }
         let res = slf.try_send_stopped(

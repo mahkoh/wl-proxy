@@ -897,6 +897,9 @@ pub trait ZcosmicWorkspaceHandleV2Handler: Any {
         if !slf.core.forward_to_client.get() {
             return;
         }
+        if slf.core.zombie.get() {
+            return;
+        }
         let res = slf.try_send_capabilities(
             capabilities,
         );
@@ -923,6 +926,9 @@ pub trait ZcosmicWorkspaceHandleV2Handler: Any {
         if !slf.core.forward_to_client.get() {
             return;
         }
+        if slf.core.zombie.get() {
+            return;
+        }
         let res = slf.try_send_tiling_state(
             state,
         );
@@ -947,6 +953,9 @@ pub trait ZcosmicWorkspaceHandleV2Handler: Any {
         state: ZcosmicWorkspaceHandleV2State,
     ) {
         if !slf.core.forward_to_client.get() {
+            return;
+        }
+        if slf.core.zombie.get() {
             return;
         }
         let res = slf.try_send_state(

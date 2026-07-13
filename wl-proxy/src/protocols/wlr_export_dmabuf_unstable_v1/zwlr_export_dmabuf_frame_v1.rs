@@ -651,6 +651,9 @@ pub trait ZwlrExportDmabufFrameV1Handler: Any {
         if !slf.core.forward_to_client.get() {
             return;
         }
+        if slf.core.zombie.get() {
+            return;
+        }
         let res = slf.try_send_frame(
             width,
             height,
@@ -698,6 +701,9 @@ pub trait ZwlrExportDmabufFrameV1Handler: Any {
         if !slf.core.forward_to_client.get() {
             return;
         }
+        if slf.core.zombie.get() {
+            return;
+        }
         let res = slf.try_send_object(
             index,
             fd,
@@ -742,6 +748,9 @@ pub trait ZwlrExportDmabufFrameV1Handler: Any {
         if !slf.core.forward_to_client.get() {
             return;
         }
+        if slf.core.zombie.get() {
+            return;
+        }
         let res = slf.try_send_ready(
             tv_sec_hi,
             tv_sec_lo,
@@ -774,6 +783,9 @@ pub trait ZwlrExportDmabufFrameV1Handler: Any {
         reason: ZwlrExportDmabufFrameV1CancelReason,
     ) {
         if !slf.core.forward_to_client.get() {
+            return;
+        }
+        if slf.core.zombie.get() {
             return;
         }
         let res = slf.try_send_cancel(

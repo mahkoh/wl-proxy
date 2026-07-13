@@ -354,6 +354,9 @@ pub trait WlproxySyncV1Handler: Any {
         if !slf.core.forward_to_client.get() {
             return;
         }
+        if slf.core.zombie.get() {
+            return;
+        }
         let res = slf.try_send_sync_with_client(
             id_hi,
             id_lo,

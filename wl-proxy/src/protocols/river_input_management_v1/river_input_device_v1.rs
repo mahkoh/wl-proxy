@@ -887,6 +887,9 @@ pub trait RiverInputDeviceV1Handler: Any {
         if !slf.core.forward_to_client.get() {
             return;
         }
+        if slf.core.zombie.get() {
+            return;
+        }
         let res = slf.try_send_removed(
         );
         if let Err(e) = res {
@@ -910,6 +913,9 @@ pub trait RiverInputDeviceV1Handler: Any {
         r#type: RiverInputDeviceV1Type,
     ) {
         if !slf.core.forward_to_client.get() {
+            return;
+        }
+        if slf.core.zombie.get() {
             return;
         }
         let res = slf.try_send_type(
@@ -936,6 +942,9 @@ pub trait RiverInputDeviceV1Handler: Any {
         name: &str,
     ) {
         if !slf.core.forward_to_client.get() {
+            return;
+        }
+        if slf.core.zombie.get() {
             return;
         }
         let res = slf.try_send_name(
@@ -1120,6 +1129,9 @@ pub trait RiverInputDeviceV1Handler: Any {
         slf: &Rc<RiverInputDeviceV1>,
     ) {
         if !slf.core.forward_to_client.get() {
+            return;
+        }
+        if slf.core.zombie.get() {
             return;
         }
         let res = slf.try_send_done(

@@ -1585,6 +1585,9 @@ pub trait ZwpInputMethodV2Handler: Any {
         if !slf.core.forward_to_client.get() {
             return;
         }
+        if slf.core.zombie.get() {
+            return;
+        }
         let res = slf.try_send_activate(
         );
         if let Err(e) = res {
@@ -1609,6 +1612,9 @@ pub trait ZwpInputMethodV2Handler: Any {
         slf: &Rc<ZwpInputMethodV2>,
     ) {
         if !slf.core.forward_to_client.get() {
+            return;
+        }
+        if slf.core.zombie.get() {
             return;
         }
         let res = slf.try_send_deactivate(
@@ -1666,6 +1672,9 @@ pub trait ZwpInputMethodV2Handler: Any {
         if !slf.core.forward_to_client.get() {
             return;
         }
+        if slf.core.zombie.get() {
+            return;
+        }
         let res = slf.try_send_surrounding_text(
             text,
             cursor,
@@ -1706,6 +1715,9 @@ pub trait ZwpInputMethodV2Handler: Any {
         if !slf.core.forward_to_client.get() {
             return;
         }
+        if slf.core.zombie.get() {
+            return;
+        }
         let res = slf.try_send_text_change_cause(
             cause,
         );
@@ -1737,6 +1749,9 @@ pub trait ZwpInputMethodV2Handler: Any {
         purpose: ZwpTextInputV3ContentPurpose,
     ) {
         if !slf.core.forward_to_client.get() {
+            return;
+        }
+        if slf.core.zombie.get() {
             return;
         }
         let res = slf.try_send_content_type(
@@ -1773,6 +1788,9 @@ pub trait ZwpInputMethodV2Handler: Any {
         slf: &Rc<ZwpInputMethodV2>,
     ) {
         if !slf.core.forward_to_client.get() {
+            return;
+        }
+        if slf.core.zombie.get() {
             return;
         }
         let res = slf.try_send_done(
@@ -2048,6 +2066,9 @@ pub trait ZwpInputMethodV2Handler: Any {
         slf: &Rc<ZwpInputMethodV2>,
     ) {
         if !slf.core.forward_to_client.get() {
+            return;
+        }
+        if slf.core.zombie.get() {
             return;
         }
         let res = slf.try_send_unavailable(

@@ -962,6 +962,9 @@ pub trait ExtWorkspaceHandleV1Handler: Any {
         if !slf.core.forward_to_client.get() {
             return;
         }
+        if slf.core.zombie.get() {
+            return;
+        }
         let res = slf.try_send_id(
             id,
         );
@@ -988,6 +991,9 @@ pub trait ExtWorkspaceHandleV1Handler: Any {
         name: &str,
     ) {
         if !slf.core.forward_to_client.get() {
+            return;
+        }
+        if slf.core.zombie.get() {
             return;
         }
         let res = slf.try_send_name(
@@ -1031,6 +1037,9 @@ pub trait ExtWorkspaceHandleV1Handler: Any {
         if !slf.core.forward_to_client.get() {
             return;
         }
+        if slf.core.zombie.get() {
+            return;
+        }
         let res = slf.try_send_coordinates(
             coordinates,
         );
@@ -1058,6 +1067,9 @@ pub trait ExtWorkspaceHandleV1Handler: Any {
         state: ExtWorkspaceHandleV1State,
     ) {
         if !slf.core.forward_to_client.get() {
+            return;
+        }
+        if slf.core.zombie.get() {
             return;
         }
         let res = slf.try_send_state(
@@ -1096,6 +1108,9 @@ pub trait ExtWorkspaceHandleV1Handler: Any {
         if !slf.core.forward_to_client.get() {
             return;
         }
+        if slf.core.zombie.get() {
+            return;
+        }
         let res = slf.try_send_capabilities(
             capabilities,
         );
@@ -1121,6 +1136,9 @@ pub trait ExtWorkspaceHandleV1Handler: Any {
         slf: &Rc<ExtWorkspaceHandleV1>,
     ) {
         if !slf.core.forward_to_client.get() {
+            return;
+        }
+        if slf.core.zombie.get() {
             return;
         }
         let res = slf.try_send_removed(

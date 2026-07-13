@@ -700,6 +700,9 @@ pub trait WpColorManagementSurfaceFeedbackV1Handler: Any {
         if !slf.core.forward_to_client.get() {
             return;
         }
+        if slf.core.zombie.get() {
+            return;
+        }
         let res = slf.try_send_preferred_changed(
             identity,
         );
@@ -824,6 +827,9 @@ pub trait WpColorManagementSurfaceFeedbackV1Handler: Any {
         identity_lo: u32,
     ) {
         if !slf.core.forward_to_client.get() {
+            return;
+        }
+        if slf.core.zombie.get() {
             return;
         }
         let res = slf.try_send_preferred_changed2(

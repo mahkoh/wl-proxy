@@ -322,6 +322,9 @@ pub trait HyprlandGlobalShortcutV1Handler: Any {
         if !slf.core.forward_to_client.get() {
             return;
         }
+        if slf.core.zombie.get() {
+            return;
+        }
         let res = slf.try_send_pressed(
             tv_sec_hi,
             tv_sec_lo,
@@ -352,6 +355,9 @@ pub trait HyprlandGlobalShortcutV1Handler: Any {
         tv_nsec: u32,
     ) {
         if !slf.core.forward_to_client.get() {
+            return;
+        }
+        if slf.core.zombie.get() {
             return;
         }
         let res = slf.try_send_released(

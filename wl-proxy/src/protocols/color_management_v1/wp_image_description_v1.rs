@@ -639,6 +639,9 @@ pub trait WpImageDescriptionV1Handler: Any {
         if !slf.core.forward_to_client.get() {
             return;
         }
+        if slf.core.zombie.get() {
+            return;
+        }
         let res = slf.try_send_failed(
             cause,
             msg,
@@ -671,6 +674,9 @@ pub trait WpImageDescriptionV1Handler: Any {
         identity: u32,
     ) {
         if !slf.core.forward_to_client.get() {
+            return;
+        }
+        if slf.core.zombie.get() {
             return;
         }
         let res = slf.try_send_ready(
@@ -750,6 +756,9 @@ pub trait WpImageDescriptionV1Handler: Any {
         identity_lo: u32,
     ) {
         if !slf.core.forward_to_client.get() {
+            return;
+        }
+        if slf.core.zombie.get() {
             return;
         }
         let res = slf.try_send_ready2(

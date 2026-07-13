@@ -1154,6 +1154,9 @@ pub trait RiverXkbKeyboardV1Handler: Any {
         if !slf.core.forward_to_client.get() {
             return;
         }
+        if slf.core.zombie.get() {
+            return;
+        }
         let res = slf.try_send_removed(
         );
         if let Err(e) = res {
@@ -1180,6 +1183,9 @@ pub trait RiverXkbKeyboardV1Handler: Any {
         device: &Rc<RiverInputDeviceV1>,
     ) {
         if !slf.core.forward_to_client.get() {
+            return;
+        }
+        if slf.core.zombie.get() {
             return;
         }
         if let Some(client_id) = slf.core.client_id.get() {
@@ -1301,6 +1307,9 @@ pub trait RiverXkbKeyboardV1Handler: Any {
         if !slf.core.forward_to_client.get() {
             return;
         }
+        if slf.core.zombie.get() {
+            return;
+        }
         let res = slf.try_send_layout(
             index,
             name,
@@ -1360,6 +1369,9 @@ pub trait RiverXkbKeyboardV1Handler: Any {
         if !slf.core.forward_to_client.get() {
             return;
         }
+        if slf.core.zombie.get() {
+            return;
+        }
         let res = slf.try_send_capslock_enabled(
         );
         if let Err(e) = res {
@@ -1379,6 +1391,9 @@ pub trait RiverXkbKeyboardV1Handler: Any {
         slf: &Rc<RiverXkbKeyboardV1>,
     ) {
         if !slf.core.forward_to_client.get() {
+            return;
+        }
+        if slf.core.zombie.get() {
             return;
         }
         let res = slf.try_send_capslock_disabled(
@@ -1438,6 +1453,9 @@ pub trait RiverXkbKeyboardV1Handler: Any {
         if !slf.core.forward_to_client.get() {
             return;
         }
+        if slf.core.zombie.get() {
+            return;
+        }
         let res = slf.try_send_numlock_enabled(
         );
         if let Err(e) = res {
@@ -1457,6 +1475,9 @@ pub trait RiverXkbKeyboardV1Handler: Any {
         slf: &Rc<RiverXkbKeyboardV1>,
     ) {
         if !slf.core.forward_to_client.get() {
+            return;
+        }
+        if slf.core.zombie.get() {
             return;
         }
         let res = slf.try_send_numlock_disabled(
@@ -1479,6 +1500,9 @@ pub trait RiverXkbKeyboardV1Handler: Any {
         slf: &Rc<RiverXkbKeyboardV1>,
     ) {
         if !slf.core.forward_to_client.get() {
+            return;
+        }
+        if slf.core.zombie.get() {
             return;
         }
         let res = slf.try_send_done(
