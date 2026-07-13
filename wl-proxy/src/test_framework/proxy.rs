@@ -99,7 +99,7 @@ fn test_proxy_client(proxy_state: &Rc<State>, log: bool) -> TestProxyClient {
         if let Some(obj) = proxy_test.borrow_mut().take() {
             break obj;
         }
-        dispatch_blocking([&client_state, &proxy_state]).unwrap();
+        dispatch_blocking([&client_state, proxy_state]).unwrap();
     };
     TestProxyClient {
         _destructor: client_state.create_destructor(),

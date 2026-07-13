@@ -556,36 +556,6 @@ fn round_scale(n: i32, scale: i32) -> i32 {
     signed.clamp(i32::MIN as i64, i32::MAX as i64) as i32
 }
 
-#[cfg(test)]
-mod tests {
-    use super::{SCALE_BASE, round_scale};
-    #[test]
-    fn round_scale_is_symmetric_around_zero() {
-        assert_eq!(round_scale(-1, SCALE_BASE), -1);
-        assert_eq!(round_scale(0, SCALE_BASE), 0);
-        assert_eq!(round_scale(1, SCALE_BASE), 1);
-    }
-    #[test]
-    fn round_scale_preserves_small_negative_span() {
-        let scale = SCALE_BASE / 2;
-        let x1 = round_scale(-1, scale);
-        let x2 = round_scale(0, scale);
-        assert_eq!(x1, -1);
-        assert_eq!(x2, 0);
-        assert_eq!(x2 - x1, 1);
-    }
-    #[test]
-    fn round_scale_invalid_scale_defaults_to_1x() {
-        assert_eq!(round_scale(10, 0), 10);
-        assert_eq!(round_scale(-10, 0), -10);
-    }
-    #[test]
-    fn round_scale_saturates_to_i32() {
-        assert_eq!(round_scale(i32::MAX, i32::MAX), i32::MAX);
-        assert_eq!(round_scale(i32::MIN, i32::MAX), i32::MIN);
-    }
-}
-
 /// Handler for proxy-created wp_fractional_scale_v1 objects for tray icons.
 struct ProxyTrayIconWpFractionalScaleV1 {
     tray_item: Rc<JayTrayItemV1>,
@@ -2620,3 +2590,33 @@ impl WlShmPoolHandler for ClientWlShmPool {
 }
 
 impl WlBufferHandler for ClientShmWlBuffer {}
+
+#[cfg(test)]
+mod tests {
+    use super::{SCALE_BASE, round_scale};
+    #[test]
+    fn round_scale_is_symmetric_around_zero() {
+        assert_eq!(round_scale(-1, SCALE_BASE), -1);
+        assert_eq!(round_scale(0, SCALE_BASE), 0);
+        assert_eq!(round_scale(1, SCALE_BASE), 1);
+    }
+    #[test]
+    fn round_scale_preserves_small_negative_span() {
+        let scale = SCALE_BASE / 2;
+        let x1 = round_scale(-1, scale);
+        let x2 = round_scale(0, scale);
+        assert_eq!(x1, -1);
+        assert_eq!(x2, 0);
+        assert_eq!(x2 - x1, 1);
+    }
+    #[test]
+    fn round_scale_invalid_scale_defaults_to_1x() {
+        assert_eq!(round_scale(10, 0), 10);
+        assert_eq!(round_scale(-10, 0), -10);
+    }
+    #[test]
+    fn round_scale_saturates_to_i32() {
+        assert_eq!(round_scale(i32::MAX, i32::MAX), i32::MAX);
+        assert_eq!(round_scale(i32::MIN, i32::MAX), i32::MIN);
+    }
+}
