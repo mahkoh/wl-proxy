@@ -1141,6 +1141,8 @@ mod all_types {
     pub(super) use super::weston_desktop::weston_screensaver::WestonScreensaver;
     #[cfg(feature = "protocol-weston_direct_display")]
     pub(super) use super::weston_direct_display::weston_direct_display_v1::WestonDirectDisplayV1;
+    #[cfg(feature = "protocol-weston_direct_display")]
+    pub(super) use super::weston_direct_display::weston_direct_display_v1::WestonDirectDisplayV1Error;
     #[cfg(feature = "protocol-weston_output_capture")]
     pub(super) use super::weston_output_capture::weston_capture_source_v1::WestonCaptureSourceV1;
     #[cfg(feature = "protocol-weston_output_capture")]
@@ -6190,7 +6192,7 @@ impl ObjectInterface {
             #[cfg(feature = "protocol-weston_desktop")]
             Self::WestonScreensaver => 1,
             #[cfg(feature = "protocol-weston_direct_display")]
-            Self::WestonDirectDisplayV1 => 1,
+            Self::WestonDirectDisplayV1 => 2,
             #[cfg(feature = "protocol-weston_output_capture")]
             Self::WestonCaptureSourceV1 => 2,
             #[cfg(feature = "protocol-weston_output_capture")]
