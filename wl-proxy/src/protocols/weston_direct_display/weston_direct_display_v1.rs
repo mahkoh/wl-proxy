@@ -44,7 +44,7 @@ struct DefaultHandler;
 impl WestonDirectDisplayV1Handler for DefaultHandler { }
 
 impl ConcreteObject for WestonDirectDisplayV1 {
-    const XML_VERSION: u32 = 1;
+    const XML_VERSION: u32 = 2;
     const INTERFACE: ObjectInterface = ObjectInterface::WestonDirectDisplayV1;
     const INTERFACE_NAME: &str = "weston_direct_display_v1";
 }
@@ -446,3 +446,31 @@ impl Object for WestonDirectDisplayV1 {
     }
 }
 
+impl WestonDirectDisplayV1 {
+    /// Since when the error.params_already_used enum variant is available.
+    pub const ENM__ERROR_PARAMS_ALREADY_USED__SINCE: u32 = 1;
+    /// Since when the error.already_set enum variant is available.
+    pub const ENM__ERROR_ALREADY_SET__SINCE: u32 = 1;
+}
+
+#[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash)]
+pub struct WestonDirectDisplayV1Error(pub u32);
+
+impl WestonDirectDisplayV1Error {
+    /// dmabuf params already used
+    pub const PARAMS_ALREADY_USED: Self = Self(0);
+
+    /// already set
+    pub const ALREADY_SET: Self = Self(1);
+}
+
+impl Debug for WestonDirectDisplayV1Error {
+    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
+        let name = match *self {
+            Self::PARAMS_ALREADY_USED => "PARAMS_ALREADY_USED",
+            Self::ALREADY_SET => "ALREADY_SET",
+            _ => return Debug::fmt(&self.0, f),
+        };
+        f.write_str(name)
+    }
+}
