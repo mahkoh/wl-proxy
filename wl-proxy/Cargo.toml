@@ -149,6 +149,7 @@ suite-weston-protocols = [
     "protocol-weston_desktop",
     "protocol-weston_direct_display",
     "protocol-weston_output_capture",
+    "protocol-weston_restricted_buffer",
     "protocol-weston_test",
     "protocol-weston_touch_calibration",
 ]
@@ -255,6 +256,7 @@ protocol-weston_debug = []
 protocol-weston_desktop = []
 protocol-weston_direct_display = ["protocol-linux_dmabuf_v1"]
 protocol-weston_output_capture = []
+protocol-weston_restricted_buffer = ["protocol-linux_dmabuf_v1"]
 protocol-weston_test = []
 protocol-weston_touch_calibration = []
 protocol-cosmic_a11y_v1 = []

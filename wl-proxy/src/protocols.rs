@@ -187,6 +187,8 @@ pub mod weston_desktop;
 pub mod weston_direct_display;
 #[cfg(feature = "protocol-weston_output_capture")]
 pub mod weston_output_capture;
+#[cfg(feature = "protocol-weston_restricted_buffer")]
+pub mod weston_restricted_buffer;
 #[cfg(feature = "protocol-weston_test")]
 pub mod weston_test;
 #[cfg(feature = "protocol-weston_touch_calibration")]
@@ -1153,6 +1155,10 @@ mod all_types {
     pub(super) use super::weston_output_capture::weston_capture_v1::WestonCaptureV1Error;
     #[cfg(feature = "protocol-weston_output_capture")]
     pub(super) use super::weston_output_capture::weston_capture_v1::WestonCaptureV1Source;
+    #[cfg(feature = "protocol-weston_restricted_buffer")]
+    pub(super) use super::weston_restricted_buffer::weston_restricted_buffer_v1::WestonRestrictedBufferV1;
+    #[cfg(feature = "protocol-weston_restricted_buffer")]
+    pub(super) use super::weston_restricted_buffer::weston_restricted_buffer_v1::WestonRestrictedBufferV1Error;
     #[cfg(feature = "protocol-weston_test")]
     pub(super) use super::weston_test::weston_test::WestonTest;
     #[cfg(feature = "protocol-weston_test")]
@@ -2234,6 +2240,10 @@ mod all_types {
                 "weston_capture_v1" => {
                     #[cfg(feature = "protocol-weston_output_capture")] { Some(ObjectInterface::WestonCaptureV1) }
                     #[cfg(not(feature = "protocol-weston_output_capture"))] { None }
+                },
+                "weston_restricted_buffer_v1" => {
+                    #[cfg(feature = "protocol-weston_restricted_buffer")] { Some(ObjectInterface::WestonRestrictedBufferV1) }
+                    #[cfg(not(feature = "protocol-weston_restricted_buffer"))] { None }
                 },
                 "weston_test" => {
                     #[cfg(feature = "protocol-weston_test")] { Some(ObjectInterface::WestonTest) }
@@ -4153,6 +4163,13 @@ mod all_types {
                     }
                     Ok(WestonCaptureV1::new(state, version))
                 }
+                #[cfg(feature = "protocol-weston_restricted_buffer")]
+                Self::WestonRestrictedBufferV1 => {
+                    if version > WestonRestrictedBufferV1::XML_VERSION {
+                        return Err(ObjectError(ObjectErrorKind::MaxVersion(self, version)));
+                    }
+                    Ok(WestonRestrictedBufferV1::new(state, version))
+                }
                 #[cfg(feature = "protocol-weston_test")]
                 Self::WestonTest => {
                     if version > WestonTest::XML_VERSION {
@@ -5073,6 +5090,9 @@ pub enum ObjectInterface {
     /// weston_capture_v1
     #[cfg(feature = "protocol-weston_output_capture")]
     WestonCaptureV1,
+    /// weston_restricted_buffer_v1
+    #[cfg(feature = "protocol-weston_restricted_buffer")]
+    WestonRestrictedBufferV1,
     /// weston_test
     #[cfg(feature = "protocol-weston_test")]
     WestonTest,
@@ -5645,6 +5665,8 @@ impl ObjectInterface {
             Self::WestonCaptureSourceV1 => "weston_capture_source_v1",
             #[cfg(feature = "protocol-weston_output_capture")]
             Self::WestonCaptureV1 => "weston_capture_v1",
+            #[cfg(feature = "protocol-weston_restricted_buffer")]
+            Self::WestonRestrictedBufferV1 => "weston_restricted_buffer_v1",
             #[cfg(feature = "protocol-weston_test")]
             Self::WestonTest => "weston_test",
             #[cfg(feature = "protocol-weston_test")]
@@ -6197,6 +6219,8 @@ impl ObjectInterface {
             Self::WestonCaptureSourceV1 => 2,
             #[cfg(feature = "protocol-weston_output_capture")]
             Self::WestonCaptureV1 => 2,
+            #[cfg(feature = "protocol-weston_restricted_buffer")]
+            Self::WestonRestrictedBufferV1 => 1,
             #[cfg(feature = "protocol-weston_test")]
             Self::WestonTest => 1,
             #[cfg(feature = "protocol-weston_test")]

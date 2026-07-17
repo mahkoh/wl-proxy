@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<protocol name="weston_restricted_buffer">
+  <copyright>
+    Copyright (C) 2026 Amazon.com, Inc. or its affiliates
+    Copyright © 2019 Collabora Ltd.
+
+    Permission is hereby granted, free of charge, to any person obtaining a
+    copy of this software and associated documentation files (the "Software"),
+    to deal in the Software without restriction, including without limitation
+    the rights to use, copy, modify, merge, publish, distribute, sublicense,
+    and/or sell copies of the Software, and to permit persons to whom the
+    Software is furnished to do so, subject to the following conditions:
+
+    The above copyright notice and this permission notice (including the next
+    paragraph) shall be included in all copies or substantial portions of the
+    Software.
+
+    THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+    IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+    FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL
+    THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+    LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+    FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
+    DEALINGS IN THE SOFTWARE.
+  </copyright>
+  <interface name="weston_restricted_buffer_v1" version="1">
+    <description summary="weston restricted buffer">
+      Weston extension to instruct the compositor that the dmabuf created by
+      'linux-dmabuf' protocol is in protected memory. Protected has hardware
+      level access restrictions, and if used improperly will result in
+      compositor crashes, hardware faults, or other manner of undefined
+      behaviour.
+
+      Restricted buffers may only be imported to the GPU if the GPU is using a
+      restricted context - otherwise if the buffer is to be rendered, it will
+      be censored (displayed as a solid color).
+
+      Outside of GPU restrictions, the compositor's policy dictates when
+      restricted buffers may be displayed.
+
+      This extension depends on the 'linux-dmabuf' protocol. After a
+      'zwp_linux_buffer_params_v1' object is created by 'zwp_linux_buffer_v1'
+      and before it is used to create a buffer, this extension's 'enable'
+      request may be used to indicate that the buffer is restricted.
+    </description>
+    <request name="enable">
+      <description summary="Flag the buffer as restricted">
+        This request tells the compositor that the buffer is restricted.
+
+        Even if the GPU is not using a restricted context and the dmabuf can't
+        be scanned out directly, the compositor should censor it with a
+        placeholder instead of refusing to create the wl_buffer.
+
+        Assumes that 'zwp_linux_buffer_params_v1' was already created
+        by 'zwp_linux_dmabuf_v1_create_params', as stated in
+        'weston_restricted_buffer_v1' interface description.
+      </description>
+      <arg name="dmabuf" type="object" interface="zwp_linux_buffer_params_v1" summary="enable restricted handling of dmabuf"/>
+    </request>
+    <request name="destroy" type="destructor">
+      <description summary="destroy factory object">
+        Destroys the factory object, but does not affect any other objects.
+      </description>
+    </request>
+    <enum name="error">
+      <entry name="params_already_used" value="0" summary="dmabuf params already used"/>
+      <entry name="already_set" value="1" summary="restricted already set"/>
+    </enum>
+  </interface>
+</protocol>

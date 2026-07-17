@@ -88,6 +88,7 @@ weston_debug_v1 = 1
 weston_desktop_shell = 1
 weston_direct_display_v1 = 2
 weston_protected_surface = 1
+weston_restricted_buffer_v1 = 1
 weston_screensaver = 1
 weston_test = 1
 weston_test_runner = 1
