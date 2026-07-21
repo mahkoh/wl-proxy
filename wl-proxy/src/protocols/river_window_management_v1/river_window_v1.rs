@@ -395,8 +395,8 @@ impl RiverWindowV1 {
     /// to 0. A value of 0 indicates that the window has no preference for that
     /// value.
     ///
-    /// The min_width/min_height must be strictly less than or equal to the
-    /// max_width/max_height.
+    /// If the max_width/max_height is greater than 0, the min_width/min_height
+    /// must be strictly less than or equal to the max_width/max_height.
     ///
     /// This event will be followed by a manage_start event after all other new
     /// state has been sent by the server.
@@ -471,8 +471,8 @@ impl RiverWindowV1 {
     /// to 0. A value of 0 indicates that the window has no preference for that
     /// value.
     ///
-    /// The min_width/min_height must be strictly less than or equal to the
-    /// max_width/max_height.
+    /// If the max_width/max_height is greater than 0, the min_width/min_height
+    /// must be strictly less than or equal to the max_width/max_height.
     ///
     /// This event will be followed by a manage_start event after all other new
     /// state has been sent by the server.
@@ -4238,8 +4238,8 @@ pub trait RiverWindowV1Handler: Any {
     /// to 0. A value of 0 indicates that the window has no preference for that
     /// value.
     ///
-    /// The min_width/min_height must be strictly less than or equal to the
-    /// max_width/max_height.
+    /// If the max_width/max_height is greater than 0, the min_width/min_height
+    /// must be strictly less than or equal to the max_width/max_height.
     ///
     /// This event will be followed by a manage_start event after all other new
     /// state has been sent by the server.

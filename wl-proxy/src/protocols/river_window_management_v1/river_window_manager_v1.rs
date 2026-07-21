@@ -758,6 +758,10 @@ impl RiverWindowManagerV1 {
     /// The window manager may wish to restrict which key bindings are available
     /// while locked or otherwise use this information.
     ///
+    /// If the session is currently locked when the river_window_manager_v1
+    /// object is created, the session_locked event will be sent in the first
+    /// manage sequence.
+    ///
     /// This event will be followed by a manage_start event after all other new
     /// state has been sent by the server.
     #[inline]
@@ -801,6 +805,10 @@ impl RiverWindowManagerV1 {
     ///
     /// The window manager may wish to restrict which key bindings are available
     /// while locked or otherwise use this information.
+    ///
+    /// If the session is currently locked when the river_window_manager_v1
+    /// object is created, the session_locked event will be sent in the first
+    /// manage sequence.
     ///
     /// This event will be followed by a manage_start event after all other new
     /// state has been sent by the server.
@@ -1693,6 +1701,10 @@ pub trait RiverWindowManagerV1Handler: Any {
     ///
     /// The window manager may wish to restrict which key bindings are available
     /// while locked or otherwise use this information.
+    ///
+    /// If the session is currently locked when the river_window_manager_v1
+    /// object is created, the session_locked event will be sent in the first
+    /// manage sequence.
     ///
     /// This event will be followed by a manage_start event after all other new
     /// state has been sent by the server.
