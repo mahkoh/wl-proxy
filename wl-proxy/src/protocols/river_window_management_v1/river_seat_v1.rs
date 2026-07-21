@@ -1602,6 +1602,10 @@ impl RiverSeatV1 {
     /// If the given position is outside the bounds of all outputs, the pointer
     /// will be warped to the closest point inside an output instead.
     ///
+    /// If an op_start_pointer request is made during the same manage sequence
+    /// as a pointer_warp request, the warp is applied first by the server
+    /// regardless of the relative ordering of the two requests.
+    ///
     /// This request modifies window management state and may only be made as
     /// part of a manage sequence, see the river_window_manager_v1 description.
     ///
@@ -1662,6 +1666,10 @@ impl RiverSeatV1 {
     ///
     /// If the given position is outside the bounds of all outputs, the pointer
     /// will be warped to the closest point inside an output instead.
+    ///
+    /// If an op_start_pointer request is made during the same manage sequence
+    /// as a pointer_warp request, the warp is applied first by the server
+    /// regardless of the relative ordering of the two requests.
     ///
     /// This request modifies window management state and may only be made as
     /// part of a manage sequence, see the river_window_manager_v1 description.
@@ -2264,6 +2272,10 @@ pub trait RiverSeatV1Handler: Any {
     ///
     /// If the given position is outside the bounds of all outputs, the pointer
     /// will be warped to the closest point inside an output instead.
+    ///
+    /// If an op_start_pointer request is made during the same manage sequence
+    /// as a pointer_warp request, the warp is applied first by the server
+    /// regardless of the relative ordering of the two requests.
     ///
     /// This request modifies window management state and may only be made as
     /// part of a manage sequence, see the river_window_manager_v1 description.
