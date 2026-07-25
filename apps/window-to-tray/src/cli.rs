@@ -5,7 +5,7 @@ use {
     },
     clap::{CommandFactory, Parser, ValueHint},
     clap_complete::Shell,
-    std::{io::stdout, num::ParseIntError, sync::Arc},
+    std::{io::stdout, num::ParseIntError, os::fd::OwnedFd, sync::Arc},
     thiserror::Error,
 };
 
@@ -111,7 +111,7 @@ fn parse_color(s: &str) -> Result<Color, ParseColorError> {
     })
 }
 
-pub fn main() -> Result<(), WttError> {
+pub fn main(wayland_socket: Option<OwnedFd>) -> Result<(), WttError> {
     let args = WindowToTray::parse();
     if let Some(shell) = args.generate_completion {
         let stdout = stdout();
@@ -130,5 +130,5 @@ pub fn main() -> Result<(), WttError> {
         border_color: args.border_color,
         border_width: args.border_width,
     };
-    wtt::main(theme, &args.program.unwrap())
+    wtt::main(theme, wayland_socket, &args.program.unwrap())
 }

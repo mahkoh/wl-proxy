@@ -23,6 +23,7 @@
 //! use wl_proxy::protocols::wayland::wl_region::WlRegionHandler;
 //! use wl_proxy::protocols::wayland::wl_registry::{WlRegistry, WlRegistryHandler};
 //! use wl_proxy::simple::{SimpleProxy, SimpleCommandExt};
+//! use wl_proxy::state::get_wayland_socket;
 //!
 //! // SimpleProxy is a helper type that creates one proxy per client and runs the proxy
 //! // in a thread.
@@ -30,11 +31,17 @@
 //! // semver-compatible updates of this crate to add new protocols and protocol versions
 //! // without causing protocol errors in existing proxies. Since this proxy is very
 //! // simple, we just expose all protocols supported by the crate.
-//! let proxy = SimpleProxy::new(Baseline::ALL_OF_THEM).unwrap();
+//! let wayland_socket = unsafe {
+//!     // SAFETY: called at most once
+//!     get_wayland_socket().unwrap()
+//! };
+//! let proxy = SimpleProxy::new(Baseline::ALL_OF_THEM, wayland_socket).unwrap();
 //! // This starts mpv and spawns a thread that waits for mpv to exit. When mpv exits,
 //! // the thread also calls exit to forward the exit code.
+//!
 //! Command::new("mpv")
-//!     .with_wayland_display(proxy.display())
+//!     .with_optional_wayland_display(proxy.display())
+//!     .with_optional_wayland_socket(proxy.socket())
 //!     .spawn_and_forward_exit_code()
 //!     .unwrap();
 //! // The closure is invoked once for each client that connects and must return a

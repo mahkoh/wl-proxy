@@ -1,12 +1,22 @@
 #![expect(clippy::from_str_radix_10)]
 
-use {error_reporter::Report, std::io, thiserror::Error, wl_proxy::simple::SimpleProxyError};
+use {
+    error_reporter::Report,
+    std::io,
+    thiserror::Error,
+    wl_proxy::{
+        simple::SimpleProxyError,
+        state::{StateError, get_wayland_socket},
+    },
+};
 
 mod cli;
 mod hf;
 
 #[derive(Debug, Error)]
 enum HfError {
+    #[error("could not extract WAYLAND_SOCKET")]
+    WaylandSocket(#[source] StateError),
     #[error("could not create a simple server")]
     CreateServer(#[source] SimpleProxyError),
     #[error("could not spawn child")]
@@ -16,5 +26,9 @@ enum HfError {
 }
 
 fn main() -> Result<(), Report<HfError>> {
-    cli::main().map_err(Report::new)
+    let wayland_socket = unsafe {
+        // SAFETY: only reader of WAYLAND_SOCKET, child processes all remove/replace it
+        get_wayland_socket().map_err(HfError::WaylandSocket)?
+    };
+    cli::main(wayland_socket).map_err(Report::new)
 }

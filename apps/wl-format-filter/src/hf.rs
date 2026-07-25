@@ -25,11 +25,17 @@ use {
     },
 };
 
-pub fn main(allow: Vec<Filter>, deny: Vec<Filter>, program: Vec<String>) -> Result<(), HfError> {
-    let server = SimpleProxy::new(Baseline::V5).map_err(HfError::CreateServer)?;
+pub fn main(
+    allow: Vec<Filter>,
+    deny: Vec<Filter>,
+    wayland_socket: Option<OwnedFd>,
+    program: Vec<String>,
+) -> Result<(), HfError> {
+    let server = SimpleProxy::new(Baseline::V5, wayland_socket).map_err(HfError::CreateServer)?;
     Command::new(&program[0])
         .args(&program[1..])
-        .with_wayland_display(server.display())
+        .with_optional_wayland_display(server.display())
+        .with_optional_wayland_socket(server.socket())
         .spawn_and_forward_exit_code()
         .map_err(HfError::SpawnChild)?;
     let dispositions = create_disposition_list(&allow, &deny);

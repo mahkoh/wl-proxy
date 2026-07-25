@@ -2,7 +2,7 @@ use {
     crate::{VeilError, veil},
     clap::{CommandFactory, Parser, ValueHint},
     clap_complete::Shell,
-    std::{collections::HashMap, io::stdout, num::ParseIntError, str::FromStr},
+    std::{collections::HashMap, io::stdout, num::ParseIntError, os::fd::OwnedFd, str::FromStr},
     thiserror::Error,
 };
 
@@ -67,7 +67,7 @@ fn parse_filter(s: &str) -> Result<(String, Option<u32>), ParseFilterError> {
     }
 }
 
-pub fn main() -> Result<(), VeilError> {
+pub fn main(wayland_socket: Option<OwnedFd>) -> Result<(), VeilError> {
     let args = WlVeil::parse();
     if let Some(shell) = args.generate_completion {
         let stdout = stdout();
@@ -79,5 +79,5 @@ pub fn main() -> Result<(), VeilError> {
     for f in args.filter {
         filter.extend(f);
     }
-    veil::main(args.invert, filter, args.program.unwrap())
+    veil::main(args.invert, filter, wayland_socket, args.program.unwrap())
 }

@@ -2,7 +2,7 @@ use {
     crate::{HfError, hf},
     clap::{CommandFactory, Parser, ValueHint},
     clap_complete::Shell,
-    std::io::stdout,
+    std::{io::stdout, os::fd::OwnedFd},
 };
 
 /// This application prints all dma-buf feedback sent to the application.
@@ -21,7 +21,7 @@ struct WlFormatFilter {
     program: Option<Vec<String>>,
 }
 
-pub fn main() -> Result<(), HfError> {
+pub fn main(wayland_socket: Option<OwnedFd>) -> Result<(), HfError> {
     let args = WlFormatFilter::parse();
     if let Some(shell) = args.generate_completion {
         let stdout = stdout();
@@ -34,5 +34,5 @@ pub fn main() -> Result<(), HfError> {
         );
         return Ok(());
     }
-    hf::main(args.program.unwrap())
+    hf::main(wayland_socket, args.program.unwrap())
 }

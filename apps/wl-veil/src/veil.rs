@@ -3,6 +3,7 @@ use {
     linearize::StaticMap,
     std::{
         collections::{HashMap, HashSet},
+        os::fd::OwnedFd,
         process::Command,
         rc::Rc,
         sync::Arc,
@@ -23,12 +24,15 @@ use {
 pub fn main(
     invert: bool,
     filter: HashMap<String, Option<u32>>,
+    wayland_socket: Option<OwnedFd>,
     program: Vec<String>,
 ) -> Result<(), VeilError> {
-    let server = SimpleProxy::new(Baseline::ALL_OF_THEM).map_err(VeilError::CreateServer)?;
+    let server =
+        SimpleProxy::new(Baseline::ALL_OF_THEM, wayland_socket).map_err(VeilError::CreateServer)?;
     Command::new(&program[0])
         .args(&program[1..])
-        .with_wayland_display(server.display())
+        .with_optional_wayland_display(server.display())
+        .with_optional_wayland_socket(server.socket())
         .spawn_and_forward_exit_code()
         .map_err(VeilError::SpawnChild)?;
     let filter = create_filter(invert, filter);

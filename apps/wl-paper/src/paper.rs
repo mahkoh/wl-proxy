@@ -1,7 +1,7 @@
 use {
     crate::PaperError,
     arrayvec::ArrayVec,
-    std::{mem, process::Command, rc::Rc, sync::Arc},
+    std::{mem, os::fd::OwnedFd, process::Command, rc::Rc, sync::Arc},
     wl_proxy::{
         baseline::Baseline,
         global_mapper::GlobalMapper,
@@ -52,12 +52,18 @@ use {
     },
 };
 
-pub fn main(config: Config, program: &[String]) -> Result<(), PaperError> {
+pub fn main(
+    config: Config,
+    wayland_socket: Option<OwnedFd>,
+    program: &[String],
+) -> Result<(), PaperError> {
     let config = Arc::new(config);
-    let server = SimpleProxy::new(Baseline::V5).map_err(PaperError::CreateServer)?;
+    let server =
+        SimpleProxy::new(Baseline::V5, wayland_socket).map_err(PaperError::CreateServer)?;
     Command::new(&program[0])
         .args(&program[1..])
-        .with_wayland_display(server.display())
+        .with_optional_wayland_display(server.display())
+        .with_optional_wayland_socket(server.socket())
         .spawn_and_forward_exit_code()
         .map_err(PaperError::SpawnChild)?;
     let err = server.run(|| ClientWlDisplay {

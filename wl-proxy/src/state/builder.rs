@@ -6,19 +6,15 @@ use {
         poll::{self, Poller},
         protocols::wayland::wl_display::WlDisplay,
         state::{EndpointWithClient, Pollable, State, StateError, StateErrorKind},
-        utils::env::{WAYLAND_DISPLAY, WAYLAND_SOCKET, WL_PROXY_DEBUG, XDG_RUNTIME_DIR},
+        utils::env::{WAYLAND_DISPLAY, WL_PROXY_DEBUG, XDG_RUNTIME_DIR},
     },
     linearize::Linearize,
     std::{
         cell::{Cell, RefCell},
         collections::HashMap,
-        env::{remove_var, var, var_os},
-        os::{
-            fd::{AsFd, FromRawFd, OwnedFd},
-            unix::ffi::OsStrExt,
-        },
+        env::var,
+        os::fd::{AsFd, OwnedFd},
         rc::Rc,
-        str::FromStr,
     },
     uapi::c::{self, sockaddr_un},
 };
@@ -59,10 +55,10 @@ impl StateBuilder {
     ///
     /// The server to connect to is chosen as follows:
     ///
-    /// - If [`Self::with_server_fd`] was used, that FD is used.
+    /// - If [`Self::with_server_fd`] was used, that FD is used. To support WAYLAND_SOCKET,
+    ///   callers must explicitly provide the server FD.
     /// - Otherwise, if [`Self::with_server_display_name`] was used, that display name is
     ///   used.
-    /// - Otherwise, if the `WAYLAND_SOCKET` environment variable is set, that FD is used.
     /// - Otherwise, the display name from the `WAYLAND_DISPLAY` environment variable is
     ///   used.
     pub fn build(self) -> Result<Rc<State>, StateError> {
@@ -73,24 +69,6 @@ impl StateBuilder {
                 Some(Server::Fd(fd)) => break 'fd Some(fd),
                 Some(Server::DisplayName(n)) => Some(n),
             };
-            if display_name.is_none()
-                && let Some(wayland_socket) = var_os(WAYLAND_SOCKET)
-            {
-                let fd = str::from_utf8(wayland_socket.as_bytes())
-                    .ok()
-                    .and_then(|s| i32::from_str(s).ok())
-                    .ok_or(StateErrorKind::WaylandSocketNotNumber)?;
-                let flags = uapi::fcntl_getfd(fd)
-                    .map_err(|e| StateErrorKind::WaylandSocketGetFd(e.into()))?;
-                uapi::fcntl_setfd(fd, flags | c::FD_CLOEXEC)
-                    .map_err(|e| StateErrorKind::WaylandSocketSetFd(e.into()))?;
-                // SAFETY: This is unsound.
-                let fd = unsafe {
-                    remove_var(WAYLAND_SOCKET);
-                    Rc::new(OwnedFd::from_raw_fd(fd))
-                };
-                break 'fd Some(fd);
-            }
             let mut name = match display_name {
                 Some(n) => n,
                 _ => var(WAYLAND_DISPLAY)
@@ -232,6 +210,16 @@ impl StateBuilder {
     /// Sets the server file descriptor to connect to.
     pub fn with_server_fd(mut self, fd: &Rc<OwnedFd>) -> Self {
         self.server = Some(Server::Fd(fd.clone()));
+        self
+    }
+
+    /// Sets the server file descriptor to connect to.
+    pub fn with_server_opt_fd(mut self, fd: &Option<Rc<OwnedFd>>) -> Self {
+        if let Some(rfd) = fd {
+            self.server = Some(Server::Fd(rfd.clone()));
+        } else {
+            self.server = None;
+        }
         self
     }
 

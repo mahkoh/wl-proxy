@@ -1,7 +1,7 @@
 use {
     crate::{CmError, cli::WlCmFilter},
     phf::phf_map,
-    std::{collections::HashSet, process::Command, rc::Rc, sync::Arc},
+    std::{collections::HashSet, os::fd::OwnedFd, process::Command, rc::Rc, sync::Arc},
     wl_proxy::{
         baseline::Baseline,
         object::{ConcreteObject, Object, ObjectCoreApi, ObjectRcUtils},
@@ -20,12 +20,13 @@ use {
     },
 };
 
-pub fn main(args: &WlCmFilter) -> Result<(), CmError> {
+pub fn main(args: &WlCmFilter, wayland_socket: Option<OwnedFd>) -> Result<(), CmError> {
     let program = args.program.as_ref().unwrap();
-    let server = SimpleProxy::new(Baseline::V5).map_err(CmError::CreateServer)?;
+    let server = SimpleProxy::new(Baseline::V5, wayland_socket).map_err(CmError::CreateServer)?;
     Command::new(&program[0])
         .args(&program[1..])
-        .with_wayland_display(server.display())
+        .with_optional_wayland_display(server.display())
+        .with_optional_wayland_socket(server.socket())
         .spawn_and_forward_exit_code()
         .map_err(CmError::SpawnChild)?;
     let filters = create_filters(args);

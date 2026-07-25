@@ -2,7 +2,7 @@ use {
     crate::{CmError, cm},
     clap::{CommandFactory, Parser, ValueHint},
     clap_complete::Shell,
-    std::io::stdout,
+    std::{io::stdout, os::fd::OwnedFd},
 };
 
 /// This application can be used to limit capabilities reported by wp-color-management-v1
@@ -55,7 +55,7 @@ pub struct WlCmFilter {
     pub program: Option<Vec<String>>,
 }
 
-pub fn main() -> Result<(), CmError> {
+pub fn main(wayland_socket: Option<OwnedFd>) -> Result<(), CmError> {
     let args = WlCmFilter::parse();
     if let Some(shell) = args.generate_completion {
         let stdout = stdout();
@@ -68,5 +68,5 @@ pub fn main() -> Result<(), CmError> {
         );
         return Ok(());
     }
-    cm::main(&args)
+    cm::main(&args, wayland_socket)
 }

@@ -5,7 +5,7 @@ use {
     },
     clap::{CommandFactory, Parser, ValueEnum, ValueHint},
     clap_complete::Shell,
-    std::io::stdout,
+    std::{io::stdout, os::fd::OwnedFd},
     wl_proxy::protocols::wlr_layer_shell_unstable_v1::{
         zwlr_layer_shell_v1::ZwlrLayerShellV1Layer,
         zwlr_layer_surface_v1::ZwlrLayerSurfaceV1KeyboardInteractivity,
@@ -64,7 +64,7 @@ pub enum Layer {
     Overlay,
 }
 
-pub fn main() -> Result<(), PaperError> {
+pub fn main(wayland_socket: Option<OwnedFd>) -> Result<(), PaperError> {
     let args = WlPaper::parse();
     if let Some(shell) = args.generate_completion {
         let stdout = stdout();
@@ -90,5 +90,5 @@ pub fn main() -> Result<(), PaperError> {
         margin_left: args.margin_left,
         namespace: args.namespace,
     };
-    paper::main(config, &args.program.unwrap())
+    paper::main(config, wayland_socket, &args.program.unwrap())
 }

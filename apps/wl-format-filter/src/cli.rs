@@ -6,7 +6,7 @@ use {
     clap::{CommandFactory, Parser, ValueHint},
     clap_complete::Shell,
     phf::phf_map,
-    std::io::stdout,
+    std::{io::stdout, os::fd::OwnedFd},
     thiserror::Error,
 };
 
@@ -284,7 +284,7 @@ static WAYLAND_FORMATS: phf::Map<&'static str, u32> = phf_map! {
       "s416"                 => 0x36313453,
 };
 
-pub fn main() -> Result<(), HfError> {
+pub fn main(wayland_socket: Option<OwnedFd>) -> Result<(), HfError> {
     let args = WlFormatFilter::parse();
     if let Some(shell) = args.generate_completion {
         let stdout = stdout();
@@ -297,5 +297,5 @@ pub fn main() -> Result<(), HfError> {
         );
         return Ok(());
     }
-    hf::main(args.allow, args.deny, args.program.unwrap())
+    hf::main(args.allow, args.deny, wayland_socket, args.program.unwrap())
 }

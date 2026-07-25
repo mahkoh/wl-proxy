@@ -22,9 +22,11 @@ use {
     std::{
         cell::{Cell, RefCell},
         collections::HashMap,
+        env::var_os,
         io::{self, pipe},
-        os::fd::{AsFd, AsRawFd, OwnedFd},
+        os::fd::{AsFd, AsRawFd, FromRawFd, OwnedFd},
         rc::{Rc, Weak},
+        str::FromStr,
         sync::{
             Arc,
             atomic::{AtomicBool, Ordering::Acquire},
@@ -93,6 +95,35 @@ enum StateErrorKind {
     PollError(PollError),
     #[error("Could not create an eventfd")]
     CreateEventfd(#[source] io::Error),
+}
+
+///
+/// Get the current Wayland socket.
+///
+/// After this is called, the environment variable WAYLAND_SOCKET should be
+/// replaced or removed for all child processes.
+///
+/// # Safety
+///
+/// Specifically, I/O-safety; this should be invoked at most once by the program;
+/// no other similar function reading WAYLAND_SOCKET should be used; and if this
+/// returns Some, then returned file descriptor must be kept CLOEXEC.
+///
+pub unsafe fn get_wayland_socket() -> Result<Option<OwnedFd>, StateError> {
+    let Some(wayland_socket) = var_os(WAYLAND_SOCKET) else {
+        return Ok(None);
+    };
+    let fd = str::from_utf8(wayland_socket.as_encoded_bytes())
+        .ok()
+        .and_then(|s| i32::from_str(s).ok())
+        .ok_or(StateErrorKind::WaylandSocketNotNumber)?;
+    let flags = uapi::fcntl_getfd(fd).map_err(|e| StateErrorKind::WaylandSocketGetFd(e.into()))?;
+    uapi::fcntl_setfd(fd, flags | c::FD_CLOEXEC)
+        .map_err(|e| StateErrorKind::WaylandSocketSetFd(e.into()))?;
+    Ok(Some(unsafe {
+        // SAFETY: This requires the caller to invoke this once with valid WAYLAND_SOCKET
+        OwnedFd::from_raw_fd(fd)
+    }))
 }
 
 /// The proxy state.

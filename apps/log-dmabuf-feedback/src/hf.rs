@@ -29,11 +29,13 @@ use {
     },
 };
 
-pub fn main(program: Vec<String>) -> Result<(), HfError> {
-    let server = SimpleProxy::new(Baseline::ALL_OF_THEM).map_err(HfError::CreateServer)?;
+pub fn main(wayland_socket: Option<OwnedFd>, program: Vec<String>) -> Result<(), HfError> {
+    let server =
+        SimpleProxy::new(Baseline::ALL_OF_THEM, wayland_socket).map_err(HfError::CreateServer)?;
     Command::new(&program[0])
         .args(&program[1..])
-        .with_wayland_display(server.display())
+        .with_optional_wayland_display(server.display())
+        .with_optional_wayland_socket(server.socket())
         .spawn_and_forward_exit_code()
         .map_err(HfError::SpawnChild)?;
     let err = server.run(|| WlDisplayHandlerImpl);
