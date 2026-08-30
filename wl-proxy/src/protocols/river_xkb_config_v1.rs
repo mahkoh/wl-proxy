@@ -2,7 +2,7 @@
 //!
 //! This protocol allow a client to set the xkbcommon keymap of individual
 //! keyboard input devices. It also allows switching between the layouts of a
-//! keymap and toggling capslock/numlock state.
+//! keymap and toggling capslock/numlock/scrolllock state.
 //!
 //! The key words "must", "must not", "required", "shall", "shall not",
 //! "should", "should not", "recommended", "may", and "optional" in this

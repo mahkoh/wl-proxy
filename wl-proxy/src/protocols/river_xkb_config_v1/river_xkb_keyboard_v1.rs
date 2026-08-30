@@ -19,7 +19,7 @@ struct DefaultHandler;
 impl RiverXkbKeyboardV1Handler for DefaultHandler { }
 
 impl ConcreteObject for RiverXkbKeyboardV1 {
-    const XML_VERSION: u32 = 2;
+    const XML_VERSION: u32 = 3;
     const INTERFACE: ObjectInterface = ObjectInterface::RiverXkbKeyboardV1;
     const INTERFACE_NAME: &str = "river_xkb_keyboard_v1";
 }
@@ -1107,6 +1107,238 @@ impl RiverXkbKeyboardV1 {
             log_send("river_xkb_keyboard_v1.done", &e);
         }
     }
+
+    /// Since when the scrolllock_enable message is available.
+    pub const MSG__SCROLLLOCK_ENABLE__SINCE: u32 = 3;
+
+    /// enable scrolllock
+    ///
+    /// Enable scrolllock for the keyboard.
+    #[inline]
+    pub fn try_send_scrolllock_enable(
+        &self,
+    ) -> Result<(), ObjectError> {
+        let core = self.core();
+        let Some(id) = core.server_obj_id.get() else {
+            return Err(ObjectError(ObjectErrorKind::ReceiverNoServerId));
+        };
+        #[cfg(feature = "logging")]
+        if self.core.state.log {
+            #[cold]
+            fn log(state: &State, id: u32) {
+                let (millis, micros) = time_since_epoch();
+                let prefix = &state.log_prefix;
+                let args = format_args!("[{millis:7}.{micros:03}] {prefix}server      <= river_xkb_keyboard_v1#{}.scrolllock_enable()\n", id);
+                state.log(args);
+            }
+            log(&self.core.state, id);
+        }
+        let Some(endpoint) = &self.core.state.server else {
+            return Ok(());
+        };
+        if !endpoint.flush_queued.replace(true) {
+            self.core.state.add_flushable_endpoint(endpoint, None);
+        }
+        let mut outgoing_ref = endpoint.outgoing.borrow_mut();
+        let outgoing = &mut *outgoing_ref;
+        let mut fmt = outgoing.formatter();
+        fmt.words([
+            id,
+            8,
+        ]);
+        Ok(())
+    }
+
+    /// enable scrolllock
+    ///
+    /// Enable scrolllock for the keyboard.
+    #[inline]
+    pub fn send_scrolllock_enable(
+        &self,
+    ) {
+        let res = self.try_send_scrolllock_enable(
+        );
+        if let Err(e) = res {
+            log_send("river_xkb_keyboard_v1.scrolllock_enable", &e);
+        }
+    }
+
+    /// Since when the scrolllock_disable message is available.
+    pub const MSG__SCROLLLOCK_DISABLE__SINCE: u32 = 3;
+
+    /// disable scrolllock
+    ///
+    /// Disable scrolllock for the keyboard.
+    #[inline]
+    pub fn try_send_scrolllock_disable(
+        &self,
+    ) -> Result<(), ObjectError> {
+        let core = self.core();
+        let Some(id) = core.server_obj_id.get() else {
+            return Err(ObjectError(ObjectErrorKind::ReceiverNoServerId));
+        };
+        #[cfg(feature = "logging")]
+        if self.core.state.log {
+            #[cold]
+            fn log(state: &State, id: u32) {
+                let (millis, micros) = time_since_epoch();
+                let prefix = &state.log_prefix;
+                let args = format_args!("[{millis:7}.{micros:03}] {prefix}server      <= river_xkb_keyboard_v1#{}.scrolllock_disable()\n", id);
+                state.log(args);
+            }
+            log(&self.core.state, id);
+        }
+        let Some(endpoint) = &self.core.state.server else {
+            return Ok(());
+        };
+        if !endpoint.flush_queued.replace(true) {
+            self.core.state.add_flushable_endpoint(endpoint, None);
+        }
+        let mut outgoing_ref = endpoint.outgoing.borrow_mut();
+        let outgoing = &mut *outgoing_ref;
+        let mut fmt = outgoing.formatter();
+        fmt.words([
+            id,
+            9,
+        ]);
+        Ok(())
+    }
+
+    /// disable scrolllock
+    ///
+    /// Disable scrolllock for the keyboard.
+    #[inline]
+    pub fn send_scrolllock_disable(
+        &self,
+    ) {
+        let res = self.try_send_scrolllock_disable(
+        );
+        if let Err(e) = res {
+            log_send("river_xkb_keyboard_v1.scrolllock_disable", &e);
+        }
+    }
+
+    /// Since when the scrolllock_enabled message is available.
+    pub const MSG__SCROLLLOCK_ENABLED__SINCE: u32 = 3;
+
+    /// scrolllock is currently enabled
+    ///
+    /// Scrolllock is currently enabled for the keyboard.
+    ///
+    /// This event is sent once when the river_xkb_keyboard_v1 is created and
+    /// again whenever the scrolllock state changes.
+    #[inline]
+    pub fn try_send_scrolllock_enabled(
+        &self,
+    ) -> Result<(), ObjectError> {
+        let core = self.core();
+        let client_ref = core.client.borrow();
+        let Some(client) = &*client_ref else {
+            return Err(ObjectError(ObjectErrorKind::ReceiverNoClient));
+        };
+        let id = core.client_obj_id.get().unwrap_or(0);
+        #[cfg(feature = "logging")]
+        if self.core.state.log {
+            #[cold]
+            fn log(state: &State, client_id: u64, id: u32) {
+                let (millis, micros) = time_since_epoch();
+                let prefix = &state.log_prefix;
+                let args = format_args!("[{millis:7}.{micros:03}] {prefix}client#{:<4} <= river_xkb_keyboard_v1#{}.scrolllock_enabled()\n", client_id, id);
+                state.log(args);
+            }
+            log(&self.core.state, client.endpoint.id, id);
+        }
+        let endpoint = &client.endpoint;
+        if !endpoint.flush_queued.replace(true) {
+            self.core.state.add_flushable_endpoint(endpoint, Some(client));
+        }
+        let mut outgoing_ref = endpoint.outgoing.borrow_mut();
+        let outgoing = &mut *outgoing_ref;
+        let mut fmt = outgoing.formatter();
+        fmt.words([
+            id,
+            8,
+        ]);
+        Ok(())
+    }
+
+    /// scrolllock is currently enabled
+    ///
+    /// Scrolllock is currently enabled for the keyboard.
+    ///
+    /// This event is sent once when the river_xkb_keyboard_v1 is created and
+    /// again whenever the scrolllock state changes.
+    #[inline]
+    pub fn send_scrolllock_enabled(
+        &self,
+    ) {
+        let res = self.try_send_scrolllock_enabled(
+        );
+        if let Err(e) = res {
+            log_send("river_xkb_keyboard_v1.scrolllock_enabled", &e);
+        }
+    }
+
+    /// Since when the scrolllock_disabled message is available.
+    pub const MSG__SCROLLLOCK_DISABLED__SINCE: u32 = 3;
+
+    /// scrolllock is currently disabled
+    ///
+    /// Scrolllock is currently disabled for the keyboard.
+    ///
+    /// This event is sent once when the river_xkb_keyboard_v1 is created and
+    /// again whenever the scrolllock state changes.
+    #[inline]
+    pub fn try_send_scrolllock_disabled(
+        &self,
+    ) -> Result<(), ObjectError> {
+        let core = self.core();
+        let client_ref = core.client.borrow();
+        let Some(client) = &*client_ref else {
+            return Err(ObjectError(ObjectErrorKind::ReceiverNoClient));
+        };
+        let id = core.client_obj_id.get().unwrap_or(0);
+        #[cfg(feature = "logging")]
+        if self.core.state.log {
+            #[cold]
+            fn log(state: &State, client_id: u64, id: u32) {
+                let (millis, micros) = time_since_epoch();
+                let prefix = &state.log_prefix;
+                let args = format_args!("[{millis:7}.{micros:03}] {prefix}client#{:<4} <= river_xkb_keyboard_v1#{}.scrolllock_disabled()\n", client_id, id);
+                state.log(args);
+            }
+            log(&self.core.state, client.endpoint.id, id);
+        }
+        let endpoint = &client.endpoint;
+        if !endpoint.flush_queued.replace(true) {
+            self.core.state.add_flushable_endpoint(endpoint, Some(client));
+        }
+        let mut outgoing_ref = endpoint.outgoing.borrow_mut();
+        let outgoing = &mut *outgoing_ref;
+        let mut fmt = outgoing.formatter();
+        fmt.words([
+            id,
+            9,
+        ]);
+        Ok(())
+    }
+
+    /// scrolllock is currently disabled
+    ///
+    /// Scrolllock is currently disabled for the keyboard.
+    ///
+    /// This event is sent once when the river_xkb_keyboard_v1 is created and
+    /// again whenever the scrolllock state changes.
+    #[inline]
+    pub fn send_scrolllock_disabled(
+        &self,
+    ) {
+        let res = self.try_send_scrolllock_disabled(
+        );
+        if let Err(e) = res {
+            log_send("river_xkb_keyboard_v1.scrolllock_disabled", &e);
+        }
+    }
 }
 
 /// A message handler for [`RiverXkbKeyboardV1`] proxies.
@@ -1487,6 +1719,84 @@ pub trait RiverXkbKeyboardV1Handler: Any {
             log_forward("river_xkb_keyboard_v1.done", &e);
         }
     }
+
+    /// enable scrolllock
+    ///
+    /// Enable scrolllock for the keyboard.
+    #[inline]
+    fn handle_scrolllock_enable(
+        &mut self,
+        slf: &Rc<RiverXkbKeyboardV1>,
+    ) {
+        if !slf.core.forward_to_server.get() {
+            return;
+        }
+        let res = slf.try_send_scrolllock_enable(
+        );
+        if let Err(e) = res {
+            log_forward("river_xkb_keyboard_v1.scrolllock_enable", &e);
+        }
+    }
+
+    /// disable scrolllock
+    ///
+    /// Disable scrolllock for the keyboard.
+    #[inline]
+    fn handle_scrolllock_disable(
+        &mut self,
+        slf: &Rc<RiverXkbKeyboardV1>,
+    ) {
+        if !slf.core.forward_to_server.get() {
+            return;
+        }
+        let res = slf.try_send_scrolllock_disable(
+        );
+        if let Err(e) = res {
+            log_forward("river_xkb_keyboard_v1.scrolllock_disable", &e);
+        }
+    }
+
+    /// scrolllock is currently enabled
+    ///
+    /// Scrolllock is currently enabled for the keyboard.
+    ///
+    /// This event is sent once when the river_xkb_keyboard_v1 is created and
+    /// again whenever the scrolllock state changes.
+    #[inline]
+    fn handle_scrolllock_enabled(
+        &mut self,
+        slf: &Rc<RiverXkbKeyboardV1>,
+    ) {
+        if !slf.core.forward_to_client.get() {
+            return;
+        }
+        let res = slf.try_send_scrolllock_enabled(
+        );
+        if let Err(e) = res {
+            log_forward("river_xkb_keyboard_v1.scrolllock_enabled", &e);
+        }
+    }
+
+    /// scrolllock is currently disabled
+    ///
+    /// Scrolllock is currently disabled for the keyboard.
+    ///
+    /// This event is sent once when the river_xkb_keyboard_v1 is created and
+    /// again whenever the scrolllock state changes.
+    #[inline]
+    fn handle_scrolllock_disabled(
+        &mut self,
+        slf: &Rc<RiverXkbKeyboardV1>,
+    ) {
+        if !slf.core.forward_to_client.get() {
+            return;
+        }
+        let res = slf.try_send_scrolllock_disabled(
+        );
+        if let Err(e) = res {
+            log_forward("river_xkb_keyboard_v1.scrolllock_disabled", &e);
+        }
+    }
 }
 
 impl ObjectPrivate for RiverXkbKeyboardV1 {
@@ -1701,6 +2011,48 @@ impl ObjectPrivate for RiverXkbKeyboardV1 {
                     DefaultHandler.handle_numlock_disable(&self);
                 }
             }
+            8 => {
+                if msg.len() != 2 {
+                    return Err(ObjectError(ObjectErrorKind::WrongMessageSize(msg.len() as u32 * 4, 8)));
+                }
+                #[cfg(feature = "logging")]
+                if self.core.state.log {
+                    #[cold]
+                    fn log(state: &State, client_id: u64, id: u32) {
+                        let (millis, micros) = time_since_epoch();
+                        let prefix = &state.log_prefix;
+                        let args = format_args!("[{millis:7}.{micros:03}] {prefix}client#{:<4} -> river_xkb_keyboard_v1#{}.scrolllock_enable()\n", client_id, id);
+                        state.log(args);
+                    }
+                    log(&self.core.state, client.endpoint.id, msg[0]);
+                }
+                if let Some(handler) = handler {
+                    (**handler).handle_scrolllock_enable(&self);
+                } else {
+                    DefaultHandler.handle_scrolllock_enable(&self);
+                }
+            }
+            9 => {
+                if msg.len() != 2 {
+                    return Err(ObjectError(ObjectErrorKind::WrongMessageSize(msg.len() as u32 * 4, 8)));
+                }
+                #[cfg(feature = "logging")]
+                if self.core.state.log {
+                    #[cold]
+                    fn log(state: &State, client_id: u64, id: u32) {
+                        let (millis, micros) = time_since_epoch();
+                        let prefix = &state.log_prefix;
+                        let args = format_args!("[{millis:7}.{micros:03}] {prefix}client#{:<4} -> river_xkb_keyboard_v1#{}.scrolllock_disable()\n", client_id, id);
+                        state.log(args);
+                    }
+                    log(&self.core.state, client.endpoint.id, msg[0]);
+                }
+                if let Some(handler) = handler {
+                    (**handler).handle_scrolllock_disable(&self);
+                } else {
+                    DefaultHandler.handle_scrolllock_disable(&self);
+                }
+            }
             n => {
                 let _ = client;
                 let _ = msg;
@@ -1904,6 +2256,48 @@ impl ObjectPrivate for RiverXkbKeyboardV1 {
                     DefaultHandler.handle_done(&self);
                 }
             }
+            8 => {
+                if msg.len() != 2 {
+                    return Err(ObjectError(ObjectErrorKind::WrongMessageSize(msg.len() as u32 * 4, 8)));
+                }
+                #[cfg(feature = "logging")]
+                if self.core.state.log {
+                    #[cold]
+                    fn log(state: &State, id: u32) {
+                        let (millis, micros) = time_since_epoch();
+                        let prefix = &state.log_prefix;
+                        let args = format_args!("[{millis:7}.{micros:03}] {prefix}server      -> river_xkb_keyboard_v1#{}.scrolllock_enabled()\n", id);
+                        state.log(args);
+                    }
+                    log(&self.core.state, msg[0]);
+                }
+                if let Some(handler) = handler {
+                    (**handler).handle_scrolllock_enabled(&self);
+                } else {
+                    DefaultHandler.handle_scrolllock_enabled(&self);
+                }
+            }
+            9 => {
+                if msg.len() != 2 {
+                    return Err(ObjectError(ObjectErrorKind::WrongMessageSize(msg.len() as u32 * 4, 8)));
+                }
+                #[cfg(feature = "logging")]
+                if self.core.state.log {
+                    #[cold]
+                    fn log(state: &State, id: u32) {
+                        let (millis, micros) = time_since_epoch();
+                        let prefix = &state.log_prefix;
+                        let args = format_args!("[{millis:7}.{micros:03}] {prefix}server      -> river_xkb_keyboard_v1#{}.scrolllock_disabled()\n", id);
+                        state.log(args);
+                    }
+                    log(&self.core.state, msg[0]);
+                }
+                if let Some(handler) = handler {
+                    (**handler).handle_scrolllock_disabled(&self);
+                } else {
+                    DefaultHandler.handle_scrolllock_disabled(&self);
+                }
+            }
             n => {
                 let _ = server;
                 let _ = msg;
@@ -1925,6 +2319,8 @@ impl ObjectPrivate for RiverXkbKeyboardV1 {
             5 => "capslock_disable",
             6 => "numlock_enable",
             7 => "numlock_disable",
+            8 => "scrolllock_enable",
+            9 => "scrolllock_disable",
             _ => return None,
         };
         Some(name)
@@ -1940,6 +2336,8 @@ impl ObjectPrivate for RiverXkbKeyboardV1 {
             5 => "numlock_enabled",
             6 => "numlock_disabled",
             7 => "done",
+            8 => "scrolllock_enabled",
+            9 => "scrolllock_disabled",
             _ => return None,
         };
         Some(name)

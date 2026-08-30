@@ -6190,11 +6190,11 @@ impl ObjectInterface {
             #[cfg(feature = "protocol-river_xkb_bindings_v1")]
             Self::RiverXkbBindingsV1 => 3,
             #[cfg(feature = "protocol-river_xkb_config_v1")]
-            Self::RiverXkbConfigV1 => 2,
+            Self::RiverXkbConfigV1 => 3,
             #[cfg(feature = "protocol-river_xkb_config_v1")]
-            Self::RiverXkbKeyboardV1 => 2,
+            Self::RiverXkbKeyboardV1 => 3,
             #[cfg(feature = "protocol-river_xkb_config_v1")]
-            Self::RiverXkbKeymapV1 => 2,
+            Self::RiverXkbKeymapV1 => 3,
             #[cfg(feature = "protocol-ivi_application")]
             Self::IviApplication => 1,
             #[cfg(feature = "protocol-ivi_application")]

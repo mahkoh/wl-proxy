@@ -3110,7 +3110,8 @@ impl RiverWindowV1 {
     ///
     /// Make the window fullscreen on the given output. If multiple windows are
     /// fullscreen on the same output at the same time only the "top" window in
-    /// rendering order shall be displayed.
+    /// rendering order shall be displayed. If the window is already fullscreen
+    /// on a different output, the window is switched to the new output.
     ///
     /// All river_shell_surface_v1 objects above the top fullscreen window in
     /// the rendering order will continue to be rendered.
@@ -3195,7 +3196,8 @@ impl RiverWindowV1 {
     ///
     /// Make the window fullscreen on the given output. If multiple windows are
     /// fullscreen on the same output at the same time only the "top" window in
-    /// rendering order shall be displayed.
+    /// rendering order shall be displayed. If the window is already fullscreen
+    /// on a different output, the window is switched to the new output.
     ///
     /// All river_shell_surface_v1 objects above the top fullscreen window in
     /// the rendering order will continue to be rendered.
@@ -5237,7 +5239,8 @@ pub trait RiverWindowV1Handler: Any {
     ///
     /// Make the window fullscreen on the given output. If multiple windows are
     /// fullscreen on the same output at the same time only the "top" window in
-    /// rendering order shall be displayed.
+    /// rendering order shall be displayed. If the window is already fullscreen
+    /// on a different output, the window is switched to the new output.
     ///
     /// All river_shell_surface_v1 objects above the top fullscreen window in
     /// the rendering order will continue to be rendered.
