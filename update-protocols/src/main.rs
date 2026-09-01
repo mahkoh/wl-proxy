@@ -218,6 +218,7 @@ fn main() {
                 "weston_test",
                 "weston_touch_calibration",
                 "weston_restricted_buffer",
+                "weston_fast_forward",
             ],
             block: &["text_cursor_position"],
         },
