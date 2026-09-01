@@ -438,7 +438,7 @@
         the hide request.
 
         This request modifies rendering state and may only be made as part of a
-        render sequence, see the river_window_manager_v1 description.
+        manage or render sequence, see the river_window_manager_v1 description.
       </description>
     </request>
     <request name="show">
@@ -451,7 +451,7 @@
         the hide request.
 
         This request modifies rendering state and may only be made as part of a
-        render sequence, see the river_window_manager_v1 description.
+        manage or render sequence, see the river_window_manager_v1 description.
       </description>
     </request>
     <event name="app_id">
@@ -567,7 +567,7 @@
         presence of borders or decoration surfaces.
 
         This request modifies rendering state and may only be made as part of a
-        render sequence, see the river_window_manager_v1 description.
+        manage or render sequence, see the river_window_manager_v1 description.
       </description>
       <arg name="edges" type="uint" enum="edges" summary="border edges"/>
       <arg name="width" type="int" summary="border width"/>
@@ -908,7 +908,7 @@
         Both set_clip_box and set_content_clip_box may be enabled simultaneously.
 
         This request modifies rendering state and may only be made as part of a
-        render sequence, see the river_window_manager_v1 description.
+        manage or render sequence, see the river_window_manager_v1 description.
       </description>
       <arg name="x" type="int" summary="x relative to top left window corner"/>
       <arg name="y" type="int" summary="y relative to top left window corner"/>
@@ -950,7 +950,7 @@
         Both set_clip_box and set_content_clip_box may be enabled simultaneously.
 
         This request modifies rendering state and may only be made as part of a
-        render sequence, see the river_window_manager_v1 description.
+        manage or render sequence, see the river_window_manager_v1 description.
       </description>
       <arg name="x" type="int" summary="x relative to top left window corner"/>
       <arg name="y" type="int" summary="y relative to top left window corner"/>
@@ -1075,7 +1075,7 @@
         protocol and left up to the compositor.
 
         This request modifies rendering state and may only be made as part of a
-        render sequence, see the river_window_manager_v1 description.
+        manage or render sequence, see the river_window_manager_v1 description.
       </description>
       <arg name="x" type="int" summary="x relative to top left window corner"/>
       <arg name="y" type="int" summary="y relative to top left window corner"/>
@@ -1091,7 +1091,7 @@
         to do so is a protocol error.
 
         This request modifies rendering state and may only be made as part of a
-        render sequence, see the river_window_manager_v1 description.
+        manage or render sequence, see the river_window_manager_v1 description.
       </description>
     </request>
     <enum name="error">
@@ -1130,7 +1130,7 @@
         so is a protocol error.
 
         This request modifies rendering state and may only be made as part of a
-        render sequence, see the river_window_manager_v1 description.
+        manage or render sequence, see the river_window_manager_v1 description.
       </description>
     </request>
     <enum name="error">
@@ -1168,7 +1168,7 @@
         this protocol and left up to the compositor.
 
         This request modifies rendering state and may only be made as part of a
-        render sequence, see the river_window_manager_v1 description.
+        manage or render sequence, see the river_window_manager_v1 description.
       </description>
       <arg name="x" type="int" summary="global x coordinate"/>
       <arg name="y" type="int" summary="global y coordinate"/>
@@ -1179,7 +1179,7 @@
         render list.
 
         This request modifies rendering state and may only be made as part of a
-        render sequence, see the river_window_manager_v1 description.
+        manage or render sequence, see the river_window_manager_v1 description.
       </description>
     </request>
     <request name="place_bottom">
@@ -1188,7 +1188,7 @@
         render list.
 
         This request modifies rendering state and may only be made as part of a
-        render sequence, see the river_window_manager_v1 description.
+        manage or render sequence, see the river_window_manager_v1 description.
       </description>
     </request>
     <request name="place_above">
@@ -1207,7 +1207,7 @@
         3. B.place_above(A) -> A, B, C
 
         This request modifies rendering state and may only be made as part of a
-        render sequence, see the river_window_manager_v1 description.
+        manage or render sequence, see the river_window_manager_v1 description.
       </description>
       <arg name="other" type="object" interface="river_node_v1" summary="other node"/>
     </request>
@@ -1227,7 +1227,7 @@
         3. B.place_below(C) -> A, B, C
 
         This request modifies rendering state and may only be made as part of a
-        render sequence, see the river_window_manager_v1 description.
+        manage or render sequence, see the river_window_manager_v1 description.
       </description>
       <arg name="other" type="object" interface="river_node_v1" summary="other node"/>
     </request>
@@ -1334,7 +1334,7 @@
         request is never made, the preferred presentation mode is vsync.
 
         This request modifies rendering state and may only be made as part of a
-        render sequence, see the river_window_manager_v1 description.
+        manage or render sequence, see the river_window_manager_v1 description.
       </description>
       <arg name="mode" type="uint" enum="presentation_mode" summary="preferred presentation mode"/>
     </request>

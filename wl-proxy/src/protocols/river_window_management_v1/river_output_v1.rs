@@ -520,7 +520,7 @@ impl RiverOutputV1 {
     /// request is never made, the preferred presentation mode is vsync.
     ///
     /// This request modifies rendering state and may only be made as part of a
-    /// render sequence, see the river_window_manager_v1 description.
+    /// manage or render sequence, see the river_window_manager_v1 description.
     ///
     /// # Arguments
     ///
@@ -574,7 +574,7 @@ impl RiverOutputV1 {
     /// request is never made, the preferred presentation mode is vsync.
     ///
     /// This request modifies rendering state and may only be made as part of a
-    /// render sequence, see the river_window_manager_v1 description.
+    /// manage or render sequence, see the river_window_manager_v1 description.
     ///
     /// # Arguments
     ///
@@ -867,7 +867,7 @@ pub trait RiverOutputV1Handler: Any {
     /// request is never made, the preferred presentation mode is vsync.
     ///
     /// This request modifies rendering state and may only be made as part of a
-    /// render sequence, see the river_window_manager_v1 description.
+    /// manage or render sequence, see the river_window_manager_v1 description.
     ///
     /// # Arguments
     ///

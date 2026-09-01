@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<protocol name="weston_fast_forward">
+  <copyright>
+    Copyright (C) 2026 Amazon.com, Inc. or its affiliates
+
+    Permission is hereby granted, free of charge, to any person obtaining a
+    copy of this software and associated documentation files (the "Software"),
+    to deal in the Software without restriction, including without limitation
+    the rights to use, copy, modify, merge, publish, distribute, sublicense,
+    and/or sell copies of the Software, and to permit persons to whom the
+    Software is furnished to do so, subject to the following conditions:
+
+    The above copyright notice and this permission notice (including the next
+    paragraph) shall be included in all copies or substantial portions of the
+    Software.
+
+    THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+    IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+    FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL
+    THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+    LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+    FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
+    DEALINGS IN THE SOFTWARE.
+  </copyright>
+  <interface name="weston_fast_forward_manager_v1" version="1">
+    <description summary="protocol to clear content update constraints">
+      A Wayland compositor may have a queue of content updates for a
+      wl_surface. Various protocol extensions may impose readiness
+      constraints on these updates, controlling when each update may
+      be applied: for example, FIFO ordering or target presentation
+      timestamps.
+
+      This protocol provides a way to "fast forward" through upcoming
+      updates in a mailbox fashion.
+    </description>
+    <request name="destroy" type="destructor">
+      <description summary="destroy factory object">
+        Destroys the factory object, but does not affect objects it has
+        created.
+      </description>
+    </request>
+    <request name="get_fast_forward">
+      <description summary="request fast forward interface for surface">
+        Create a fast_forward object that may be used to ignore content
+        updates on a specified surface.
+
+        Only one such object may exist for a surface and attempting to
+        create more than one will result in an already_exists protocol
+        error. If a surface is acted on by multiple software components,
+        general best practice is that only the component performing
+        wl_surface.attach operations should use this protocol.
+      </description>
+      <arg name="id" type="new_id" interface="weston_fast_forward_v1"/>
+      <arg name="surface" type="object" interface="wl_surface"/>
+    </request>
+    <enum name="error">
+      <description summary="fatal protocol error">
+        These fatal protocol errors may be emitted in response to illegal
+        requests.
+      </description>
+      <entry name="already_exists" value="0" summary="fast forward object already exists for this surface"/>
+    </enum>
+  </interface>
+  <interface name="weston_fast_forward_v1" version="1">
+    <description summary="fast_forward interface">
+      A fast_forward object to ignore content update constraints.
+    </description>
+    <request name="destroy" type="destructor">
+      <description summary="destroy the fast_forward object">
+        Informs the server that the client will no longer be using this
+        protocol object.
+
+        Surface state changes previously made by this protocol are
+        unaffected by this object's destruction.
+      </description>
+    </request>
+    <request name="fast_forward">
+      <description summary="fast forwards through upcoming constraints">
+        Upon wl_surface.commit of a content update containing a fast forward
+        request, the compositor must immediately ignore all previously
+        committed constraints on that surface.
+
+        The content update containing the fast forward request also has
+        its constraints ignored. Normal constraint handling resumes for
+        subsequent commits.
+
+        surface_destroyed error will be emitted if associated surface no
+        longer exists.
+
+        "fast_forward" is double-buffered state, see wl_surface.commit.
+      </description>
+    </request>
+    <enum name="error">
+      <description summary="fatal error">
+        These fatal protocol errors may be emitted in response to illegal
+        requests.
+      </description>
+      <entry name="surface_destroyed" value="0" summary="the associated surface no longer exists"/>
+    </enum>
+  </interface>
+</protocol>

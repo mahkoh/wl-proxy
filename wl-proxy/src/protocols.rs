@@ -185,6 +185,8 @@ pub mod weston_debug;
 pub mod weston_desktop;
 #[cfg(feature = "protocol-weston_direct_display")]
 pub mod weston_direct_display;
+#[cfg(feature = "protocol-weston_fast_forward")]
+pub mod weston_fast_forward;
 #[cfg(feature = "protocol-weston_output_capture")]
 pub mod weston_output_capture;
 #[cfg(feature = "protocol-weston_restricted_buffer")]
@@ -1145,6 +1147,14 @@ mod all_types {
     pub(super) use super::weston_direct_display::weston_direct_display_v1::WestonDirectDisplayV1;
     #[cfg(feature = "protocol-weston_direct_display")]
     pub(super) use super::weston_direct_display::weston_direct_display_v1::WestonDirectDisplayV1Error;
+    #[cfg(feature = "protocol-weston_fast_forward")]
+    pub(super) use super::weston_fast_forward::weston_fast_forward_manager_v1::WestonFastForwardManagerV1;
+    #[cfg(feature = "protocol-weston_fast_forward")]
+    pub(super) use super::weston_fast_forward::weston_fast_forward_manager_v1::WestonFastForwardManagerV1Error;
+    #[cfg(feature = "protocol-weston_fast_forward")]
+    pub(super) use super::weston_fast_forward::weston_fast_forward_v1::WestonFastForwardV1;
+    #[cfg(feature = "protocol-weston_fast_forward")]
+    pub(super) use super::weston_fast_forward::weston_fast_forward_v1::WestonFastForwardV1Error;
     #[cfg(feature = "protocol-weston_output_capture")]
     pub(super) use super::weston_output_capture::weston_capture_source_v1::WestonCaptureSourceV1;
     #[cfg(feature = "protocol-weston_output_capture")]
@@ -2232,6 +2242,14 @@ mod all_types {
                 "weston_direct_display_v1" => {
                     #[cfg(feature = "protocol-weston_direct_display")] { Some(ObjectInterface::WestonDirectDisplayV1) }
                     #[cfg(not(feature = "protocol-weston_direct_display"))] { None }
+                },
+                "weston_fast_forward_manager_v1" => {
+                    #[cfg(feature = "protocol-weston_fast_forward")] { Some(ObjectInterface::WestonFastForwardManagerV1) }
+                    #[cfg(not(feature = "protocol-weston_fast_forward"))] { None }
+                },
+                "weston_fast_forward_v1" => {
+                    #[cfg(feature = "protocol-weston_fast_forward")] { Some(ObjectInterface::WestonFastForwardV1) }
+                    #[cfg(not(feature = "protocol-weston_fast_forward"))] { None }
                 },
                 "weston_capture_source_v1" => {
                     #[cfg(feature = "protocol-weston_output_capture")] { Some(ObjectInterface::WestonCaptureSourceV1) }
@@ -4149,6 +4167,20 @@ mod all_types {
                     }
                     Ok(WestonDirectDisplayV1::new(state, version))
                 }
+                #[cfg(feature = "protocol-weston_fast_forward")]
+                Self::WestonFastForwardManagerV1 => {
+                    if version > WestonFastForwardManagerV1::XML_VERSION {
+                        return Err(ObjectError(ObjectErrorKind::MaxVersion(self, version)));
+                    }
+                    Ok(WestonFastForwardManagerV1::new(state, version))
+                }
+                #[cfg(feature = "protocol-weston_fast_forward")]
+                Self::WestonFastForwardV1 => {
+                    if version > WestonFastForwardV1::XML_VERSION {
+                        return Err(ObjectError(ObjectErrorKind::MaxVersion(self, version)));
+                    }
+                    Ok(WestonFastForwardV1::new(state, version))
+                }
                 #[cfg(feature = "protocol-weston_output_capture")]
                 Self::WestonCaptureSourceV1 => {
                     if version > WestonCaptureSourceV1::XML_VERSION {
@@ -5084,6 +5116,12 @@ pub enum ObjectInterface {
     /// weston_direct_display_v1
     #[cfg(feature = "protocol-weston_direct_display")]
     WestonDirectDisplayV1,
+    /// weston_fast_forward_manager_v1
+    #[cfg(feature = "protocol-weston_fast_forward")]
+    WestonFastForwardManagerV1,
+    /// weston_fast_forward_v1
+    #[cfg(feature = "protocol-weston_fast_forward")]
+    WestonFastForwardV1,
     /// weston_capture_source_v1
     #[cfg(feature = "protocol-weston_output_capture")]
     WestonCaptureSourceV1,
@@ -5661,6 +5699,10 @@ impl ObjectInterface {
             Self::WestonScreensaver => "weston_screensaver",
             #[cfg(feature = "protocol-weston_direct_display")]
             Self::WestonDirectDisplayV1 => "weston_direct_display_v1",
+            #[cfg(feature = "protocol-weston_fast_forward")]
+            Self::WestonFastForwardManagerV1 => "weston_fast_forward_manager_v1",
+            #[cfg(feature = "protocol-weston_fast_forward")]
+            Self::WestonFastForwardV1 => "weston_fast_forward_v1",
             #[cfg(feature = "protocol-weston_output_capture")]
             Self::WestonCaptureSourceV1 => "weston_capture_source_v1",
             #[cfg(feature = "protocol-weston_output_capture")]
@@ -6215,6 +6257,10 @@ impl ObjectInterface {
             Self::WestonScreensaver => 1,
             #[cfg(feature = "protocol-weston_direct_display")]
             Self::WestonDirectDisplayV1 => 2,
+            #[cfg(feature = "protocol-weston_fast_forward")]
+            Self::WestonFastForwardManagerV1 => 1,
+            #[cfg(feature = "protocol-weston_fast_forward")]
+            Self::WestonFastForwardV1 => 1,
             #[cfg(feature = "protocol-weston_output_capture")]
             Self::WestonCaptureSourceV1 => 2,
             #[cfg(feature = "protocol-weston_output_capture")]
