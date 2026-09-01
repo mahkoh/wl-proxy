@@ -754,7 +754,7 @@ impl RiverWindowV1 {
     /// the hide request.
     ///
     /// This request modifies rendering state and may only be made as part of a
-    /// render sequence, see the river_window_manager_v1 description.
+    /// manage or render sequence, see the river_window_manager_v1 description.
     #[inline]
     pub fn try_send_hide(
         &self,
@@ -799,7 +799,7 @@ impl RiverWindowV1 {
     /// the hide request.
     ///
     /// This request modifies rendering state and may only be made as part of a
-    /// render sequence, see the river_window_manager_v1 description.
+    /// manage or render sequence, see the river_window_manager_v1 description.
     #[inline]
     pub fn send_hide(
         &self,
@@ -824,7 +824,7 @@ impl RiverWindowV1 {
     /// the hide request.
     ///
     /// This request modifies rendering state and may only be made as part of a
-    /// render sequence, see the river_window_manager_v1 description.
+    /// manage or render sequence, see the river_window_manager_v1 description.
     #[inline]
     pub fn try_send_show(
         &self,
@@ -870,7 +870,7 @@ impl RiverWindowV1 {
     /// the hide request.
     ///
     /// This request modifies rendering state and may only be made as part of a
-    /// render sequence, see the river_window_manager_v1 description.
+    /// manage or render sequence, see the river_window_manager_v1 description.
     #[inline]
     pub fn send_show(
         &self,
@@ -1424,7 +1424,7 @@ impl RiverWindowV1 {
     /// presence of borders or decoration surfaces.
     ///
     /// This request modifies rendering state and may only be made as part of a
-    /// render sequence, see the river_window_manager_v1 description.
+    /// manage or render sequence, see the river_window_manager_v1 description.
     ///
     /// # Arguments
     ///
@@ -1528,7 +1528,7 @@ impl RiverWindowV1 {
     /// presence of borders or decoration surfaces.
     ///
     /// This request modifies rendering state and may only be made as part of a
-    /// render sequence, see the river_window_manager_v1 description.
+    /// manage or render sequence, see the river_window_manager_v1 description.
     ///
     /// # Arguments
     ///
@@ -3414,7 +3414,7 @@ impl RiverWindowV1 {
     /// Both set_clip_box and set_content_clip_box may be enabled simultaneously.
     ///
     /// This request modifies rendering state and may only be made as part of a
-    /// render sequence, see the river_window_manager_v1 description.
+    /// manage or render sequence, see the river_window_manager_v1 description.
     ///
     /// # Arguments
     ///
@@ -3491,7 +3491,7 @@ impl RiverWindowV1 {
     /// Both set_clip_box and set_content_clip_box may be enabled simultaneously.
     ///
     /// This request modifies rendering state and may only be made as part of a
-    /// render sequence, see the river_window_manager_v1 description.
+    /// manage or render sequence, see the river_window_manager_v1 description.
     ///
     /// # Arguments
     ///
@@ -3631,7 +3631,7 @@ impl RiverWindowV1 {
     /// Both set_clip_box and set_content_clip_box may be enabled simultaneously.
     ///
     /// This request modifies rendering state and may only be made as part of a
-    /// render sequence, see the river_window_manager_v1 description.
+    /// manage or render sequence, see the river_window_manager_v1 description.
     ///
     /// # Arguments
     ///
@@ -3713,7 +3713,7 @@ impl RiverWindowV1 {
     /// Both set_clip_box and set_content_clip_box may be enabled simultaneously.
     ///
     /// This request modifies rendering state and may only be made as part of a
-    /// render sequence, see the river_window_manager_v1 description.
+    /// manage or render sequence, see the river_window_manager_v1 description.
     ///
     /// # Arguments
     ///
@@ -4378,7 +4378,7 @@ pub trait RiverWindowV1Handler: Any {
     /// the hide request.
     ///
     /// This request modifies rendering state and may only be made as part of a
-    /// render sequence, see the river_window_manager_v1 description.
+    /// manage or render sequence, see the river_window_manager_v1 description.
     #[inline]
     fn handle_hide(
         &mut self,
@@ -4404,7 +4404,7 @@ pub trait RiverWindowV1Handler: Any {
     /// the hide request.
     ///
     /// This request modifies rendering state and may only be made as part of a
-    /// render sequence, see the river_window_manager_v1 description.
+    /// manage or render sequence, see the river_window_manager_v1 description.
     #[inline]
     fn handle_show(
         &mut self,
@@ -4643,7 +4643,7 @@ pub trait RiverWindowV1Handler: Any {
     /// presence of borders or decoration surfaces.
     ///
     /// This request modifies rendering state and may only be made as part of a
-    /// render sequence, see the river_window_manager_v1 description.
+    /// manage or render sequence, see the river_window_manager_v1 description.
     ///
     /// # Arguments
     ///
@@ -5366,7 +5366,7 @@ pub trait RiverWindowV1Handler: Any {
     /// Both set_clip_box and set_content_clip_box may be enabled simultaneously.
     ///
     /// This request modifies rendering state and may only be made as part of a
-    /// render sequence, see the river_window_manager_v1 description.
+    /// manage or render sequence, see the river_window_manager_v1 description.
     ///
     /// # Arguments
     ///
@@ -5450,7 +5450,7 @@ pub trait RiverWindowV1Handler: Any {
     /// Both set_clip_box and set_content_clip_box may be enabled simultaneously.
     ///
     /// This request modifies rendering state and may only be made as part of a
-    /// render sequence, see the river_window_manager_v1 description.
+    /// manage or render sequence, see the river_window_manager_v1 description.
     ///
     /// # Arguments
     ///

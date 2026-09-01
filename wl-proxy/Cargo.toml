@@ -148,6 +148,7 @@ suite-weston-protocols = [
     "protocol-weston_debug",
     "protocol-weston_desktop",
     "protocol-weston_direct_display",
+    "protocol-weston_fast_forward",
     "protocol-weston_output_capture",
     "protocol-weston_restricted_buffer",
     "protocol-weston_test",
@@ -255,6 +256,7 @@ protocol-weston_content_protection = []
 protocol-weston_debug = []
 protocol-weston_desktop = []
 protocol-weston_direct_display = ["protocol-linux_dmabuf_v1"]
+protocol-weston_fast_forward = []
 protocol-weston_output_capture = []
 protocol-weston_restricted_buffer = ["protocol-linux_dmabuf_v1"]
 protocol-weston_test = []

@@ -240,7 +240,7 @@ impl RiverShellSurfaceV1 {
     /// so is a protocol error.
     ///
     /// This request modifies rendering state and may only be made as part of a
-    /// render sequence, see the river_window_manager_v1 description.
+    /// manage or render sequence, see the river_window_manager_v1 description.
     #[inline]
     pub fn try_send_sync_next_commit(
         &self,
@@ -287,7 +287,7 @@ impl RiverShellSurfaceV1 {
     /// so is a protocol error.
     ///
     /// This request modifies rendering state and may only be made as part of a
-    /// render sequence, see the river_window_manager_v1 description.
+    /// manage or render sequence, see the river_window_manager_v1 description.
     #[inline]
     pub fn send_sync_next_commit(
         &self,
@@ -367,7 +367,7 @@ pub trait RiverShellSurfaceV1Handler: Any {
     /// so is a protocol error.
     ///
     /// This request modifies rendering state and may only be made as part of a
-    /// render sequence, see the river_window_manager_v1 description.
+    /// manage or render sequence, see the river_window_manager_v1 description.
     #[inline]
     fn handle_sync_next_commit(
         &mut self,

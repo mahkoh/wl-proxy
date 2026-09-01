@@ -130,7 +130,7 @@ impl RiverNodeV1 {
     /// this protocol and left up to the compositor.
     ///
     /// This request modifies rendering state and may only be made as part of a
-    /// render sequence, see the river_window_manager_v1 description.
+    /// manage or render sequence, see the river_window_manager_v1 description.
     ///
     /// # Arguments
     ///
@@ -195,7 +195,7 @@ impl RiverNodeV1 {
     /// this protocol and left up to the compositor.
     ///
     /// This request modifies rendering state and may only be made as part of a
-    /// render sequence, see the river_window_manager_v1 description.
+    /// manage or render sequence, see the river_window_manager_v1 description.
     ///
     /// # Arguments
     ///
@@ -225,7 +225,7 @@ impl RiverNodeV1 {
     /// render list.
     ///
     /// This request modifies rendering state and may only be made as part of a
-    /// render sequence, see the river_window_manager_v1 description.
+    /// manage or render sequence, see the river_window_manager_v1 description.
     #[inline]
     pub fn try_send_place_top(
         &self,
@@ -267,7 +267,7 @@ impl RiverNodeV1 {
     /// render list.
     ///
     /// This request modifies rendering state and may only be made as part of a
-    /// render sequence, see the river_window_manager_v1 description.
+    /// manage or render sequence, see the river_window_manager_v1 description.
     #[inline]
     pub fn send_place_top(
         &self,
@@ -288,7 +288,7 @@ impl RiverNodeV1 {
     /// render list.
     ///
     /// This request modifies rendering state and may only be made as part of a
-    /// render sequence, see the river_window_manager_v1 description.
+    /// manage or render sequence, see the river_window_manager_v1 description.
     #[inline]
     pub fn try_send_place_bottom(
         &self,
@@ -330,7 +330,7 @@ impl RiverNodeV1 {
     /// render list.
     ///
     /// This request modifies rendering state and may only be made as part of a
-    /// render sequence, see the river_window_manager_v1 description.
+    /// manage or render sequence, see the river_window_manager_v1 description.
     #[inline]
     pub fn send_place_bottom(
         &self,
@@ -361,7 +361,7 @@ impl RiverNodeV1 {
     /// 3. B.place_above(A) -> A, B, C
     ///
     /// This request modifies rendering state and may only be made as part of a
-    /// render sequence, see the river_window_manager_v1 description.
+    /// manage or render sequence, see the river_window_manager_v1 description.
     ///
     /// # Arguments
     ///
@@ -429,7 +429,7 @@ impl RiverNodeV1 {
     /// 3. B.place_above(A) -> A, B, C
     ///
     /// This request modifies rendering state and may only be made as part of a
-    /// render sequence, see the river_window_manager_v1 description.
+    /// manage or render sequence, see the river_window_manager_v1 description.
     ///
     /// # Arguments
     ///
@@ -466,7 +466,7 @@ impl RiverNodeV1 {
     /// 3. B.place_below(C) -> A, B, C
     ///
     /// This request modifies rendering state and may only be made as part of a
-    /// render sequence, see the river_window_manager_v1 description.
+    /// manage or render sequence, see the river_window_manager_v1 description.
     ///
     /// # Arguments
     ///
@@ -534,7 +534,7 @@ impl RiverNodeV1 {
     /// 3. B.place_below(C) -> A, B, C
     ///
     /// This request modifies rendering state and may only be made as part of a
-    /// render sequence, see the river_window_manager_v1 description.
+    /// manage or render sequence, see the river_window_manager_v1 description.
     ///
     /// # Arguments
     ///
@@ -595,7 +595,7 @@ pub trait RiverNodeV1Handler: Any {
     /// this protocol and left up to the compositor.
     ///
     /// This request modifies rendering state and may only be made as part of a
-    /// render sequence, see the river_window_manager_v1 description.
+    /// manage or render sequence, see the river_window_manager_v1 description.
     ///
     /// # Arguments
     ///
@@ -626,7 +626,7 @@ pub trait RiverNodeV1Handler: Any {
     /// render list.
     ///
     /// This request modifies rendering state and may only be made as part of a
-    /// render sequence, see the river_window_manager_v1 description.
+    /// manage or render sequence, see the river_window_manager_v1 description.
     #[inline]
     fn handle_place_top(
         &mut self,
@@ -648,7 +648,7 @@ pub trait RiverNodeV1Handler: Any {
     /// render list.
     ///
     /// This request modifies rendering state and may only be made as part of a
-    /// render sequence, see the river_window_manager_v1 description.
+    /// manage or render sequence, see the river_window_manager_v1 description.
     #[inline]
     fn handle_place_bottom(
         &mut self,
@@ -680,7 +680,7 @@ pub trait RiverNodeV1Handler: Any {
     /// 3. B.place_above(A) -> A, B, C
     ///
     /// This request modifies rendering state and may only be made as part of a
-    /// render sequence, see the river_window_manager_v1 description.
+    /// manage or render sequence, see the river_window_manager_v1 description.
     ///
     /// # Arguments
     ///
@@ -721,7 +721,7 @@ pub trait RiverNodeV1Handler: Any {
     /// 3. B.place_below(C) -> A, B, C
     ///
     /// This request modifies rendering state and may only be made as part of a
-    /// render sequence, see the river_window_manager_v1 description.
+    /// manage or render sequence, see the river_window_manager_v1 description.
     ///
     /// # Arguments
     ///
