@@ -172,6 +172,7 @@ fn main() {
                 "xx_cutouts_unstable_v1",
                 "xx_zones_v1",
                 "xx_fractional_scale_v2",
+                "xx_hotkey_v1",
             ],
         },
         Repo {
