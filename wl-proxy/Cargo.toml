@@ -161,6 +161,7 @@ suite-cosmic-protocols = [
     "protocol-cosmic_keyboard_layout_unstable_v1",
     "protocol-cosmic_output_management_unstable_v1",
     "protocol-cosmic_overlap_notify_unstable_v1",
+    "protocol-cosmic_session_lock_v1",
     "protocol-cosmic_workspace_unstable_v2",
 ]
 
@@ -267,5 +268,6 @@ protocol-cosmic_image_source_unstable_v1 = ["protocol-ext_image_capture_source_v
 protocol-cosmic_keyboard_layout_unstable_v1 = []
 protocol-cosmic_output_management_unstable_v1 = ["protocol-wlr_output_management_unstable_v1"]
 protocol-cosmic_overlap_notify_unstable_v1 = ["protocol-ext_foreign_toplevel_list_v1", "protocol-wlr_layer_shell_unstable_v1"]
+protocol-cosmic_session_lock_v1 = ["protocol-wlr_layer_shell_unstable_v1"]
 protocol-cosmic_workspace_unstable_v2 = ["protocol-ext_workspace_v1"]
 # --generated end--

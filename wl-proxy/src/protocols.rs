@@ -207,6 +207,8 @@ pub mod cosmic_keyboard_layout_unstable_v1;
 pub mod cosmic_output_management_unstable_v1;
 #[cfg(feature = "protocol-cosmic_overlap_notify_unstable_v1")]
 pub mod cosmic_overlap_notify_unstable_v1;
+#[cfg(feature = "protocol-cosmic_session_lock_v1")]
+pub mod cosmic_session_lock_v1;
 #[cfg(feature = "protocol-cosmic_workspace_unstable_v2")]
 pub mod cosmic_workspace_unstable_v2;
 
@@ -1235,6 +1237,8 @@ mod all_types {
     pub(super) use super::cosmic_overlap_notify_unstable_v1::zcosmic_overlap_notification_v1::ZcosmicOverlapNotificationV1;
     #[cfg(feature = "protocol-cosmic_overlap_notify_unstable_v1")]
     pub(super) use super::cosmic_overlap_notify_unstable_v1::zcosmic_overlap_notify_v1::ZcosmicOverlapNotifyV1;
+    #[cfg(feature = "protocol-cosmic_session_lock_v1")]
+    pub(super) use super::cosmic_session_lock_v1::cosmic_session_lock_layer_manager_v1::CosmicSessionLockLayerManagerV1;
     #[cfg(feature = "protocol-cosmic_workspace_unstable_v2")]
     pub(super) use super::cosmic_workspace_unstable_v2::zcosmic_workspace_handle_v2::ZcosmicWorkspaceHandleV2;
     #[cfg(feature = "protocol-cosmic_workspace_unstable_v2")]
@@ -2334,6 +2338,10 @@ mod all_types {
                 "zcosmic_overlap_notify_v1" => {
                     #[cfg(feature = "protocol-cosmic_overlap_notify_unstable_v1")] { Some(ObjectInterface::ZcosmicOverlapNotifyV1) }
                     #[cfg(not(feature = "protocol-cosmic_overlap_notify_unstable_v1"))] { None }
+                },
+                "cosmic_session_lock_layer_manager_v1" => {
+                    #[cfg(feature = "protocol-cosmic_session_lock_v1")] { Some(ObjectInterface::CosmicSessionLockLayerManagerV1) }
+                    #[cfg(not(feature = "protocol-cosmic_session_lock_v1"))] { None }
                 },
                 "zcosmic_workspace_handle_v2" => {
                     #[cfg(feature = "protocol-cosmic_workspace_unstable_v2")] { Some(ObjectInterface::ZcosmicWorkspaceHandleV2) }
@@ -4328,6 +4336,13 @@ mod all_types {
                     }
                     Ok(ZcosmicOverlapNotifyV1::new(state, version))
                 }
+                #[cfg(feature = "protocol-cosmic_session_lock_v1")]
+                Self::CosmicSessionLockLayerManagerV1 => {
+                    if version > CosmicSessionLockLayerManagerV1::XML_VERSION {
+                        return Err(ObjectError(ObjectErrorKind::MaxVersion(self, version)));
+                    }
+                    Ok(CosmicSessionLockLayerManagerV1::new(state, version))
+                }
                 #[cfg(feature = "protocol-cosmic_workspace_unstable_v2")]
                 Self::ZcosmicWorkspaceHandleV2 => {
                     if version > ZcosmicWorkspaceHandleV2::XML_VERSION {
@@ -5185,6 +5200,9 @@ pub enum ObjectInterface {
     /// zcosmic_overlap_notify_v1
     #[cfg(feature = "protocol-cosmic_overlap_notify_unstable_v1")]
     ZcosmicOverlapNotifyV1,
+    /// cosmic_session_lock_layer_manager_v1
+    #[cfg(feature = "protocol-cosmic_session_lock_v1")]
+    CosmicSessionLockLayerManagerV1,
     /// zcosmic_workspace_handle_v2
     #[cfg(feature = "protocol-cosmic_workspace_unstable_v2")]
     ZcosmicWorkspaceHandleV2,
@@ -5745,6 +5763,8 @@ impl ObjectInterface {
             Self::ZcosmicOverlapNotificationV1 => "zcosmic_overlap_notification_v1",
             #[cfg(feature = "protocol-cosmic_overlap_notify_unstable_v1")]
             Self::ZcosmicOverlapNotifyV1 => "zcosmic_overlap_notify_v1",
+            #[cfg(feature = "protocol-cosmic_session_lock_v1")]
+            Self::CosmicSessionLockLayerManagerV1 => "cosmic_session_lock_layer_manager_v1",
             #[cfg(feature = "protocol-cosmic_workspace_unstable_v2")]
             Self::ZcosmicWorkspaceHandleV2 => "zcosmic_workspace_handle_v2",
             #[cfg(feature = "protocol-cosmic_workspace_unstable_v2")]
@@ -5765,9 +5785,9 @@ impl ObjectInterface {
             #[cfg(feature = "protocol-hyprland_global_shortcuts_v1")]
             Self::HyprlandGlobalShortcutsManagerV1 => 1,
             #[cfg(feature = "protocol-hyprland_input_capture_v1")]
-            Self::HyprlandInputCaptureManagerV1 => 1,
+            Self::HyprlandInputCaptureManagerV1 => 2,
             #[cfg(feature = "protocol-hyprland_input_capture_v1")]
-            Self::HyprlandInputCaptureV1 => 1,
+            Self::HyprlandInputCaptureV1 => 2,
             #[cfg(feature = "protocol-hyprland_lock_notify_v1")]
             Self::HyprlandLockNotificationV1 => 1,
             #[cfg(feature = "protocol-hyprland_lock_notify_v1")]
@@ -6303,6 +6323,8 @@ impl ObjectInterface {
             Self::ZcosmicOverlapNotificationV1 => 1,
             #[cfg(feature = "protocol-cosmic_overlap_notify_unstable_v1")]
             Self::ZcosmicOverlapNotifyV1 => 1,
+            #[cfg(feature = "protocol-cosmic_session_lock_v1")]
+            Self::CosmicSessionLockLayerManagerV1 => 1,
             #[cfg(feature = "protocol-cosmic_workspace_unstable_v2")]
             Self::ZcosmicWorkspaceHandleV2 => 2,
             #[cfg(feature = "protocol-cosmic_workspace_unstable_v2")]
