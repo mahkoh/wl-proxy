@@ -234,6 +234,7 @@ fn main() {
                 "cosmic_overlap_notify_unstable_v1",
                 "cosmic_workspace_unstable_v2",
                 "cosmic_keyboard_layout_unstable_v1",
+                "cosmic_session_lock_v1",
             ],
             block: &[
                 "cosmic_workspace_unstable_v1",
