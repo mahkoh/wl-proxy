@@ -202,6 +202,7 @@ fn main() {
                 "river_window_management_v1",
                 "river_xkb_bindings_v1",
                 "river_xkb_config_v1",
+                "river_touch_gestures_v1",
             ],
             block: &[],
         },
