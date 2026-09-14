@@ -1,0 +1,311 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<protocol name="river_touch_gestures_v1">
+  <copyright>
+    SPDX-FileCopyrightText: © 2026 Isaac Freund
+    SPDX-License-Identifier: MIT
+
+    Permission is hereby granted, free of charge, to any person obtaining a copy
+    of this software and associated documentation files (the "Software"), to
+    deal in the Software without restriction, including without limitation the
+    rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+    sell copies of the Software, and to permit persons to whom the Software is
+    furnished to do so, subject to the following conditions:
+
+    The above copyright notice and this permission notice shall be included in
+    all copies or substantial portions of the Software.
+
+    THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+    IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+    FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+    AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+    LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+    FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
+    IN THE SOFTWARE.
+  </copyright>
+  <description summary="define touchscreen gestures">
+    This protocol allows the river-window-management-v1 window manager to
+    define touchscreen gestures and the conditions under which they should be
+    triggered. It also provides continuous updates on e.g. motion and pinch
+    scale while a gesture is in progress.
+
+    The key words "must", "must not", "required", "shall", "shall not",
+    "should", "should not", "recommended", "may", and "optional" in this
+    document are to be interpreted as described in IETF RFC 2119.
+  </description>
+  <interface name="river_touch_gestures_v1" version="1">
+    <description summary="touch gestures global interface">
+      This global interface should only be advertised to the client if the
+      river_window_manager_v1 global is also advertised.
+    </description>
+    <request name="destroy" type="destructor">
+      <description summary="destroy the river_touch_gestures_v1 object">
+        This request indicates that the client will no longer use the
+        river_touch_gestures_v1 object.
+      </description>
+    </request>
+    <request name="get_seat">
+      <description summary="get the seat extension object">
+        Create an object to manage seat-specific touch gestures state.
+
+        It is a protocol error to make this request more than once for a given
+        river_seat_v1 object.
+      </description>
+      <arg name="id" type="new_id" interface="river_touch_gestures_seat_v1"/>
+      <arg name="seat" type="object" interface="river_seat_v1"/>
+    </request>
+    <enum name="error">
+      <entry name="object_already_created" value="0"/>
+    </enum>
+  </interface>
+  <interface name="river_touch_gestures_seat_v1" version="1">
+    <description summary="touch gestures seat">
+      This object manages touch gesture state associated with a specific seat.
+    </description>
+    <request name="destroy" type="destructor">
+      <description summary="destroy the gestures seat object">
+        This request indicates that the client will no longer use the gestures
+        seat object and that it may be safely destroyed.
+      </description>
+    </request>
+    <request name="set_arbitration_timeout">
+      <description summary="define a new gesture">
+        The arbitration timeout defines the maximum time after the first touch
+        down event the compositor should wait before deciding that the touch
+        sequence is not a gesture and instead routing the touch input to the
+        respective clients through the wl_touch interface.
+
+        This timeout should be short enough that it subjectively does not
+        negatively impact the responsiveness. The default if this request is
+        never made for the river_touch_gestures_seat_v1 is 100 milliseconds.
+
+        Setting the timeout to 0 milliseconds effectively disables all gestures
+        with e.g. a finger count greater than 1 or with a non-zero motion
+        threshold. However, a gesture with finger count 1 and edge trigger area
+        defined with the river_touch_gesture_v1.set_edge request could still be
+        triggered even with a 0 millisecond arbitration timeout.
+
+        This request may be made at any time but will only take effect on the
+        next touch sequence to be started.
+      </description>
+      <arg name="msec" type="uint" summary="arbitration timeout in milliseconds"/>
+    </request>
+    <request name="get_gesture">
+      <description summary="define a new gesture">
+        Define a new touch gesture.
+
+        The finger_count argument defines the number of simultaneous touch
+        points necessary to trigger the gesture. The finger_count must be
+        greater than 0.
+
+        The maximum finger count supported is limited by touchscreen hardware.
+        If the requested finger count is greater than the maximum supported,
+        the gesture will never be triggered.
+
+        The new gesture is not enabled until the river_touch_gesture_v1.enable
+        request is made during a manage sequence.
+      </description>
+      <arg name="id" type="new_id" interface="river_touch_gesture_v1"/>
+      <arg name="finger_count" type="uint" summary="number of touch points"/>
+    </request>
+    <enum name="error">
+      <entry name="invalid_finger_count" value="0"/>
+    </enum>
+  </interface>
+  <interface name="river_touch_gesture_v1" version="1">
+    <description summary="define a touch gesture, receive trigger events">
+      Define the requirements for a gesture to be triggered and receive
+      information on e.g. motion and pinch scale when triggered.
+    </description>
+    <request name="destroy" type="destructor">
+      <description summary="destroy the touch gesture object">
+        This request indicates that the client will no longer use the object and
+        that it may be safely destroyed.
+      </description>
+    </request>
+    <request name="enable">
+      <description summary="enable the gesture">
+        This request should be made after all initial configuration has been
+        completed and the window manager wishes the gesture to be able to be
+        triggered.
+
+        This request modifies window management state and may only be made as
+        part of a manage sequence, see the river_window_manager_v1 description.
+      </description>
+    </request>
+    <request name="disable">
+      <description summary="disable the gesture">
+        This request may be used to temporarily disable the gesture. It may
+        be later re-enabled with the enable request.
+
+        This request does not affect an in progress gesture that has already
+        been started. It will prevent the gesture from being triggered again.
+
+        This request modifies window management state and may only be made as
+        part of a manage sequence, see the river_window_manager_v1 description.
+      </description>
+    </request>
+    <event name="start">
+      <description summary="gesture started">
+        This event is sent when the required finger_count number of touch points
+        are active and all threshold requirements are met. After this event is
+        sent, no other gesture will be triggered until all touch points are
+        released and the river_touch_gesture_v1.end event is sent.
+
+        If the threshold requirements for multiple river_touch_gesture_v1
+        objects are met at the same time, it is compositor policy which gesture
+        is triggered.
+
+        The wl_touch.cancel event is sent to all surfaces with touch focus, all
+        touch input is eaten till end of gesture.
+
+        This event will be followed by a manage_start event after all other new
+        state has been sent by the server.
+      </description>
+    </event>
+    <event name="end">
+      <description summary="gesture ended">
+        All touch points have been released and the gesture is ended.
+
+        This event will be followed by a manage_start event after all other new
+        state has been sent by the server.
+      </description>
+    </event>
+    <event name="cancel">
+      <description summary="gesture canceled">
+        The gesture is canceled, for example because the hardware palm detection
+        decided that the touch input should have been ignored.
+
+        This event will be followed by a manage_start event after all other new
+        state has been sent by the server.
+      </description>
+    </event>
+    <event name="finger_count">
+      <description summary="number of touch points changed">
+        The number of active touch points changed since the gesture was started.
+
+        This event will be followed by a manage_start event after all other new
+        state has been sent by the server.
+      </description>
+      <arg name="finger_count" type="uint" summary="number of touch points"/>
+    </event>
+    <event name="delta_motion">
+      <description summary="total change in centroid position">
+        The total change in centroid position since gesture start.
+
+        The centroid is defined as the mean position of all touch points.
+
+        This event will be followed by a manage_start event after all other new
+        state has been sent by the server.
+      </description>
+      <arg name="dx" type="int" summary="centroid change in x"/>
+      <arg name="dy" type="int" summary="centroid change in y"/>
+    </event>
+    <event name="scale">
+      <description summary="current pinch scale">
+        The pinch distance is defined as the diagonal of the bounding box of all
+        touch points. The pinch scale is defined as the ratio of the current
+        pinch distance to the distance at gesture start.
+
+        Thus, the scale is initially 1.0. If the touch points are moved closer
+        together, the scale decreases and if the touch points are moved further
+        apart it increases.
+
+        This event is only sent if there are 2 or more touch points.
+
+        This event will be followed by a manage_start event after all other new
+        state has been sent by the server.
+      </description>
+      <arg name="scale" type="fixed" summary="current scale"/>
+    </event>
+    <request name="set_threshold_motion">
+      <description summary="set centroid motion threshold to trigger">
+        Set the minimum centroid motion required to trigger the gesture.
+
+        Distance is measured between the current centroid and the centroid of
+        the touch down events.
+
+        If this request is never made, the threshold is considered to be 0.
+
+        The threshold argument must be greater than or equal to 0.
+
+        This request modifies window management state and may only be made as
+        part of a manage sequence, see the river_window_manager_v1 description.
+      </description>
+      <arg name="min_distance" type="int" summary="minimum distance to trigger"/>
+    </request>
+    <request name="set_direction">
+      <description summary="set centroid motion direction to trigger">
+        Set the direction and minimum centroid motion distance required to
+        trigger the gesture.
+
+        If direction is none, there is no directional motion required to trigger
+        the gesture and the min_distance argument is ignored.
+
+        If this request is never made, the direction is considered to be none.
+
+        The min_distance argument must be greater than or equal to 0.
+
+        This request modifies window management state and may only be made as
+        part of a manage sequence, see the river_window_manager_v1 description.
+      </description>
+      <arg name="direction" type="uint" enum="direction" summary="motion direction"/>
+      <arg name="min_distance" type="int" summary="minimum distance to trigger"/>
+    </request>
+    <request name="set_threshold_scale">
+      <description summary="set pinch scale threshold to trigger">
+        Set the pinch scale threshold required to trigger the gesture.
+
+        If threshold_scale is less than 1.0 then the scale must be less than
+        threshold_scale for the gesture to be triggered. If threshold_scale is
+        greater than 1.0 then the scale must be greater than threshold_scale for
+        the gesture to be triggered.
+
+        If this request is never made, threshold_scale is considered to be 1.0.
+
+        This request is ignored if the gesture's finger_count is less than 2.
+
+        This request modifies window management state and may only be made as
+        part of a manage sequence, see the river_window_manager_v1 description.
+      </description>
+      <arg name="in" type="fixed" summary="inward pinch scale threshold"/>
+      <arg name="out" type="fixed" summary="outward pinch scale threshold"/>
+    </request>
+    <request name="set_edge">
+      <description summary="set edge from which the gesture must start">
+        Set the touchscreen edge from which the gesture must start and the
+        maximum allowed distance from that edge.
+
+        If edge is none, then there is no required edge to start from and the
+        max_distance argument is ignored.
+
+        If this request is never made, the edge is considered to be none.
+
+        The max_distance argument must be greater than or equal to 0.
+
+        This request modifies window management state and may only be made as
+        part of a manage sequence, see the river_window_manager_v1 description.
+      </description>
+      <arg name="edge" type="uint" enum="edge" summary="edge to start from"/>
+      <arg name="max_distance" type="int" summary="max distance from edge"/>
+    </request>
+    <enum name="error">
+      <entry name="invalid_distance" value="0"/>
+      <entry name="invalid_direction" value="1"/>
+      <entry name="invalid_edge" value="2"/>
+    </enum>
+    <enum name="direction">
+      <entry name="none" value="0"/>
+      <entry name="up" value="1"/>
+      <entry name="down" value="2"/>
+      <entry name="left" value="3"/>
+      <entry name="right" value="4"/>
+    </enum>
+    <enum name="edge">
+      <entry name="none" value="0"/>
+      <entry name="top" value="1"/>
+      <entry name="bottom" value="2"/>
+      <entry name="left" value="3"/>
+      <entry name="right" value="4"/>
+    </enum>
+  </interface>
+</protocol>

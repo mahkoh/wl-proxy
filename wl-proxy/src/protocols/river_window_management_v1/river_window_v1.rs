@@ -24,7 +24,7 @@ struct DefaultHandler;
 impl RiverWindowV1Handler for DefaultHandler { }
 
 impl ConcreteObject for RiverWindowV1 {
-    const XML_VERSION: u32 = 5;
+    const XML_VERSION: u32 = 6;
     const INTERFACE: ObjectInterface = ObjectInterface::RiverWindowV1;
     const INTERFACE_NAME: &str = "river_window_v1";
 }
@@ -4115,6 +4115,244 @@ impl RiverWindowV1 {
             log_send("river_window_v1.capture_sessions", &e);
         }
     }
+
+    /// Since when the touch_move_requested message is available.
+    pub const MSG__TOUCH_MOVE_REQUESTED__SINCE: u32 = 6;
+
+    /// window requested interactive touch move
+    ///
+    /// This event informs the window manager that the window has requested to
+    /// be interactively moved using touch input. The seat argument indicates
+    /// the seat for the move and the touch point argument indicates the
+    /// transient ID of the touch point used.
+    ///
+    /// The xdg-shell protocol for example allows windows to request that an
+    /// interactive move be started, perhaps when a client-side rendered
+    /// titlebar is dragged.
+    ///
+    /// The window manager may use the river_seat_v1.op_start_touch request to
+    /// interactively move the window or ignore this event entirely.
+    ///
+    /// This event will be followed by a manage_start event after all other new
+    /// state has been sent by the server.
+    ///
+    /// # Arguments
+    ///
+    /// - `seat`: requested seat
+    /// - `touch_point`: transient touch point ID
+    #[inline]
+    pub fn try_send_touch_move_requested(
+        &self,
+        seat: &Rc<RiverSeatV1>,
+        touch_point: i32,
+    ) -> Result<(), ObjectError> {
+        let (
+            arg0,
+            arg1,
+        ) = (
+            seat,
+            touch_point,
+        );
+        let arg0 = arg0.core();
+        let core = self.core();
+        let client_ref = core.client.borrow();
+        let Some(client) = &*client_ref else {
+            return Err(ObjectError(ObjectErrorKind::ReceiverNoClient));
+        };
+        let id = core.client_obj_id.get().unwrap_or(0);
+        if arg0.client_id.get() != Some(client.endpoint.id) {
+            return Err(ObjectError(ObjectErrorKind::ArgNoClientId("seat", client.endpoint.id)));
+        }
+        let arg0_id = arg0.client_obj_id.get().unwrap_or(0);
+        #[cfg(feature = "logging")]
+        if self.core.state.log {
+            #[cold]
+            fn log(state: &State, client_id: u64, id: u32, arg0: u32, arg1: i32) {
+                let (millis, micros) = time_since_epoch();
+                let prefix = &state.log_prefix;
+                let args = format_args!("[{millis:7}.{micros:03}] {prefix}client#{:<4} <= river_window_v1#{}.touch_move_requested(seat: river_seat_v1#{}, touch_point: {})\n", client_id, id, arg0, arg1);
+                state.log(args);
+            }
+            log(&self.core.state, client.endpoint.id, id, arg0_id, arg1);
+        }
+        let endpoint = &client.endpoint;
+        if !endpoint.flush_queued.replace(true) {
+            self.core.state.add_flushable_endpoint(endpoint, Some(client));
+        }
+        let mut outgoing_ref = endpoint.outgoing.borrow_mut();
+        let outgoing = &mut *outgoing_ref;
+        let mut fmt = outgoing.formatter();
+        fmt.words([
+            id,
+            19,
+            arg0_id,
+            arg1 as u32,
+        ]);
+        Ok(())
+    }
+
+    /// window requested interactive touch move
+    ///
+    /// This event informs the window manager that the window has requested to
+    /// be interactively moved using touch input. The seat argument indicates
+    /// the seat for the move and the touch point argument indicates the
+    /// transient ID of the touch point used.
+    ///
+    /// The xdg-shell protocol for example allows windows to request that an
+    /// interactive move be started, perhaps when a client-side rendered
+    /// titlebar is dragged.
+    ///
+    /// The window manager may use the river_seat_v1.op_start_touch request to
+    /// interactively move the window or ignore this event entirely.
+    ///
+    /// This event will be followed by a manage_start event after all other new
+    /// state has been sent by the server.
+    ///
+    /// # Arguments
+    ///
+    /// - `seat`: requested seat
+    /// - `touch_point`: transient touch point ID
+    #[inline]
+    pub fn send_touch_move_requested(
+        &self,
+        seat: &Rc<RiverSeatV1>,
+        touch_point: i32,
+    ) {
+        let res = self.try_send_touch_move_requested(
+            seat,
+            touch_point,
+        );
+        if let Err(e) = res {
+            log_send("river_window_v1.touch_move_requested", &e);
+        }
+    }
+
+    /// Since when the touch_resize_requested message is available.
+    pub const MSG__TOUCH_RESIZE_REQUESTED__SINCE: u32 = 6;
+
+    /// window requested interactive touch resize
+    ///
+    /// This event informs the window manager that the window has requested to
+    /// be interactively resized using touch input. The seat argument indicates
+    /// the seat for the resize and the touch point argument indicates the
+    /// transient ID of the touch point used.
+    ///
+    /// The edges argument indicates which edges the window has requested to be
+    /// resized from. The edges argument will never be none and will never have
+    /// both top and bottom or both left and right edges set.
+    ///
+    /// The xdg-shell protocol for example allows windows to request that an
+    /// interactive resize be started, perhaps when the corner of client-side
+    /// rendered decorations is dragged.
+    ///
+    /// The window manager may use the river_seat_v1.op_start_touch request to
+    /// interactively resize the window or ignore this event entirely.
+    ///
+    /// This event will be followed by a manage_start event after all other new
+    /// state has been sent by the server.
+    ///
+    /// # Arguments
+    ///
+    /// - `seat`: requested seat
+    /// - `touch_point`: transient touch point ID
+    /// - `edges`: requested edges
+    #[inline]
+    pub fn try_send_touch_resize_requested(
+        &self,
+        seat: &Rc<RiverSeatV1>,
+        touch_point: i32,
+        edges: RiverWindowV1Edges,
+    ) -> Result<(), ObjectError> {
+        let (
+            arg0,
+            arg1,
+            arg2,
+        ) = (
+            seat,
+            touch_point,
+            edges,
+        );
+        let arg0 = arg0.core();
+        let core = self.core();
+        let client_ref = core.client.borrow();
+        let Some(client) = &*client_ref else {
+            return Err(ObjectError(ObjectErrorKind::ReceiverNoClient));
+        };
+        let id = core.client_obj_id.get().unwrap_or(0);
+        if arg0.client_id.get() != Some(client.endpoint.id) {
+            return Err(ObjectError(ObjectErrorKind::ArgNoClientId("seat", client.endpoint.id)));
+        }
+        let arg0_id = arg0.client_obj_id.get().unwrap_or(0);
+        #[cfg(feature = "logging")]
+        if self.core.state.log {
+            #[cold]
+            fn log(state: &State, client_id: u64, id: u32, arg0: u32, arg1: i32, arg2: RiverWindowV1Edges) {
+                let (millis, micros) = time_since_epoch();
+                let prefix = &state.log_prefix;
+                let args = format_args!("[{millis:7}.{micros:03}] {prefix}client#{:<4} <= river_window_v1#{}.touch_resize_requested(seat: river_seat_v1#{}, touch_point: {}, edges: {:?})\n", client_id, id, arg0, arg1, arg2);
+                state.log(args);
+            }
+            log(&self.core.state, client.endpoint.id, id, arg0_id, arg1, arg2);
+        }
+        let endpoint = &client.endpoint;
+        if !endpoint.flush_queued.replace(true) {
+            self.core.state.add_flushable_endpoint(endpoint, Some(client));
+        }
+        let mut outgoing_ref = endpoint.outgoing.borrow_mut();
+        let outgoing = &mut *outgoing_ref;
+        let mut fmt = outgoing.formatter();
+        fmt.words([
+            id,
+            20,
+            arg0_id,
+            arg1 as u32,
+            arg2.0,
+        ]);
+        Ok(())
+    }
+
+    /// window requested interactive touch resize
+    ///
+    /// This event informs the window manager that the window has requested to
+    /// be interactively resized using touch input. The seat argument indicates
+    /// the seat for the resize and the touch point argument indicates the
+    /// transient ID of the touch point used.
+    ///
+    /// The edges argument indicates which edges the window has requested to be
+    /// resized from. The edges argument will never be none and will never have
+    /// both top and bottom or both left and right edges set.
+    ///
+    /// The xdg-shell protocol for example allows windows to request that an
+    /// interactive resize be started, perhaps when the corner of client-side
+    /// rendered decorations is dragged.
+    ///
+    /// The window manager may use the river_seat_v1.op_start_touch request to
+    /// interactively resize the window or ignore this event entirely.
+    ///
+    /// This event will be followed by a manage_start event after all other new
+    /// state has been sent by the server.
+    ///
+    /// # Arguments
+    ///
+    /// - `seat`: requested seat
+    /// - `touch_point`: transient touch point ID
+    /// - `edges`: requested edges
+    #[inline]
+    pub fn send_touch_resize_requested(
+        &self,
+        seat: &Rc<RiverSeatV1>,
+        touch_point: i32,
+        edges: RiverWindowV1Edges,
+    ) {
+        let res = self.try_send_touch_resize_requested(
+            seat,
+            touch_point,
+            edges,
+        );
+        if let Err(e) = res {
+            log_send("river_window_v1.touch_resize_requested", &e);
+        }
+    }
 }
 
 /// A message handler for [`RiverWindowV1`] proxies.
@@ -5619,6 +5857,113 @@ pub trait RiverWindowV1Handler: Any {
             log_forward("river_window_v1.capture_sessions", &e);
         }
     }
+
+    /// window requested interactive touch move
+    ///
+    /// This event informs the window manager that the window has requested to
+    /// be interactively moved using touch input. The seat argument indicates
+    /// the seat for the move and the touch point argument indicates the
+    /// transient ID of the touch point used.
+    ///
+    /// The xdg-shell protocol for example allows windows to request that an
+    /// interactive move be started, perhaps when a client-side rendered
+    /// titlebar is dragged.
+    ///
+    /// The window manager may use the river_seat_v1.op_start_touch request to
+    /// interactively move the window or ignore this event entirely.
+    ///
+    /// This event will be followed by a manage_start event after all other new
+    /// state has been sent by the server.
+    ///
+    /// # Arguments
+    ///
+    /// - `seat`: requested seat
+    /// - `touch_point`: transient touch point ID
+    ///
+    /// All borrowed proxies passed to this function are guaranteed to be
+    /// immutable and non-null.
+    #[inline]
+    fn handle_touch_move_requested(
+        &mut self,
+        slf: &Rc<RiverWindowV1>,
+        seat: &Rc<RiverSeatV1>,
+        touch_point: i32,
+    ) {
+        if !slf.core.forward_to_client.get() {
+            return;
+        }
+        if let Some(client_id) = slf.core.client_id.get() {
+            if let Some(client_id_2) = seat.core().client_id.get() {
+                if client_id != client_id_2 {
+                    return;
+                }
+            }
+        }
+        let res = slf.try_send_touch_move_requested(
+            seat,
+            touch_point,
+        );
+        if let Err(e) = res {
+            log_forward("river_window_v1.touch_move_requested", &e);
+        }
+    }
+
+    /// window requested interactive touch resize
+    ///
+    /// This event informs the window manager that the window has requested to
+    /// be interactively resized using touch input. The seat argument indicates
+    /// the seat for the resize and the touch point argument indicates the
+    /// transient ID of the touch point used.
+    ///
+    /// The edges argument indicates which edges the window has requested to be
+    /// resized from. The edges argument will never be none and will never have
+    /// both top and bottom or both left and right edges set.
+    ///
+    /// The xdg-shell protocol for example allows windows to request that an
+    /// interactive resize be started, perhaps when the corner of client-side
+    /// rendered decorations is dragged.
+    ///
+    /// The window manager may use the river_seat_v1.op_start_touch request to
+    /// interactively resize the window or ignore this event entirely.
+    ///
+    /// This event will be followed by a manage_start event after all other new
+    /// state has been sent by the server.
+    ///
+    /// # Arguments
+    ///
+    /// - `seat`: requested seat
+    /// - `touch_point`: transient touch point ID
+    /// - `edges`: requested edges
+    ///
+    /// All borrowed proxies passed to this function are guaranteed to be
+    /// immutable and non-null.
+    #[inline]
+    fn handle_touch_resize_requested(
+        &mut self,
+        slf: &Rc<RiverWindowV1>,
+        seat: &Rc<RiverSeatV1>,
+        touch_point: i32,
+        edges: RiverWindowV1Edges,
+    ) {
+        if !slf.core.forward_to_client.get() {
+            return;
+        }
+        if let Some(client_id) = slf.core.client_id.get() {
+            if let Some(client_id_2) = seat.core().client_id.get() {
+                if client_id != client_id_2 {
+                    return;
+                }
+            }
+        }
+        let res = slf.try_send_touch_resize_requested(
+            seat,
+            touch_point,
+            edges,
+        );
+        if let Err(e) = res {
+            log_forward("river_window_v1.touch_resize_requested", &e);
+        }
+    }
 }
 
 impl ObjectPrivate for RiverWindowV1 {
@@ -6758,6 +7103,76 @@ impl ObjectPrivate for RiverWindowV1 {
                     DefaultHandler.handle_capture_sessions(&self, arg0);
                 }
             }
+            19 => {
+                let [
+                    arg0,
+                    arg1,
+                ] = msg[2..] else {
+                    return Err(ObjectError(ObjectErrorKind::WrongMessageSize(msg.len() as u32 * 4, 16)));
+                };
+                let arg1 = arg1 as i32;
+                #[cfg(feature = "logging")]
+                if self.core.state.log {
+                    #[cold]
+                    fn log(state: &State, id: u32, arg0: u32, arg1: i32) {
+                        let (millis, micros) = time_since_epoch();
+                        let prefix = &state.log_prefix;
+                        let args = format_args!("[{millis:7}.{micros:03}] {prefix}server      -> river_window_v1#{}.touch_move_requested(seat: river_seat_v1#{}, touch_point: {})\n", id, arg0, arg1);
+                        state.log(args);
+                    }
+                    log(&self.core.state, msg[0], arg0, arg1);
+                }
+                let arg0_id = arg0;
+                let Some(arg0) = server.lookup(arg0_id) else {
+                    return Err(ObjectError(ObjectErrorKind::NoServerObject(arg0_id)));
+                };
+                let Ok(arg0) = (arg0 as Rc<dyn Any>).downcast::<RiverSeatV1>() else {
+                    let o = server.lookup(arg0_id).unwrap();
+                    return Err(ObjectError(ObjectErrorKind::WrongObjectType("seat", o.core().interface, ObjectInterface::RiverSeatV1)));
+                };
+                let arg0 = &arg0;
+                if let Some(handler) = handler {
+                    (**handler).handle_touch_move_requested(&self, arg0, arg1);
+                } else {
+                    DefaultHandler.handle_touch_move_requested(&self, arg0, arg1);
+                }
+            }
+            20 => {
+                let [
+                    arg0,
+                    arg1,
+                    arg2,
+                ] = msg[2..] else {
+                    return Err(ObjectError(ObjectErrorKind::WrongMessageSize(msg.len() as u32 * 4, 20)));
+                };
+                let arg1 = arg1 as i32;
+                let arg2 = RiverWindowV1Edges(arg2);
+                #[cfg(feature = "logging")]
+                if self.core.state.log {
+                    #[cold]
+                    fn log(state: &State, id: u32, arg0: u32, arg1: i32, arg2: RiverWindowV1Edges) {
+                        let (millis, micros) = time_since_epoch();
+                        let prefix = &state.log_prefix;
+                        let args = format_args!("[{millis:7}.{micros:03}] {prefix}server      -> river_window_v1#{}.touch_resize_requested(seat: river_seat_v1#{}, touch_point: {}, edges: {:?})\n", id, arg0, arg1, arg2);
+                        state.log(args);
+                    }
+                    log(&self.core.state, msg[0], arg0, arg1, arg2);
+                }
+                let arg0_id = arg0;
+                let Some(arg0) = server.lookup(arg0_id) else {
+                    return Err(ObjectError(ObjectErrorKind::NoServerObject(arg0_id)));
+                };
+                let Ok(arg0) = (arg0 as Rc<dyn Any>).downcast::<RiverSeatV1>() else {
+                    let o = server.lookup(arg0_id).unwrap();
+                    return Err(ObjectError(ObjectErrorKind::WrongObjectType("seat", o.core().interface, ObjectInterface::RiverSeatV1)));
+                };
+                let arg0 = &arg0;
+                if let Some(handler) = handler {
+                    (**handler).handle_touch_resize_requested(&self, arg0, arg1, arg2);
+                } else {
+                    DefaultHandler.handle_touch_resize_requested(&self, arg0, arg1, arg2);
+                }
+            }
             n => {
                 let _ = server;
                 let _ = msg;
@@ -6821,6 +7236,8 @@ impl ObjectPrivate for RiverWindowV1 {
             16 => "presentation_hint",
             17 => "identifier",
             18 => "capture_sessions",
+            19 => "touch_move_requested",
+            20 => "touch_resize_requested",
             _ => return None,
         };
         Some(name)

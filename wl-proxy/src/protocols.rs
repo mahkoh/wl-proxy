@@ -167,6 +167,8 @@ pub mod river_input_management_v1;
 pub mod river_layer_shell_v1;
 #[cfg(feature = "protocol-river_libinput_config_v1")]
 pub mod river_libinput_config_v1;
+#[cfg(feature = "protocol-river_touch_gestures_v1")]
+pub mod river_touch_gestures_v1;
 #[cfg(feature = "protocol-river_window_management_v1")]
 pub mod river_window_management_v1;
 #[cfg(feature = "protocol-river_xkb_bindings_v1")]
@@ -1053,6 +1055,22 @@ mod all_types {
     pub(super) use super::river_libinput_config_v1::river_libinput_device_v1::RiverLibinputDeviceV1DwtpState;
     #[cfg(feature = "protocol-river_libinput_config_v1")]
     pub(super) use super::river_libinput_config_v1::river_libinput_result_v1::RiverLibinputResultV1;
+    #[cfg(feature = "protocol-river_touch_gestures_v1")]
+    pub(super) use super::river_touch_gestures_v1::river_touch_gesture_v1::RiverTouchGestureV1;
+    #[cfg(feature = "protocol-river_touch_gestures_v1")]
+    pub(super) use super::river_touch_gestures_v1::river_touch_gesture_v1::RiverTouchGestureV1Error;
+    #[cfg(feature = "protocol-river_touch_gestures_v1")]
+    pub(super) use super::river_touch_gestures_v1::river_touch_gesture_v1::RiverTouchGestureV1Direction;
+    #[cfg(feature = "protocol-river_touch_gestures_v1")]
+    pub(super) use super::river_touch_gestures_v1::river_touch_gesture_v1::RiverTouchGestureV1Edge;
+    #[cfg(feature = "protocol-river_touch_gestures_v1")]
+    pub(super) use super::river_touch_gestures_v1::river_touch_gestures_seat_v1::RiverTouchGesturesSeatV1;
+    #[cfg(feature = "protocol-river_touch_gestures_v1")]
+    pub(super) use super::river_touch_gestures_v1::river_touch_gestures_seat_v1::RiverTouchGesturesSeatV1Error;
+    #[cfg(feature = "protocol-river_touch_gestures_v1")]
+    pub(super) use super::river_touch_gestures_v1::river_touch_gestures_v1::RiverTouchGesturesV1;
+    #[cfg(feature = "protocol-river_touch_gestures_v1")]
+    pub(super) use super::river_touch_gestures_v1::river_touch_gestures_v1::RiverTouchGesturesV1Error;
     #[cfg(feature = "protocol-river_window_management_v1")]
     pub(super) use super::river_window_management_v1::river_decoration_v1::RiverDecorationV1;
     #[cfg(feature = "protocol-river_window_management_v1")]
@@ -2150,6 +2168,18 @@ mod all_types {
                 "river_libinput_result_v1" => {
                     #[cfg(feature = "protocol-river_libinput_config_v1")] { Some(ObjectInterface::RiverLibinputResultV1) }
                     #[cfg(not(feature = "protocol-river_libinput_config_v1"))] { None }
+                },
+                "river_touch_gesture_v1" => {
+                    #[cfg(feature = "protocol-river_touch_gestures_v1")] { Some(ObjectInterface::RiverTouchGestureV1) }
+                    #[cfg(not(feature = "protocol-river_touch_gestures_v1"))] { None }
+                },
+                "river_touch_gestures_seat_v1" => {
+                    #[cfg(feature = "protocol-river_touch_gestures_v1")] { Some(ObjectInterface::RiverTouchGesturesSeatV1) }
+                    #[cfg(not(feature = "protocol-river_touch_gestures_v1"))] { None }
+                },
+                "river_touch_gestures_v1" => {
+                    #[cfg(feature = "protocol-river_touch_gestures_v1")] { Some(ObjectInterface::RiverTouchGesturesV1) }
+                    #[cfg(not(feature = "protocol-river_touch_gestures_v1"))] { None }
                 },
                 "river_decoration_v1" => {
                     #[cfg(feature = "protocol-river_window_management_v1")] { Some(ObjectInterface::RiverDecorationV1) }
@@ -4007,6 +4037,27 @@ mod all_types {
                     }
                     Ok(RiverLibinputResultV1::new(state, version))
                 }
+                #[cfg(feature = "protocol-river_touch_gestures_v1")]
+                Self::RiverTouchGestureV1 => {
+                    if version > RiverTouchGestureV1::XML_VERSION {
+                        return Err(ObjectError(ObjectErrorKind::MaxVersion(self, version)));
+                    }
+                    Ok(RiverTouchGestureV1::new(state, version))
+                }
+                #[cfg(feature = "protocol-river_touch_gestures_v1")]
+                Self::RiverTouchGesturesSeatV1 => {
+                    if version > RiverTouchGesturesSeatV1::XML_VERSION {
+                        return Err(ObjectError(ObjectErrorKind::MaxVersion(self, version)));
+                    }
+                    Ok(RiverTouchGesturesSeatV1::new(state, version))
+                }
+                #[cfg(feature = "protocol-river_touch_gestures_v1")]
+                Self::RiverTouchGesturesV1 => {
+                    if version > RiverTouchGesturesV1::XML_VERSION {
+                        return Err(ObjectError(ObjectErrorKind::MaxVersion(self, version)));
+                    }
+                    Ok(RiverTouchGesturesV1::new(state, version))
+                }
                 #[cfg(feature = "protocol-river_window_management_v1")]
                 Self::RiverDecorationV1 => {
                     if version > RiverDecorationV1::XML_VERSION {
@@ -5059,6 +5110,15 @@ pub enum ObjectInterface {
     /// river_libinput_result_v1
     #[cfg(feature = "protocol-river_libinput_config_v1")]
     RiverLibinputResultV1,
+    /// river_touch_gesture_v1
+    #[cfg(feature = "protocol-river_touch_gestures_v1")]
+    RiverTouchGestureV1,
+    /// river_touch_gestures_seat_v1
+    #[cfg(feature = "protocol-river_touch_gestures_v1")]
+    RiverTouchGesturesSeatV1,
+    /// river_touch_gestures_v1
+    #[cfg(feature = "protocol-river_touch_gestures_v1")]
+    RiverTouchGesturesV1,
     /// river_decoration_v1
     #[cfg(feature = "protocol-river_window_management_v1")]
     RiverDecorationV1,
@@ -5669,6 +5729,12 @@ impl ObjectInterface {
             Self::RiverLibinputDeviceV1 => "river_libinput_device_v1",
             #[cfg(feature = "protocol-river_libinput_config_v1")]
             Self::RiverLibinputResultV1 => "river_libinput_result_v1",
+            #[cfg(feature = "protocol-river_touch_gestures_v1")]
+            Self::RiverTouchGestureV1 => "river_touch_gesture_v1",
+            #[cfg(feature = "protocol-river_touch_gestures_v1")]
+            Self::RiverTouchGesturesSeatV1 => "river_touch_gestures_seat_v1",
+            #[cfg(feature = "protocol-river_touch_gestures_v1")]
+            Self::RiverTouchGesturesV1 => "river_touch_gestures_v1",
             #[cfg(feature = "protocol-river_window_management_v1")]
             Self::RiverDecorationV1 => "river_decoration_v1",
             #[cfg(feature = "protocol-river_window_management_v1")]
@@ -6229,22 +6295,28 @@ impl ObjectInterface {
             Self::RiverLibinputDeviceV1 => 2,
             #[cfg(feature = "protocol-river_libinput_config_v1")]
             Self::RiverLibinputResultV1 => 1,
+            #[cfg(feature = "protocol-river_touch_gestures_v1")]
+            Self::RiverTouchGestureV1 => 1,
+            #[cfg(feature = "protocol-river_touch_gestures_v1")]
+            Self::RiverTouchGesturesSeatV1 => 1,
+            #[cfg(feature = "protocol-river_touch_gestures_v1")]
+            Self::RiverTouchGesturesV1 => 1,
             #[cfg(feature = "protocol-river_window_management_v1")]
-            Self::RiverDecorationV1 => 5,
+            Self::RiverDecorationV1 => 6,
             #[cfg(feature = "protocol-river_window_management_v1")]
-            Self::RiverNodeV1 => 5,
+            Self::RiverNodeV1 => 6,
             #[cfg(feature = "protocol-river_window_management_v1")]
-            Self::RiverOutputV1 => 5,
+            Self::RiverOutputV1 => 6,
             #[cfg(feature = "protocol-river_window_management_v1")]
-            Self::RiverPointerBindingV1 => 5,
+            Self::RiverPointerBindingV1 => 6,
             #[cfg(feature = "protocol-river_window_management_v1")]
-            Self::RiverSeatV1 => 5,
+            Self::RiverSeatV1 => 6,
             #[cfg(feature = "protocol-river_window_management_v1")]
-            Self::RiverShellSurfaceV1 => 5,
+            Self::RiverShellSurfaceV1 => 6,
             #[cfg(feature = "protocol-river_window_management_v1")]
-            Self::RiverWindowManagerV1 => 5,
+            Self::RiverWindowManagerV1 => 6,
             #[cfg(feature = "protocol-river_window_management_v1")]
-            Self::RiverWindowV1 => 5,
+            Self::RiverWindowV1 => 6,
             #[cfg(feature = "protocol-river_xkb_bindings_v1")]
             Self::RiverXkbBindingV1 => 3,
             #[cfg(feature = "protocol-river_xkb_bindings_v1")]
