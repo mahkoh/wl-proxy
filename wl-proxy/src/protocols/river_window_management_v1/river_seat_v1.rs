@@ -34,7 +34,7 @@ struct DefaultHandler;
 impl RiverSeatV1Handler for DefaultHandler { }
 
 impl ConcreteObject for RiverSeatV1 {
-    const XML_VERSION: u32 = 5;
+    const XML_VERSION: u32 = 6;
     const INTERFACE: ObjectInterface = ObjectInterface::RiverSeatV1;
     const INTERFACE_NAME: &str = "river_seat_v1";
 }
@@ -932,7 +932,7 @@ impl RiverSeatV1 {
     /// move/resize of windows by setting the position of windows and proposing
     /// dimensions based off of the op_delta events.
     ///
-    /// This request is ignored if an operation is already in progress.
+    /// This request is ignored if a pointer operation is already in progress.
     ///
     /// The compositor must ensure that no client has pointer focus from this
     /// seat during the pointer operation. This means that the window manager
@@ -990,7 +990,7 @@ impl RiverSeatV1 {
     /// move/resize of windows by setting the position of windows and proposing
     /// dimensions based off of the op_delta events.
     ///
-    /// This request is ignored if an operation is already in progress.
+    /// This request is ignored if a pointer operation is already in progress.
     ///
     /// The compositor must ensure that no client has pointer focus from this
     /// seat during the pointer operation. This means that the window manager
@@ -1016,7 +1016,7 @@ impl RiverSeatV1 {
     /// total cumulative motion since op start
     ///
     /// This event indicates the total change in position since the start of the
-    /// operation of the pointer/touch point/etc.
+    /// pointer operation.
     ///
     /// This event will be followed by a manage_start event after all other new
     /// state has been sent by the server.
@@ -1074,7 +1074,7 @@ impl RiverSeatV1 {
     /// total cumulative motion since op start
     ///
     /// This event indicates the total change in position since the start of the
-    /// operation of the pointer/touch point/etc.
+    /// pointer operation.
     ///
     /// This event will be followed by a manage_start event after all other new
     /// state has been sent by the server.
@@ -1101,15 +1101,15 @@ impl RiverSeatV1 {
     /// Since when the op_release message is available.
     pub const MSG__OP_RELEASE__SINCE: u32 = 1;
 
-    /// operation input has been released
+    /// all pointer buttors have been released
     ///
-    /// The input driving the current interactive operation has been released.
-    /// For a pointer op for example, all pointer buttons have been released.
+    /// All pointer buttons on the pointer device driving the operation have
+    /// been released.
     ///
-    /// Depending on the op type, op_delta events may continue to be sent until
-    /// the op is ended with the op_end request.
+    /// The compositor will continue to send op_delta events until the op is
+    /// ended with the op_end request.
     ///
-    /// This event is sent at most once during an interactive operation.
+    /// This event is sent at most once during a pointer operation.
     ///
     /// This event will be followed by a manage_start event after all other new
     /// state has been sent by the server.
@@ -1148,15 +1148,15 @@ impl RiverSeatV1 {
         Ok(())
     }
 
-    /// operation input has been released
+    /// all pointer buttors have been released
     ///
-    /// The input driving the current interactive operation has been released.
-    /// For a pointer op for example, all pointer buttons have been released.
+    /// All pointer buttons on the pointer device driving the operation have
+    /// been released.
     ///
-    /// Depending on the op type, op_delta events may continue to be sent until
-    /// the op is ended with the op_end request.
+    /// The compositor will continue to send op_delta events until the op is
+    /// ended with the op_end request.
     ///
-    /// This event is sent at most once during an interactive operation.
+    /// This event is sent at most once during a pointer operation.
     ///
     /// This event will be followed by a manage_start event after all other new
     /// state has been sent by the server.
@@ -1174,11 +1174,11 @@ impl RiverSeatV1 {
     /// Since when the op_end message is available.
     pub const MSG__OP_END__SINCE: u32 = 1;
 
-    /// end an interactive operation
+    /// end an interactive pointer operation
     ///
-    /// End an interactive operation.
+    /// End an interactive pointer operation.
     ///
-    /// This request is ignored if there is no operation in progress.
+    /// This request is ignored if there is no pointer operation in progress.
     ///
     /// This request modifies window management state and may only be made as
     /// part of a manage sequence, see the river_window_manager_v1 description.
@@ -1217,11 +1217,11 @@ impl RiverSeatV1 {
         Ok(())
     }
 
-    /// end an interactive operation
+    /// end an interactive pointer operation
     ///
-    /// End an interactive operation.
+    /// End an interactive pointer operation.
     ///
-    /// This request is ignored if there is no operation in progress.
+    /// This request is ignored if there is no pointer operation in progress.
     ///
     /// This request modifies window management state and may only be made as
     /// part of a manage sequence, see the river_window_manager_v1 description.
@@ -1692,6 +1692,472 @@ impl RiverSeatV1 {
             log_send("river_seat_v1.pointer_warp", &e);
         }
     }
+
+    /// Since when the op_start_touch message is available.
+    pub const MSG__OP_START_TOUCH__SINCE: u32 = 6;
+
+    /// start an interactive touch operation
+    ///
+    /// Start an interactive touch operation. During the operation,
+    /// op_delta_touch events will be sent based movement of the given touch
+    /// point.
+    ///
+    /// When the touch point is released, the op_release_touch event is sent and
+    /// the operation is automatically ended.
+    ///
+    /// The window manager may end the operation before the touch point is released
+    /// using the op_end_touch request.
+    ///
+    /// The window manager may use this operation to implement interactive
+    /// move/resize of windows by setting the position of windows and proposing
+    /// dimensions based off of the op_delta_touch events.
+    ///
+    /// This request is ignored if a touch operation is already in progress for
+    /// the given touch point or if the given touch point does not exist.
+    ///
+    /// This request modifies window management state and may only be made as
+    /// part of a manage sequence, see the river_window_manager_v1 description.
+    ///
+    /// # Arguments
+    ///
+    /// - `touch_point`: transient touch point ID
+    #[inline]
+    pub fn try_send_op_start_touch(
+        &self,
+        touch_point: i32,
+    ) -> Result<(), ObjectError> {
+        let (
+            arg0,
+        ) = (
+            touch_point,
+        );
+        let core = self.core();
+        let Some(id) = core.server_obj_id.get() else {
+            return Err(ObjectError(ObjectErrorKind::ReceiverNoServerId));
+        };
+        #[cfg(feature = "logging")]
+        if self.core.state.log {
+            #[cold]
+            fn log(state: &State, id: u32, arg0: i32) {
+                let (millis, micros) = time_since_epoch();
+                let prefix = &state.log_prefix;
+                let args = format_args!("[{millis:7}.{micros:03}] {prefix}server      <= river_seat_v1#{}.op_start_touch(touch_point: {})\n", id, arg0);
+                state.log(args);
+            }
+            log(&self.core.state, id, arg0);
+        }
+        let Some(endpoint) = &self.core.state.server else {
+            return Ok(());
+        };
+        if !endpoint.flush_queued.replace(true) {
+            self.core.state.add_flushable_endpoint(endpoint, None);
+        }
+        let mut outgoing_ref = endpoint.outgoing.borrow_mut();
+        let outgoing = &mut *outgoing_ref;
+        let mut fmt = outgoing.formatter();
+        fmt.words([
+            id,
+            9,
+            arg0 as u32,
+        ]);
+        Ok(())
+    }
+
+    /// start an interactive touch operation
+    ///
+    /// Start an interactive touch operation. During the operation,
+    /// op_delta_touch events will be sent based movement of the given touch
+    /// point.
+    ///
+    /// When the touch point is released, the op_release_touch event is sent and
+    /// the operation is automatically ended.
+    ///
+    /// The window manager may end the operation before the touch point is released
+    /// using the op_end_touch request.
+    ///
+    /// The window manager may use this operation to implement interactive
+    /// move/resize of windows by setting the position of windows and proposing
+    /// dimensions based off of the op_delta_touch events.
+    ///
+    /// This request is ignored if a touch operation is already in progress for
+    /// the given touch point or if the given touch point does not exist.
+    ///
+    /// This request modifies window management state and may only be made as
+    /// part of a manage sequence, see the river_window_manager_v1 description.
+    ///
+    /// # Arguments
+    ///
+    /// - `touch_point`: transient touch point ID
+    #[inline]
+    pub fn send_op_start_touch(
+        &self,
+        touch_point: i32,
+    ) {
+        let res = self.try_send_op_start_touch(
+            touch_point,
+        );
+        if let Err(e) = res {
+            log_send("river_seat_v1.op_start_touch", &e);
+        }
+    }
+
+    /// Since when the op_delta_touch message is available.
+    pub const MSG__OP_DELTA_TOUCH__SINCE: u32 = 6;
+
+    /// total cumulative motion since op start
+    ///
+    /// This event indicates the total change in position since the start of the
+    /// operation for the given touch point.
+    ///
+    /// This event will be followed by a manage_start event after all other new
+    /// state has been sent by the server.
+    ///
+    /// # Arguments
+    ///
+    /// - `touch_point`: transient touch point ID
+    /// - `dx`: total change in x
+    /// - `dy`: total change in y
+    #[inline]
+    pub fn try_send_op_delta_touch(
+        &self,
+        touch_point: i32,
+        dx: i32,
+        dy: i32,
+    ) -> Result<(), ObjectError> {
+        let (
+            arg0,
+            arg1,
+            arg2,
+        ) = (
+            touch_point,
+            dx,
+            dy,
+        );
+        let core = self.core();
+        let client_ref = core.client.borrow();
+        let Some(client) = &*client_ref else {
+            return Err(ObjectError(ObjectErrorKind::ReceiverNoClient));
+        };
+        let id = core.client_obj_id.get().unwrap_or(0);
+        #[cfg(feature = "logging")]
+        if self.core.state.log {
+            #[cold]
+            fn log(state: &State, client_id: u64, id: u32, arg0: i32, arg1: i32, arg2: i32) {
+                let (millis, micros) = time_since_epoch();
+                let prefix = &state.log_prefix;
+                let args = format_args!("[{millis:7}.{micros:03}] {prefix}client#{:<4} <= river_seat_v1#{}.op_delta_touch(touch_point: {}, dx: {}, dy: {})\n", client_id, id, arg0, arg1, arg2);
+                state.log(args);
+            }
+            log(&self.core.state, client.endpoint.id, id, arg0, arg1, arg2);
+        }
+        let endpoint = &client.endpoint;
+        if !endpoint.flush_queued.replace(true) {
+            self.core.state.add_flushable_endpoint(endpoint, Some(client));
+        }
+        let mut outgoing_ref = endpoint.outgoing.borrow_mut();
+        let outgoing = &mut *outgoing_ref;
+        let mut fmt = outgoing.formatter();
+        fmt.words([
+            id,
+            9,
+            arg0 as u32,
+            arg1 as u32,
+            arg2 as u32,
+        ]);
+        Ok(())
+    }
+
+    /// total cumulative motion since op start
+    ///
+    /// This event indicates the total change in position since the start of the
+    /// operation for the given touch point.
+    ///
+    /// This event will be followed by a manage_start event after all other new
+    /// state has been sent by the server.
+    ///
+    /// # Arguments
+    ///
+    /// - `touch_point`: transient touch point ID
+    /// - `dx`: total change in x
+    /// - `dy`: total change in y
+    #[inline]
+    pub fn send_op_delta_touch(
+        &self,
+        touch_point: i32,
+        dx: i32,
+        dy: i32,
+    ) {
+        let res = self.try_send_op_delta_touch(
+            touch_point,
+            dx,
+            dy,
+        );
+        if let Err(e) = res {
+            log_send("river_seat_v1.op_delta_touch", &e);
+        }
+    }
+
+    /// Since when the op_release_touch message is available.
+    pub const MSG__OP_RELEASE_TOUCH__SINCE: u32 = 6;
+
+    /// operation touch point has been released
+    ///
+    /// The touch point for the operation has been released and the operation is
+    /// ended.
+    ///
+    /// No further op_delta_touch events will be sent for the operation.
+    ///
+    /// This event will be followed by a manage_start event after all other new
+    /// state has been sent by the server.
+    ///
+    /// # Arguments
+    ///
+    /// - `touch_point`: transient touch point ID
+    #[inline]
+    pub fn try_send_op_release_touch(
+        &self,
+        touch_point: i32,
+    ) -> Result<(), ObjectError> {
+        let (
+            arg0,
+        ) = (
+            touch_point,
+        );
+        let core = self.core();
+        let client_ref = core.client.borrow();
+        let Some(client) = &*client_ref else {
+            return Err(ObjectError(ObjectErrorKind::ReceiverNoClient));
+        };
+        let id = core.client_obj_id.get().unwrap_or(0);
+        #[cfg(feature = "logging")]
+        if self.core.state.log {
+            #[cold]
+            fn log(state: &State, client_id: u64, id: u32, arg0: i32) {
+                let (millis, micros) = time_since_epoch();
+                let prefix = &state.log_prefix;
+                let args = format_args!("[{millis:7}.{micros:03}] {prefix}client#{:<4} <= river_seat_v1#{}.op_release_touch(touch_point: {})\n", client_id, id, arg0);
+                state.log(args);
+            }
+            log(&self.core.state, client.endpoint.id, id, arg0);
+        }
+        let endpoint = &client.endpoint;
+        if !endpoint.flush_queued.replace(true) {
+            self.core.state.add_flushable_endpoint(endpoint, Some(client));
+        }
+        let mut outgoing_ref = endpoint.outgoing.borrow_mut();
+        let outgoing = &mut *outgoing_ref;
+        let mut fmt = outgoing.formatter();
+        fmt.words([
+            id,
+            10,
+            arg0 as u32,
+        ]);
+        Ok(())
+    }
+
+    /// operation touch point has been released
+    ///
+    /// The touch point for the operation has been released and the operation is
+    /// ended.
+    ///
+    /// No further op_delta_touch events will be sent for the operation.
+    ///
+    /// This event will be followed by a manage_start event after all other new
+    /// state has been sent by the server.
+    ///
+    /// # Arguments
+    ///
+    /// - `touch_point`: transient touch point ID
+    #[inline]
+    pub fn send_op_release_touch(
+        &self,
+        touch_point: i32,
+    ) {
+        let res = self.try_send_op_release_touch(
+            touch_point,
+        );
+        if let Err(e) = res {
+            log_send("river_seat_v1.op_release_touch", &e);
+        }
+    }
+
+    /// Since when the op_cancel_touch message is available.
+    pub const MSG__OP_CANCEL_TOUCH__SINCE: u32 = 6;
+
+    /// operation touch point has been canceled
+    ///
+    /// The touch point for the operation has been canceled. For example, this
+    /// might happen due to palm detection determining that the touch point was
+    /// actually a accidental palm contact point all along and should have been
+    /// ignored from the start.
+    ///
+    /// The client should ideally behave as if this operation was never started.
+    ///
+    /// No further op_delta_touch events will be sent for the operation.
+    ///
+    /// This event will be followed by a manage_start event after all other new
+    /// state has been sent by the server.
+    ///
+    /// # Arguments
+    ///
+    /// - `touch_point`: transient touch point ID
+    #[inline]
+    pub fn try_send_op_cancel_touch(
+        &self,
+        touch_point: i32,
+    ) -> Result<(), ObjectError> {
+        let (
+            arg0,
+        ) = (
+            touch_point,
+        );
+        let core = self.core();
+        let client_ref = core.client.borrow();
+        let Some(client) = &*client_ref else {
+            return Err(ObjectError(ObjectErrorKind::ReceiverNoClient));
+        };
+        let id = core.client_obj_id.get().unwrap_or(0);
+        #[cfg(feature = "logging")]
+        if self.core.state.log {
+            #[cold]
+            fn log(state: &State, client_id: u64, id: u32, arg0: i32) {
+                let (millis, micros) = time_since_epoch();
+                let prefix = &state.log_prefix;
+                let args = format_args!("[{millis:7}.{micros:03}] {prefix}client#{:<4} <= river_seat_v1#{}.op_cancel_touch(touch_point: {})\n", client_id, id, arg0);
+                state.log(args);
+            }
+            log(&self.core.state, client.endpoint.id, id, arg0);
+        }
+        let endpoint = &client.endpoint;
+        if !endpoint.flush_queued.replace(true) {
+            self.core.state.add_flushable_endpoint(endpoint, Some(client));
+        }
+        let mut outgoing_ref = endpoint.outgoing.borrow_mut();
+        let outgoing = &mut *outgoing_ref;
+        let mut fmt = outgoing.formatter();
+        fmt.words([
+            id,
+            11,
+            arg0 as u32,
+        ]);
+        Ok(())
+    }
+
+    /// operation touch point has been canceled
+    ///
+    /// The touch point for the operation has been canceled. For example, this
+    /// might happen due to palm detection determining that the touch point was
+    /// actually a accidental palm contact point all along and should have been
+    /// ignored from the start.
+    ///
+    /// The client should ideally behave as if this operation was never started.
+    ///
+    /// No further op_delta_touch events will be sent for the operation.
+    ///
+    /// This event will be followed by a manage_start event after all other new
+    /// state has been sent by the server.
+    ///
+    /// # Arguments
+    ///
+    /// - `touch_point`: transient touch point ID
+    #[inline]
+    pub fn send_op_cancel_touch(
+        &self,
+        touch_point: i32,
+    ) {
+        let res = self.try_send_op_cancel_touch(
+            touch_point,
+        );
+        if let Err(e) = res {
+            log_send("river_seat_v1.op_cancel_touch", &e);
+        }
+    }
+
+    /// Since when the op_end_touch message is available.
+    pub const MSG__OP_END_TOUCH__SINCE: u32 = 6;
+
+    /// end an touch operation
+    ///
+    /// End a touch operation for the given touch point.
+    ///
+    /// This request is ignored if there is no operation in progress for the
+    /// given touch point or if the operation has already been ended by the
+    /// op_release_touch event.
+    ///
+    /// This request modifies window management state and may only be made as
+    /// part of a manage sequence, see the river_window_manager_v1 description.
+    ///
+    /// # Arguments
+    ///
+    /// - `touch_point`: transient touch point ID
+    #[inline]
+    pub fn try_send_op_end_touch(
+        &self,
+        touch_point: i32,
+    ) -> Result<(), ObjectError> {
+        let (
+            arg0,
+        ) = (
+            touch_point,
+        );
+        let core = self.core();
+        let Some(id) = core.server_obj_id.get() else {
+            return Err(ObjectError(ObjectErrorKind::ReceiverNoServerId));
+        };
+        #[cfg(feature = "logging")]
+        if self.core.state.log {
+            #[cold]
+            fn log(state: &State, id: u32, arg0: i32) {
+                let (millis, micros) = time_since_epoch();
+                let prefix = &state.log_prefix;
+                let args = format_args!("[{millis:7}.{micros:03}] {prefix}server      <= river_seat_v1#{}.op_end_touch(touch_point: {})\n", id, arg0);
+                state.log(args);
+            }
+            log(&self.core.state, id, arg0);
+        }
+        let Some(endpoint) = &self.core.state.server else {
+            return Ok(());
+        };
+        if !endpoint.flush_queued.replace(true) {
+            self.core.state.add_flushable_endpoint(endpoint, None);
+        }
+        let mut outgoing_ref = endpoint.outgoing.borrow_mut();
+        let outgoing = &mut *outgoing_ref;
+        let mut fmt = outgoing.formatter();
+        fmt.words([
+            id,
+            10,
+            arg0 as u32,
+        ]);
+        Ok(())
+    }
+
+    /// end an touch operation
+    ///
+    /// End a touch operation for the given touch point.
+    ///
+    /// This request is ignored if there is no operation in progress for the
+    /// given touch point or if the operation has already been ended by the
+    /// op_release_touch event.
+    ///
+    /// This request modifies window management state and may only be made as
+    /// part of a manage sequence, see the river_window_manager_v1 description.
+    ///
+    /// # Arguments
+    ///
+    /// - `touch_point`: transient touch point ID
+    #[inline]
+    pub fn send_op_end_touch(
+        &self,
+        touch_point: i32,
+    ) {
+        let res = self.try_send_op_end_touch(
+            touch_point,
+        );
+        if let Err(e) = res {
+            log_send("river_seat_v1.op_end_touch", &e);
+        }
+    }
 }
 
 /// A message handler for [`RiverSeatV1`] proxies.
@@ -2056,7 +2522,7 @@ pub trait RiverSeatV1Handler: Any {
     /// move/resize of windows by setting the position of windows and proposing
     /// dimensions based off of the op_delta events.
     ///
-    /// This request is ignored if an operation is already in progress.
+    /// This request is ignored if a pointer operation is already in progress.
     ///
     /// The compositor must ensure that no client has pointer focus from this
     /// seat during the pointer operation. This means that the window manager
@@ -2083,7 +2549,7 @@ pub trait RiverSeatV1Handler: Any {
     /// total cumulative motion since op start
     ///
     /// This event indicates the total change in position since the start of the
-    /// operation of the pointer/touch point/etc.
+    /// pointer operation.
     ///
     /// This event will be followed by a manage_start event after all other new
     /// state has been sent by the server.
@@ -2111,15 +2577,15 @@ pub trait RiverSeatV1Handler: Any {
         }
     }
 
-    /// operation input has been released
+    /// all pointer buttors have been released
     ///
-    /// The input driving the current interactive operation has been released.
-    /// For a pointer op for example, all pointer buttons have been released.
+    /// All pointer buttons on the pointer device driving the operation have
+    /// been released.
     ///
-    /// Depending on the op type, op_delta events may continue to be sent until
-    /// the op is ended with the op_end request.
+    /// The compositor will continue to send op_delta events until the op is
+    /// ended with the op_end request.
     ///
-    /// This event is sent at most once during an interactive operation.
+    /// This event is sent at most once during a pointer operation.
     ///
     /// This event will be followed by a manage_start event after all other new
     /// state has been sent by the server.
@@ -2138,11 +2604,11 @@ pub trait RiverSeatV1Handler: Any {
         }
     }
 
-    /// end an interactive operation
+    /// end an interactive pointer operation
     ///
-    /// End an interactive operation.
+    /// End an interactive pointer operation.
     ///
-    /// This request is ignored if there is no operation in progress.
+    /// This request is ignored if there is no pointer operation in progress.
     ///
     /// This request modifies window management state and may only be made as
     /// part of a manage sequence, see the river_window_manager_v1 description.
@@ -2300,6 +2766,177 @@ pub trait RiverSeatV1Handler: Any {
         );
         if let Err(e) = res {
             log_forward("river_seat_v1.pointer_warp", &e);
+        }
+    }
+
+    /// start an interactive touch operation
+    ///
+    /// Start an interactive touch operation. During the operation,
+    /// op_delta_touch events will be sent based movement of the given touch
+    /// point.
+    ///
+    /// When the touch point is released, the op_release_touch event is sent and
+    /// the operation is automatically ended.
+    ///
+    /// The window manager may end the operation before the touch point is released
+    /// using the op_end_touch request.
+    ///
+    /// The window manager may use this operation to implement interactive
+    /// move/resize of windows by setting the position of windows and proposing
+    /// dimensions based off of the op_delta_touch events.
+    ///
+    /// This request is ignored if a touch operation is already in progress for
+    /// the given touch point or if the given touch point does not exist.
+    ///
+    /// This request modifies window management state and may only be made as
+    /// part of a manage sequence, see the river_window_manager_v1 description.
+    ///
+    /// # Arguments
+    ///
+    /// - `touch_point`: transient touch point ID
+    #[inline]
+    fn handle_op_start_touch(
+        &mut self,
+        slf: &Rc<RiverSeatV1>,
+        touch_point: i32,
+    ) {
+        if !slf.core.forward_to_server.get() {
+            return;
+        }
+        let res = slf.try_send_op_start_touch(
+            touch_point,
+        );
+        if let Err(e) = res {
+            log_forward("river_seat_v1.op_start_touch", &e);
+        }
+    }
+
+    /// total cumulative motion since op start
+    ///
+    /// This event indicates the total change in position since the start of the
+    /// operation for the given touch point.
+    ///
+    /// This event will be followed by a manage_start event after all other new
+    /// state has been sent by the server.
+    ///
+    /// # Arguments
+    ///
+    /// - `touch_point`: transient touch point ID
+    /// - `dx`: total change in x
+    /// - `dy`: total change in y
+    #[inline]
+    fn handle_op_delta_touch(
+        &mut self,
+        slf: &Rc<RiverSeatV1>,
+        touch_point: i32,
+        dx: i32,
+        dy: i32,
+    ) {
+        if !slf.core.forward_to_client.get() {
+            return;
+        }
+        let res = slf.try_send_op_delta_touch(
+            touch_point,
+            dx,
+            dy,
+        );
+        if let Err(e) = res {
+            log_forward("river_seat_v1.op_delta_touch", &e);
+        }
+    }
+
+    /// operation touch point has been released
+    ///
+    /// The touch point for the operation has been released and the operation is
+    /// ended.
+    ///
+    /// No further op_delta_touch events will be sent for the operation.
+    ///
+    /// This event will be followed by a manage_start event after all other new
+    /// state has been sent by the server.
+    ///
+    /// # Arguments
+    ///
+    /// - `touch_point`: transient touch point ID
+    #[inline]
+    fn handle_op_release_touch(
+        &mut self,
+        slf: &Rc<RiverSeatV1>,
+        touch_point: i32,
+    ) {
+        if !slf.core.forward_to_client.get() {
+            return;
+        }
+        let res = slf.try_send_op_release_touch(
+            touch_point,
+        );
+        if let Err(e) = res {
+            log_forward("river_seat_v1.op_release_touch", &e);
+        }
+    }
+
+    /// operation touch point has been canceled
+    ///
+    /// The touch point for the operation has been canceled. For example, this
+    /// might happen due to palm detection determining that the touch point was
+    /// actually a accidental palm contact point all along and should have been
+    /// ignored from the start.
+    ///
+    /// The client should ideally behave as if this operation was never started.
+    ///
+    /// No further op_delta_touch events will be sent for the operation.
+    ///
+    /// This event will be followed by a manage_start event after all other new
+    /// state has been sent by the server.
+    ///
+    /// # Arguments
+    ///
+    /// - `touch_point`: transient touch point ID
+    #[inline]
+    fn handle_op_cancel_touch(
+        &mut self,
+        slf: &Rc<RiverSeatV1>,
+        touch_point: i32,
+    ) {
+        if !slf.core.forward_to_client.get() {
+            return;
+        }
+        let res = slf.try_send_op_cancel_touch(
+            touch_point,
+        );
+        if let Err(e) = res {
+            log_forward("river_seat_v1.op_cancel_touch", &e);
+        }
+    }
+
+    /// end an touch operation
+    ///
+    /// End a touch operation for the given touch point.
+    ///
+    /// This request is ignored if there is no operation in progress for the
+    /// given touch point or if the operation has already been ended by the
+    /// op_release_touch event.
+    ///
+    /// This request modifies window management state and may only be made as
+    /// part of a manage sequence, see the river_window_manager_v1 description.
+    ///
+    /// # Arguments
+    ///
+    /// - `touch_point`: transient touch point ID
+    #[inline]
+    fn handle_op_end_touch(
+        &mut self,
+        slf: &Rc<RiverSeatV1>,
+        touch_point: i32,
+    ) {
+        if !slf.core.forward_to_server.get() {
+            return;
+        }
+        let res = slf.try_send_op_end_touch(
+            touch_point,
+        );
+        if let Err(e) = res {
+            log_forward("river_seat_v1.op_end_touch", &e);
         }
     }
 }
@@ -2564,6 +3201,54 @@ impl ObjectPrivate for RiverSeatV1 {
                     DefaultHandler.handle_pointer_warp(&self, arg0, arg1);
                 }
             }
+            9 => {
+                let [
+                    arg0,
+                ] = msg[2..] else {
+                    return Err(ObjectError(ObjectErrorKind::WrongMessageSize(msg.len() as u32 * 4, 12)));
+                };
+                let arg0 = arg0 as i32;
+                #[cfg(feature = "logging")]
+                if self.core.state.log {
+                    #[cold]
+                    fn log(state: &State, client_id: u64, id: u32, arg0: i32) {
+                        let (millis, micros) = time_since_epoch();
+                        let prefix = &state.log_prefix;
+                        let args = format_args!("[{millis:7}.{micros:03}] {prefix}client#{:<4} -> river_seat_v1#{}.op_start_touch(touch_point: {})\n", client_id, id, arg0);
+                        state.log(args);
+                    }
+                    log(&self.core.state, client.endpoint.id, msg[0], arg0);
+                }
+                if let Some(handler) = handler {
+                    (**handler).handle_op_start_touch(&self, arg0);
+                } else {
+                    DefaultHandler.handle_op_start_touch(&self, arg0);
+                }
+            }
+            10 => {
+                let [
+                    arg0,
+                ] = msg[2..] else {
+                    return Err(ObjectError(ObjectErrorKind::WrongMessageSize(msg.len() as u32 * 4, 12)));
+                };
+                let arg0 = arg0 as i32;
+                #[cfg(feature = "logging")]
+                if self.core.state.log {
+                    #[cold]
+                    fn log(state: &State, client_id: u64, id: u32, arg0: i32) {
+                        let (millis, micros) = time_since_epoch();
+                        let prefix = &state.log_prefix;
+                        let args = format_args!("[{millis:7}.{micros:03}] {prefix}client#{:<4} -> river_seat_v1#{}.op_end_touch(touch_point: {})\n", client_id, id, arg0);
+                        state.log(args);
+                    }
+                    log(&self.core.state, client.endpoint.id, msg[0], arg0);
+                }
+                if let Some(handler) = handler {
+                    (**handler).handle_op_end_touch(&self, arg0);
+                } else {
+                    DefaultHandler.handle_op_end_touch(&self, arg0);
+                }
+            }
             n => {
                 let _ = client;
                 let _ = msg;
@@ -2815,6 +3500,82 @@ impl ObjectPrivate for RiverSeatV1 {
                     DefaultHandler.handle_pointer_position(&self, arg0, arg1);
                 }
             }
+            9 => {
+                let [
+                    arg0,
+                    arg1,
+                    arg2,
+                ] = msg[2..] else {
+                    return Err(ObjectError(ObjectErrorKind::WrongMessageSize(msg.len() as u32 * 4, 20)));
+                };
+                let arg0 = arg0 as i32;
+                let arg1 = arg1 as i32;
+                let arg2 = arg2 as i32;
+                #[cfg(feature = "logging")]
+                if self.core.state.log {
+                    #[cold]
+                    fn log(state: &State, id: u32, arg0: i32, arg1: i32, arg2: i32) {
+                        let (millis, micros) = time_since_epoch();
+                        let prefix = &state.log_prefix;
+                        let args = format_args!("[{millis:7}.{micros:03}] {prefix}server      -> river_seat_v1#{}.op_delta_touch(touch_point: {}, dx: {}, dy: {})\n", id, arg0, arg1, arg2);
+                        state.log(args);
+                    }
+                    log(&self.core.state, msg[0], arg0, arg1, arg2);
+                }
+                if let Some(handler) = handler {
+                    (**handler).handle_op_delta_touch(&self, arg0, arg1, arg2);
+                } else {
+                    DefaultHandler.handle_op_delta_touch(&self, arg0, arg1, arg2);
+                }
+            }
+            10 => {
+                let [
+                    arg0,
+                ] = msg[2..] else {
+                    return Err(ObjectError(ObjectErrorKind::WrongMessageSize(msg.len() as u32 * 4, 12)));
+                };
+                let arg0 = arg0 as i32;
+                #[cfg(feature = "logging")]
+                if self.core.state.log {
+                    #[cold]
+                    fn log(state: &State, id: u32, arg0: i32) {
+                        let (millis, micros) = time_since_epoch();
+                        let prefix = &state.log_prefix;
+                        let args = format_args!("[{millis:7}.{micros:03}] {prefix}server      -> river_seat_v1#{}.op_release_touch(touch_point: {})\n", id, arg0);
+                        state.log(args);
+                    }
+                    log(&self.core.state, msg[0], arg0);
+                }
+                if let Some(handler) = handler {
+                    (**handler).handle_op_release_touch(&self, arg0);
+                } else {
+                    DefaultHandler.handle_op_release_touch(&self, arg0);
+                }
+            }
+            11 => {
+                let [
+                    arg0,
+                ] = msg[2..] else {
+                    return Err(ObjectError(ObjectErrorKind::WrongMessageSize(msg.len() as u32 * 4, 12)));
+                };
+                let arg0 = arg0 as i32;
+                #[cfg(feature = "logging")]
+                if self.core.state.log {
+                    #[cold]
+                    fn log(state: &State, id: u32, arg0: i32) {
+                        let (millis, micros) = time_since_epoch();
+                        let prefix = &state.log_prefix;
+                        let args = format_args!("[{millis:7}.{micros:03}] {prefix}server      -> river_seat_v1#{}.op_cancel_touch(touch_point: {})\n", id, arg0);
+                        state.log(args);
+                    }
+                    log(&self.core.state, msg[0], arg0);
+                }
+                if let Some(handler) = handler {
+                    (**handler).handle_op_cancel_touch(&self, arg0);
+                } else {
+                    DefaultHandler.handle_op_cancel_touch(&self, arg0);
+                }
+            }
             n => {
                 let _ = server;
                 let _ = msg;
@@ -2837,6 +3598,8 @@ impl ObjectPrivate for RiverSeatV1 {
             6 => "get_pointer_binding",
             7 => "set_xcursor_theme",
             8 => "pointer_warp",
+            9 => "op_start_touch",
+            10 => "op_end_touch",
             _ => return None,
         };
         Some(name)
@@ -2853,6 +3616,9 @@ impl ObjectPrivate for RiverSeatV1 {
             6 => "op_delta",
             7 => "op_release",
             8 => "pointer_position",
+            9 => "op_delta_touch",
+            10 => "op_release_touch",
+            11 => "op_cancel_touch",
             _ => return None,
         };
         Some(name)

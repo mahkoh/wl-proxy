@@ -22,7 +22,7 @@ struct DefaultHandler;
 impl RiverOutputV1Handler for DefaultHandler { }
 
 impl ConcreteObject for RiverOutputV1 {
-    const XML_VERSION: u32 = 5;
+    const XML_VERSION: u32 = 6;
     const INTERFACE: ObjectInterface = ObjectInterface::RiverOutputV1;
     const INTERFACE_NAME: &str = "river_output_v1";
 }
