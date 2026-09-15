@@ -47,7 +47,13 @@ fn main() {
         Repo {
             name: "jay-protocols",
             dir: "jay-protocols",
-            allow: &["jay_popup_ext_v1", "jay_tray_v1"],
+            allow: &[
+                "jay_popup_ext_v1",
+                "jay_tray_v1",
+                "jay_icon_surface_v1",
+                "jay_toplevel_icon_subject_v1",
+                "jay_wl_surface_factory_v1",
+            ],
             block: &[],
         },
         Repo {
