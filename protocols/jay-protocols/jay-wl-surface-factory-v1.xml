@@ -1,0 +1,115 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<protocol name="jay_wl_surface_factory_v1">
+  <copyright>
+    Copyright 2026 Julian Orth
+
+    Permission is hereby granted, free of charge, to any person obtaining a
+    copy of this software and associated documentation files (the Software),
+    to deal in the Software without restriction, including without limitation
+    the rights to use, copy, modify, merge, publish, distribute, sublicense,
+    and/or sell copies of the Software, and to permit persons to whom the
+    Software is furnished to do so, subject to the following conditions:
+    The above copyright notice and this permission notice (including the next
+    paragraph) shall be included in all copies or substantial portions of the
+    Software.
+    THE SOFTWARE IS PROVIDED AS IS, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+    IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+    FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL
+    THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+    LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+    FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
+    DEALINGS IN THE SOFTWARE.
+  </copyright>
+  <description summary="protocol for compositor-created wl_surface objects">
+    This protocol allows the compositor to create wl_surface objects and send
+    them to the client.
+
+    This protocol is frozen, meaning that its API and semantics will never
+    change.
+  </description>
+  <interface name="jay_wl_surface_factory_manager_v1" version="65535">
+    <description summary="manager singleton">
+      This interface is a singleton global.
+
+      Since the wl_surface objects created by jay_wl_surface_factory_v1.surface
+      have the same version as this object, the compositor should expose this
+      singleton with the same version it uses for the wl_compositor singleton.
+    </description>
+    <request name="destroy" type="destructor">
+      <description summary="destroy this manager">
+        This request destroys the manager. This has no effect on any of the
+        created factories.
+      </description>
+    </request>
+    <request name="create_factory">
+      <description summary="create a new factory">
+        See the description of jay_wl_surface_factory_v1 for more details.
+      </description>
+      <arg name="id" type="new_id" interface="jay_wl_surface_factory_v1" summary="the new factory"/>
+    </request>
+  </interface>
+  <interface name="jay_wl_surface_factory_v1" version="65535">
+    <description summary="wl_surface factory">
+      This interface can be used by the compositor to create wl_surface objects
+      and send them to the client.
+
+      The created wl_surface objects will have the same version as this object,
+      which in turn has the same version as the
+      jay_wl_surface_factory_manager_v1 object. The client should bind
+      jay_wl_surface_factory_manager_v1 with the version it wants for the
+      wl_surface objects.
+
+      Each jay_wl_surface_factory_v1 is in one of three states:
+
+      - Initial: This is the initial state immediately after the object has been
+        created.
+      - Assigned: The factory is assigned to a higher-level producer.
+      - Abandoned: The factory was previously in the assigned state but has been
+        abandoned by the producer.
+
+      The object can only transition from the initial to the assigned state and
+      from the assigned to the abandoned state. How and when these transitions
+      happen is defined by higher-level protocols building on top of this
+      protocol.
+
+      For example, a higher-level protocol might have a constructor request
+      that accepts a jay_wl_surface_factory_v1 object as an argument and
+      transitions it from the initial to the assigned state. The created
+      higher-level object might have a stop request that transitions the
+      jay_wl_surface_factory_v1 object from the assigned to the abandoned state.
+
+      The jay_wl_surface_factory_v1.surface event is only sent while the object
+      is in the assigned state.
+
+      Trying to transition the jay_wl_surface_factory_v1 to the assigned state
+      while it is not in the initial state raises the already_assigned error.
+    </description>
+    <request name="destroy" type="destructor">
+      <description summary="destroy this factory">
+        This request must only be sent while the jay_wl_surface_factory_v1 is in
+        the initial or abandoned state. Trying to send it in the assigned state
+        raises the still_assigned error.
+      </description>
+    </request>
+    <event name="surface">
+      <description summary="a new wl_surface has been created">
+        This event is sent when the compositor creates a new wl_surface object.
+        The meaning and use of the surface are defined by the higher-level
+        protocol that this jay_wl_surface_factory_v1 is assigned to.
+
+        The version of the wl_surface is the version of this
+        jay_wl_surface_factory_v1 object, which is in turn the version that the
+        client bound the jay_wl_surface_factory_manager_v1 with.
+      </description>
+      <arg name="id" type="new_id" interface="wl_surface" summary="the new surface"/>
+    </event>
+    <enum name="error">
+      <description summary="fatal error">
+        These fatal protocol errors may be emitted in response to
+        invalid requests.
+      </description>
+      <entry name="already_assigned" value="0" summary="the factory was already assigned to a producer"/>
+      <entry name="still_assigned" value="1" summary="the factory is still assigned to a producer"/>
+    </enum>
+  </interface>
+</protocol>

@@ -14,10 +14,16 @@ pub mod hyprland_surface_v1;
 pub mod hyprland_toplevel_export_v1;
 #[cfg(feature = "protocol-hyprland_toplevel_mapping_v1")]
 pub mod hyprland_toplevel_mapping_v1;
+#[cfg(feature = "protocol-jay_icon_surface_v1")]
+pub mod jay_icon_surface_v1;
 #[cfg(feature = "protocol-jay_popup_ext_v1")]
 pub mod jay_popup_ext_v1;
+#[cfg(feature = "protocol-jay_toplevel_icon_subject_v1")]
+pub mod jay_toplevel_icon_subject_v1;
 #[cfg(feature = "protocol-jay_tray_v1")]
 pub mod jay_tray_v1;
+#[cfg(feature = "protocol-jay_wl_surface_factory_v1")]
+pub mod jay_wl_surface_factory_v1;
 #[cfg(feature = "protocol-drm")]
 pub mod drm;
 #[cfg(feature = "protocol-input_method_unstable_v2")]
@@ -260,6 +266,20 @@ mod all_types {
     pub(super) use super::hyprland_toplevel_mapping_v1::hyprland_toplevel_mapping_manager_v1::HyprlandToplevelMappingManagerV1;
     #[cfg(feature = "protocol-hyprland_toplevel_mapping_v1")]
     pub(super) use super::hyprland_toplevel_mapping_v1::hyprland_toplevel_window_mapping_handle_v1::HyprlandToplevelWindowMappingHandleV1;
+    #[cfg(feature = "protocol-jay_icon_surface_v1")]
+    pub(super) use super::jay_icon_surface_v1::jay_icon_surface_factory_v1::JayIconSurfaceFactoryV1;
+    #[cfg(feature = "protocol-jay_icon_surface_v1")]
+    pub(super) use super::jay_icon_surface_v1::jay_icon_surface_factory_v1::JayIconSurfaceFactoryV1Error;
+    #[cfg(feature = "protocol-jay_icon_surface_v1")]
+    pub(super) use super::jay_icon_surface_v1::jay_icon_surface_manager_v1::JayIconSurfaceManagerV1;
+    #[cfg(feature = "protocol-jay_icon_surface_v1")]
+    pub(super) use super::jay_icon_surface_v1::jay_icon_surface_manager_v1::JayIconSurfaceManagerV1Error;
+    #[cfg(feature = "protocol-jay_icon_surface_v1")]
+    pub(super) use super::jay_icon_surface_v1::jay_icon_surface_subject_v1::JayIconSurfaceSubjectV1;
+    #[cfg(feature = "protocol-jay_icon_surface_v1")]
+    pub(super) use super::jay_icon_surface_v1::jay_icon_surface_v1::JayIconSurfaceV1;
+    #[cfg(feature = "protocol-jay_icon_surface_v1")]
+    pub(super) use super::jay_icon_surface_v1::jay_icon_surface_v1::JayIconSurfaceV1Error;
     #[cfg(feature = "protocol-jay_popup_ext_v1")]
     pub(super) use super::jay_popup_ext_v1::jay_popup_ext_manager_v1::JayPopupExtManagerV1;
     #[cfg(feature = "protocol-jay_popup_ext_v1")]
@@ -268,6 +288,8 @@ mod all_types {
     pub(super) use super::jay_popup_ext_v1::jay_popup_ext_v1::JayPopupExtV1;
     #[cfg(feature = "protocol-jay_popup_ext_v1")]
     pub(super) use super::jay_popup_ext_v1::jay_popup_ext_v1::JayPopupExtV1Error;
+    #[cfg(feature = "protocol-jay_toplevel_icon_subject_v1")]
+    pub(super) use super::jay_toplevel_icon_subject_v1::jay_toplevel_icon_subject_manager_v1::JayToplevelIconSubjectManagerV1;
     #[cfg(feature = "protocol-jay_tray_v1")]
     pub(super) use super::jay_tray_v1::jay_tray_item_v1::JayTrayItemV1;
     #[cfg(feature = "protocol-jay_tray_v1")]
@@ -278,6 +300,12 @@ mod all_types {
     pub(super) use super::jay_tray_v1::jay_tray_v1::JayTrayV1;
     #[cfg(feature = "protocol-jay_tray_v1")]
     pub(super) use super::jay_tray_v1::jay_tray_v1::JayTrayV1Error;
+    #[cfg(feature = "protocol-jay_wl_surface_factory_v1")]
+    pub(super) use super::jay_wl_surface_factory_v1::jay_wl_surface_factory_manager_v1::JayWlSurfaceFactoryManagerV1;
+    #[cfg(feature = "protocol-jay_wl_surface_factory_v1")]
+    pub(super) use super::jay_wl_surface_factory_v1::jay_wl_surface_factory_v1::JayWlSurfaceFactoryV1;
+    #[cfg(feature = "protocol-jay_wl_surface_factory_v1")]
+    pub(super) use super::jay_wl_surface_factory_v1::jay_wl_surface_factory_v1::JayWlSurfaceFactoryV1Error;
     #[cfg(feature = "protocol-drm")]
     pub(super) use super::drm::wl_drm::WlDrm;
     #[cfg(feature = "protocol-drm")]
@@ -1342,6 +1370,22 @@ mod all_types {
                     #[cfg(feature = "protocol-hyprland_toplevel_mapping_v1")] { Some(ObjectInterface::HyprlandToplevelWindowMappingHandleV1) }
                     #[cfg(not(feature = "protocol-hyprland_toplevel_mapping_v1"))] { None }
                 },
+                "jay_icon_surface_factory_v1" => {
+                    #[cfg(feature = "protocol-jay_icon_surface_v1")] { Some(ObjectInterface::JayIconSurfaceFactoryV1) }
+                    #[cfg(not(feature = "protocol-jay_icon_surface_v1"))] { None }
+                },
+                "jay_icon_surface_manager_v1" => {
+                    #[cfg(feature = "protocol-jay_icon_surface_v1")] { Some(ObjectInterface::JayIconSurfaceManagerV1) }
+                    #[cfg(not(feature = "protocol-jay_icon_surface_v1"))] { None }
+                },
+                "jay_icon_surface_subject_v1" => {
+                    #[cfg(feature = "protocol-jay_icon_surface_v1")] { Some(ObjectInterface::JayIconSurfaceSubjectV1) }
+                    #[cfg(not(feature = "protocol-jay_icon_surface_v1"))] { None }
+                },
+                "jay_icon_surface_v1" => {
+                    #[cfg(feature = "protocol-jay_icon_surface_v1")] { Some(ObjectInterface::JayIconSurfaceV1) }
+                    #[cfg(not(feature = "protocol-jay_icon_surface_v1"))] { None }
+                },
                 "jay_popup_ext_manager_v1" => {
                     #[cfg(feature = "protocol-jay_popup_ext_v1")] { Some(ObjectInterface::JayPopupExtManagerV1) }
                     #[cfg(not(feature = "protocol-jay_popup_ext_v1"))] { None }
@@ -1350,6 +1394,10 @@ mod all_types {
                     #[cfg(feature = "protocol-jay_popup_ext_v1")] { Some(ObjectInterface::JayPopupExtV1) }
                     #[cfg(not(feature = "protocol-jay_popup_ext_v1"))] { None }
                 },
+                "jay_toplevel_icon_subject_manager_v1" => {
+                    #[cfg(feature = "protocol-jay_toplevel_icon_subject_v1")] { Some(ObjectInterface::JayToplevelIconSubjectManagerV1) }
+                    #[cfg(not(feature = "protocol-jay_toplevel_icon_subject_v1"))] { None }
+                },
                 "jay_tray_item_v1" => {
                     #[cfg(feature = "protocol-jay_tray_v1")] { Some(ObjectInterface::JayTrayItemV1) }
                     #[cfg(not(feature = "protocol-jay_tray_v1"))] { None }
@@ -1357,6 +1405,14 @@ mod all_types {
                 "jay_tray_v1" => {
                     #[cfg(feature = "protocol-jay_tray_v1")] { Some(ObjectInterface::JayTrayV1) }
                     #[cfg(not(feature = "protocol-jay_tray_v1"))] { None }
+                },
+                "jay_wl_surface_factory_manager_v1" => {
+                    #[cfg(feature = "protocol-jay_wl_surface_factory_v1")] { Some(ObjectInterface::JayWlSurfaceFactoryManagerV1) }
+                    #[cfg(not(feature = "protocol-jay_wl_surface_factory_v1"))] { None }
+                },
+                "jay_wl_surface_factory_v1" => {
+                    #[cfg(feature = "protocol-jay_wl_surface_factory_v1")] { Some(ObjectInterface::JayWlSurfaceFactoryV1) }
+                    #[cfg(not(feature = "protocol-jay_wl_surface_factory_v1"))] { None }
                 },
                 "wl_drm" => {
                     #[cfg(feature = "protocol-drm")] { Some(ObjectInterface::WlDrm) }
@@ -2492,6 +2548,34 @@ mod all_types {
                     }
                     Ok(HyprlandToplevelWindowMappingHandleV1::new(state, version))
                 }
+                #[cfg(feature = "protocol-jay_icon_surface_v1")]
+                Self::JayIconSurfaceFactoryV1 => {
+                    if version > JayIconSurfaceFactoryV1::XML_VERSION {
+                        return Err(ObjectError(ObjectErrorKind::MaxVersion(self, version)));
+                    }
+                    Ok(JayIconSurfaceFactoryV1::new(state, version))
+                }
+                #[cfg(feature = "protocol-jay_icon_surface_v1")]
+                Self::JayIconSurfaceManagerV1 => {
+                    if version > JayIconSurfaceManagerV1::XML_VERSION {
+                        return Err(ObjectError(ObjectErrorKind::MaxVersion(self, version)));
+                    }
+                    Ok(JayIconSurfaceManagerV1::new(state, version))
+                }
+                #[cfg(feature = "protocol-jay_icon_surface_v1")]
+                Self::JayIconSurfaceSubjectV1 => {
+                    if version > JayIconSurfaceSubjectV1::XML_VERSION {
+                        return Err(ObjectError(ObjectErrorKind::MaxVersion(self, version)));
+                    }
+                    Ok(JayIconSurfaceSubjectV1::new(state, version))
+                }
+                #[cfg(feature = "protocol-jay_icon_surface_v1")]
+                Self::JayIconSurfaceV1 => {
+                    if version > JayIconSurfaceV1::XML_VERSION {
+                        return Err(ObjectError(ObjectErrorKind::MaxVersion(self, version)));
+                    }
+                    Ok(JayIconSurfaceV1::new(state, version))
+                }
                 #[cfg(feature = "protocol-jay_popup_ext_v1")]
                 Self::JayPopupExtManagerV1 => {
                     if version > JayPopupExtManagerV1::XML_VERSION {
@@ -2506,6 +2590,13 @@ mod all_types {
                     }
                     Ok(JayPopupExtV1::new(state, version))
                 }
+                #[cfg(feature = "protocol-jay_toplevel_icon_subject_v1")]
+                Self::JayToplevelIconSubjectManagerV1 => {
+                    if version > JayToplevelIconSubjectManagerV1::XML_VERSION {
+                        return Err(ObjectError(ObjectErrorKind::MaxVersion(self, version)));
+                    }
+                    Ok(JayToplevelIconSubjectManagerV1::new(state, version))
+                }
                 #[cfg(feature = "protocol-jay_tray_v1")]
                 Self::JayTrayItemV1 => {
                     if version > JayTrayItemV1::XML_VERSION {
@@ -2519,6 +2610,20 @@ mod all_types {
                         return Err(ObjectError(ObjectErrorKind::MaxVersion(self, version)));
                     }
                     Ok(JayTrayV1::new(state, version))
+                }
+                #[cfg(feature = "protocol-jay_wl_surface_factory_v1")]
+                Self::JayWlSurfaceFactoryManagerV1 => {
+                    if version > JayWlSurfaceFactoryManagerV1::XML_VERSION {
+                        return Err(ObjectError(ObjectErrorKind::MaxVersion(self, version)));
+                    }
+                    Ok(JayWlSurfaceFactoryManagerV1::new(state, version))
+                }
+                #[cfg(feature = "protocol-jay_wl_surface_factory_v1")]
+                Self::JayWlSurfaceFactoryV1 => {
+                    if version > JayWlSurfaceFactoryV1::XML_VERSION {
+                        return Err(ObjectError(ObjectErrorKind::MaxVersion(self, version)));
+                    }
+                    Ok(JayWlSurfaceFactoryV1::new(state, version))
                 }
                 #[cfg(feature = "protocol-drm")]
                 Self::WlDrm => {
@@ -4461,18 +4566,39 @@ pub enum ObjectInterface {
     /// hyprland_toplevel_window_mapping_handle_v1
     #[cfg(feature = "protocol-hyprland_toplevel_mapping_v1")]
     HyprlandToplevelWindowMappingHandleV1,
+    /// jay_icon_surface_factory_v1
+    #[cfg(feature = "protocol-jay_icon_surface_v1")]
+    JayIconSurfaceFactoryV1,
+    /// jay_icon_surface_manager_v1
+    #[cfg(feature = "protocol-jay_icon_surface_v1")]
+    JayIconSurfaceManagerV1,
+    /// jay_icon_surface_subject_v1
+    #[cfg(feature = "protocol-jay_icon_surface_v1")]
+    JayIconSurfaceSubjectV1,
+    /// jay_icon_surface_v1
+    #[cfg(feature = "protocol-jay_icon_surface_v1")]
+    JayIconSurfaceV1,
     /// jay_popup_ext_manager_v1
     #[cfg(feature = "protocol-jay_popup_ext_v1")]
     JayPopupExtManagerV1,
     /// jay_popup_ext_v1
     #[cfg(feature = "protocol-jay_popup_ext_v1")]
     JayPopupExtV1,
+    /// jay_toplevel_icon_subject_manager_v1
+    #[cfg(feature = "protocol-jay_toplevel_icon_subject_v1")]
+    JayToplevelIconSubjectManagerV1,
     /// jay_tray_item_v1
     #[cfg(feature = "protocol-jay_tray_v1")]
     JayTrayItemV1,
     /// jay_tray_v1
     #[cfg(feature = "protocol-jay_tray_v1")]
     JayTrayV1,
+    /// jay_wl_surface_factory_manager_v1
+    #[cfg(feature = "protocol-jay_wl_surface_factory_v1")]
+    JayWlSurfaceFactoryManagerV1,
+    /// jay_wl_surface_factory_v1
+    #[cfg(feature = "protocol-jay_wl_surface_factory_v1")]
+    JayWlSurfaceFactoryV1,
     /// wl_drm
     #[cfg(feature = "protocol-drm")]
     WlDrm,
@@ -5304,14 +5430,28 @@ impl ObjectInterface {
             Self::HyprlandToplevelMappingManagerV1 => "hyprland_toplevel_mapping_manager_v1",
             #[cfg(feature = "protocol-hyprland_toplevel_mapping_v1")]
             Self::HyprlandToplevelWindowMappingHandleV1 => "hyprland_toplevel_window_mapping_handle_v1",
+            #[cfg(feature = "protocol-jay_icon_surface_v1")]
+            Self::JayIconSurfaceFactoryV1 => "jay_icon_surface_factory_v1",
+            #[cfg(feature = "protocol-jay_icon_surface_v1")]
+            Self::JayIconSurfaceManagerV1 => "jay_icon_surface_manager_v1",
+            #[cfg(feature = "protocol-jay_icon_surface_v1")]
+            Self::JayIconSurfaceSubjectV1 => "jay_icon_surface_subject_v1",
+            #[cfg(feature = "protocol-jay_icon_surface_v1")]
+            Self::JayIconSurfaceV1 => "jay_icon_surface_v1",
             #[cfg(feature = "protocol-jay_popup_ext_v1")]
             Self::JayPopupExtManagerV1 => "jay_popup_ext_manager_v1",
             #[cfg(feature = "protocol-jay_popup_ext_v1")]
             Self::JayPopupExtV1 => "jay_popup_ext_v1",
+            #[cfg(feature = "protocol-jay_toplevel_icon_subject_v1")]
+            Self::JayToplevelIconSubjectManagerV1 => "jay_toplevel_icon_subject_manager_v1",
             #[cfg(feature = "protocol-jay_tray_v1")]
             Self::JayTrayItemV1 => "jay_tray_item_v1",
             #[cfg(feature = "protocol-jay_tray_v1")]
             Self::JayTrayV1 => "jay_tray_v1",
+            #[cfg(feature = "protocol-jay_wl_surface_factory_v1")]
+            Self::JayWlSurfaceFactoryManagerV1 => "jay_wl_surface_factory_manager_v1",
+            #[cfg(feature = "protocol-jay_wl_surface_factory_v1")]
+            Self::JayWlSurfaceFactoryV1 => "jay_wl_surface_factory_v1",
             #[cfg(feature = "protocol-drm")]
             Self::WlDrm => "wl_drm",
             #[cfg(feature = "protocol-input_method_unstable_v2")]
@@ -5870,14 +6010,28 @@ impl ObjectInterface {
             Self::HyprlandToplevelMappingManagerV1 => 1,
             #[cfg(feature = "protocol-hyprland_toplevel_mapping_v1")]
             Self::HyprlandToplevelWindowMappingHandleV1 => 1,
+            #[cfg(feature = "protocol-jay_icon_surface_v1")]
+            Self::JayIconSurfaceFactoryV1 => 1,
+            #[cfg(feature = "protocol-jay_icon_surface_v1")]
+            Self::JayIconSurfaceManagerV1 => 1,
+            #[cfg(feature = "protocol-jay_icon_surface_v1")]
+            Self::JayIconSurfaceSubjectV1 => 1,
+            #[cfg(feature = "protocol-jay_icon_surface_v1")]
+            Self::JayIconSurfaceV1 => 1,
             #[cfg(feature = "protocol-jay_popup_ext_v1")]
             Self::JayPopupExtManagerV1 => 1,
             #[cfg(feature = "protocol-jay_popup_ext_v1")]
             Self::JayPopupExtV1 => 1,
+            #[cfg(feature = "protocol-jay_toplevel_icon_subject_v1")]
+            Self::JayToplevelIconSubjectManagerV1 => 1,
             #[cfg(feature = "protocol-jay_tray_v1")]
             Self::JayTrayItemV1 => 1,
             #[cfg(feature = "protocol-jay_tray_v1")]
             Self::JayTrayV1 => 1,
+            #[cfg(feature = "protocol-jay_wl_surface_factory_v1")]
+            Self::JayWlSurfaceFactoryManagerV1 => 65535,
+            #[cfg(feature = "protocol-jay_wl_surface_factory_v1")]
+            Self::JayWlSurfaceFactoryV1 => 65535,
             #[cfg(feature = "protocol-drm")]
             Self::WlDrm => 2,
             #[cfg(feature = "protocol-input_method_unstable_v2")]

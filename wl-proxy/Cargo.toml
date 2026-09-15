@@ -52,8 +52,11 @@ suite-hyprland-protocols = [
     "protocol-hyprland_toplevel_mapping_v1",
 ]
 suite-jay-protocols = [
+    "protocol-jay_icon_surface_v1",
     "protocol-jay_popup_ext_v1",
+    "protocol-jay_toplevel_icon_subject_v1",
     "protocol-jay_tray_v1",
+    "protocol-jay_wl_surface_factory_v1",
 ]
 suite-external = [
     "protocol-drm",
@@ -174,8 +177,11 @@ protocol-hyprland_lock_notify_v1 = []
 protocol-hyprland_surface_v1 = []
 protocol-hyprland_toplevel_export_v1 = ["protocol-wlr_foreign_toplevel_management_unstable_v1"]
 protocol-hyprland_toplevel_mapping_v1 = ["protocol-ext_foreign_toplevel_list_v1", "protocol-wlr_foreign_toplevel_management_unstable_v1"]
+protocol-jay_icon_surface_v1 = ["protocol-jay_wl_surface_factory_v1"]
 protocol-jay_popup_ext_v1 = ["protocol-xdg_shell"]
+protocol-jay_toplevel_icon_subject_v1 = ["protocol-jay_icon_surface_v1", "protocol-xdg_shell"]
 protocol-jay_tray_v1 = ["protocol-xdg_shell"]
+protocol-jay_wl_surface_factory_v1 = []
 protocol-drm = []
 protocol-input_method_unstable_v2 = ["protocol-text_input_unstable_v3"]
 protocol-org_kde_kwin_blur_v1 = []
