@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<protocol name="jay_toplevel_icon_subject_v1">
+  <copyright>
+    Copyright 2026 Julian Orth
+
+    Permission is hereby granted, free of charge, to any person obtaining a
+    copy of this software and associated documentation files (the Software),
+    to deal in the Software without restriction, including without limitation
+    the rights to use, copy, modify, merge, publish, distribute, sublicense,
+    and/or sell copies of the Software, and to permit persons to whom the
+    Software is furnished to do so, subject to the following conditions:
+    The above copyright notice and this permission notice (including the next
+    paragraph) shall be included in all copies or substantial portions of the
+    Software.
+    THE SOFTWARE IS PROVIDED AS IS, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+    IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+    FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL
+    THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+    LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+    FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
+    DEALINGS IN THE SOFTWARE.
+  </copyright>
+  <description summary="protocol for creating xdg_toplevel icon subjects">
+    This protocol allows clients to create jay_icon_surface_subject_v1 objects
+    from xdg_toplevel objects.
+  </description>
+  <interface name="jay_toplevel_icon_subject_manager_v1" version="1">
+    <description summary="manager singleton">
+      This interface is a singleton global.
+    </description>
+    <request name="destroy" type="destructor">
+      <description summary="destroy this object">
+        This request destroys the object.
+
+        This has no effect on any created subjects.
+      </description>
+    </request>
+    <request name="create_subject">
+      <description summary="create a subject">
+        This request creates a jay_icon_surface_subject_v1 object that
+        references an xdg_toplevel.
+
+        For the purpose of the
+        jay_icon_surface_manager_v1.create_factory request, assigning an
+        xdg_toplevel_icon_v1 icon to the toplevel counts as creating a
+        jay_icon_surface_factory_v1 for the toplevel. Therefore, these two APIs
+        should not be used concurrently on the same toplevel.
+      </description>
+      <arg name="id" type="new_id" interface="jay_icon_surface_subject_v1" summary="the new subject"/>
+      <arg name="toplevel" type="object" interface="xdg_toplevel" summary="the underlying toplevel"/>
+    </request>
+  </interface>
+</protocol>

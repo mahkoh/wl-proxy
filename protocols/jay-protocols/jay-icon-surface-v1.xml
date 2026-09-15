@@ -1,0 +1,247 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<protocol name="jay_icon_surface_v1">
+  <copyright>
+    Copyright 2026 Julian Orth
+
+    Permission is hereby granted, free of charge, to any person obtaining a
+    copy of this software and associated documentation files (the Software),
+    to deal in the Software without restriction, including without limitation
+    the rights to use, copy, modify, merge, publish, distribute, sublicense,
+    and/or sell copies of the Software, and to permit persons to whom the
+    Software is furnished to do so, subject to the following conditions:
+    The above copyright notice and this permission notice (including the next
+    paragraph) shall be included in all copies or substantial portions of the
+    Software.
+    THE SOFTWARE IS PROVIDED AS IS, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+    IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+    FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL
+    THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+    LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+    FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
+    DEALINGS IN THE SOFTWARE.
+  </copyright>
+  <description summary="protocol for assigning icons to subjects">
+    This protocol allows clients to assign icons to subjects.
+
+    Each icon has a subject that determines what the icon describes. A subject
+    might, for example, be an xdg_toplevel, and the compositor might request the
+    client to draw three icons for the server-side decorations, the task bar,
+    and a tab-switcher respectively.
+
+    Since icons are often displayed in multiple locations with different sizes
+    and scales, clients only create a factory object. It is up to the compositor
+    to use this factory to request the client to draw a concrete icon. This
+    process is dynamic: the compositor can request the client to draw a new icon
+    at any time and can inform the client that a concrete icon is no longer
+    required, whenever such a location appears or disappears.
+  </description>
+  <interface name="jay_icon_surface_manager_v1" version="1">
+    <description summary="the manager singleton">
+      This interface is a singleton global.
+    </description>
+    <request name="destroy" type="destructor">
+      <description summary="destroy this manager">
+        This has no effect on any of the created factories.
+      </description>
+    </request>
+    <request name="create_factory">
+      <description summary="create a factory for a subject">
+        This request creates a new jay_icon_surface_factory_v1 for a subject.
+
+        The subject must not already have a factory. Otherwise the has_factory
+        error is raised.
+
+        The jay_wl_surface_factory_v1 object will be used to send the underlying
+        wl_surface objects of the concrete icons. This request transitions the
+        jay_wl_surface_factory_v1 object from the initial to the assigned state.
+      </description>
+      <arg name="id" type="new_id" interface="jay_icon_surface_factory_v1" summary="the new jay_icon_surface_factory_v1"/>
+      <arg name="subject" type="object" interface="jay_icon_surface_subject_v1" summary="the subject to create a factory for"/>
+      <arg name="surface_factory" type="object" interface="jay_wl_surface_factory_v1" summary="the wl_surface factory"/>
+    </request>
+    <enum name="error">
+      <description summary="fatal error">
+        These fatal protocol errors may be emitted in response to
+        invalid requests.
+      </description>
+      <entry name="has_factory" value="0" summary="the subject already has a factory"/>
+    </enum>
+  </interface>
+  <interface name="jay_icon_surface_subject_v1" version="1">
+    <description summary="an icon subject">
+      This interface abstracts over possible icon subjects. This interface is
+      frozen at version 1 to allow other protocols to create
+      jay_icon_surface_subject_v1 objects.
+
+      A jay_icon_surface_subject_v1 object is a thin wrapper around a reference
+      to the concrete subject, and using jay_icon_surface_subject_v1 in any
+      request copies that reference. Therefore, the jay_icon_surface_subject_v1
+      object can be destroyed immediately afterwards.
+    </description>
+    <request name="destroy" type="destructor">
+      <description summary="destroy this object"/>
+    </request>
+  </interface>
+  <interface name="jay_icon_surface_factory_v1" version="1">
+    <description summary="an icon surface factory">
+      This interface allows the compositor to draw a concrete icon for a
+      subject.
+    </description>
+    <request name="destroy" type="destructor">
+      <description summary="destroy this object">
+        The jay_icon_surface_factory_v1.stop request must have been sent
+        beforehand to stop the factory. Otherwise the not_stopped error is
+        raised.
+
+        Unless the client is about to close the Wayland connection, it should
+        wait for the jay_icon_surface_factory_v1.stopped event so as not to leak
+        jay_icon_surface_v1 objects contained in in-flight
+        jay_icon_surface_factory_v1.surface events.
+
+        This request has no effect on any existing jay_icon_surface_v1 objects.
+      </description>
+    </request>
+    <request name="stop">
+      <description summary="stop the factory">
+        This request asks the compositor to stop sending
+        jay_icon_surface_factory_v1.surface events. The compositor will reply
+        with a jay_icon_surface_factory_v1.stopped event and will no longer send
+        any jay_icon_surface_factory_v1.surface events after that event.
+
+        The client should send jay_icon_surface_factory_v1.destroy after
+        receiving the jay_icon_surface_factory_v1.stopped event to destroy this
+        object.
+
+        This request removes the factory from the subject so that a new factory
+        can be created for the subject.
+
+        This request transitions the jay_wl_surface_factory_v1 that was used to
+        create this factory from the assigned to the abandoned state.
+      </description>
+    </request>
+    <event name="stopped">
+      <description summary="the reply to the stop request">
+        This event is sent in response to the jay_icon_surface_factory_v1.stop
+        request. See the description of that request for details.
+      </description>
+    </event>
+    <event name="surface">
+      <description summary="a new jay_icon_surface_v1 object">
+        The compositor sends this event to ask the client to draw an icon for
+        the subject.
+
+        This event is preceded by a jay_wl_surface_factory_v1.surface event on
+        the jay_wl_surface_factory_v1 that was used to create this factory.
+        That jay_wl_surface_factory_v1.surface event contains the underlying
+        wl_surface. The new jay_icon_surface_v1 object is the role object of
+        that wl_surface and the wl_surface has the jay_icon_surface_v1 role.
+
+        Some time after this event, the compositor sends a configuration
+        sequence on the new jay_icon_surface_v1.
+      </description>
+      <arg name="id" type="new_id" interface="jay_icon_surface_v1" summary="the new icon surface"/>
+    </event>
+    <enum name="error">
+      <description summary="fatal error">
+        These fatal protocol errors may be emitted in response to
+        invalid requests.
+      </description>
+      <entry name="not_stopped" value="0" summary="the factory has not been stopped"/>
+    </enum>
+  </interface>
+  <interface name="jay_icon_surface_v1" version="1">
+    <description summary="a concrete icon for a subject">
+      This interface represents a concrete icon for a subject. It is compositor
+      policy when jay_icon_surface_v1 objects are created and how they are
+      displayed.
+
+      Unlike with some wl_surface roles, wl_surface.attach requests have no
+      specified meaning beyond what is specified by wl_surface itself. The
+      client should destroy this object if it no longer wants to provide an
+      icon.
+
+      The underlying wl_surface is output-only. That is, it will never receive
+      any input events.
+    </description>
+    <request name="destroy" type="destructor">
+      <description summary="destroy this object">
+        This request destroys the jay_icon_surface_v1. It will no longer be
+        displayed. The client should also destroy the underlying wl_surface.
+      </description>
+    </request>
+    <event name="finished">
+      <description summary="the icon is no longer used">
+        The compositor sends this event when it no longer wants to use the
+        jay_icon_surface_v1. The client should destroy the object.
+
+        For example, the compositor might send this event when a task bar is
+        hidden.
+
+        The compositor must send this event when the underlying subject is
+        destroyed.
+
+        This event has no effect on other jay_icon_surface_v1 objects created
+        from the same factory, which might still be used.
+      </description>
+    </event>
+    <event name="configure">
+      <description summary="terminates a configuration sequence">
+        A configuration sequence consists of a number of preceding events
+        terminated by this event. The client should store the contents of the
+        preceding events and apply them atomically in response to this event.
+
+        Each event that is part of the configuration sequence specifies this,
+        along with its other semantics.
+
+        Upon receiving this event, the client should send a
+        jay_icon_surface_v1.ack_configure request with the same serial, prepare
+        the wl_surface content update to match the requested configuration, and
+        commit the wl_surface as soon as possible. Delaying this process for too
+        long might cause the icon to be displayed incorrectly. What counts as
+        too long is compositor policy.
+
+        If the client receives multiple configuration sequences, A followed by
+        B, it may apply this process directly to B and skip A. This applies
+        transitively.
+      </description>
+      <arg name="serial_hi" type="uint" summary="the high 32 bits of the serial"/>
+      <arg name="serial_lo" type="uint" summary="the low 32 bits of the serial"/>
+    </event>
+    <request name="ack_configure">
+      <description summary="ack a configuration sequence">
+        This request informs the compositor that the content update committed
+        by the next wl_surface.commit request conforms to the configuration
+        sequence specified by the serial.
+
+        The serial must be from a configuration sequence on this object and must
+        be larger than the previous serial used with this request. Otherwise the
+        invalid_serial error is raised.
+      </description>
+      <arg name="serial_hi" type="uint" summary="the high 32 bits of the serial"/>
+      <arg name="serial_lo" type="uint" summary="the low 32 bits of the serial"/>
+    </request>
+    <event name="configure_size">
+      <description summary="the size of the icon">
+        This event informs the client of the desired surface size.
+
+        This event is part of a configuration sequence. See
+        jay_icon_surface_v1.configure. If a configuration sequence does not
+        contain this event, the client should consider the desired size
+        unchanged.
+
+        The first configuration sequence must contain this event.
+
+        The width and height arguments are greater than 0.
+      </description>
+      <arg name="width" type="int" summary="the width"/>
+      <arg name="height" type="int" summary="the height"/>
+    </event>
+    <enum name="error">
+      <description summary="fatal error">
+        These fatal protocol errors may be emitted in response to
+        invalid requests.
+      </description>
+      <entry name="invalid_serial" value="0" summary="the serial is invalid"/>
+    </enum>
+  </interface>
+</protocol>
