@@ -1146,6 +1146,17 @@ dependencies = [
 ]
 
 [[package]]
+name = "log-presentation-feedback"
+version = "0.1.0"
+dependencies = [
+ "clap",
+ "clap_complete",
+ "error_reporter",
+ "thiserror 2.0.17",
+ "wl-proxy",
+]
+
+[[package]]
 name = "lru-slab"
 version = "0.1.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"

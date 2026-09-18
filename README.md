@@ -21,6 +21,8 @@ wl-proxy:
   applications as tray applications.
 - [log-dmabuf-feedback](apps/log-dmabuf-feedback): Can be used to log dma-buf
   feedback sent to applications.
+- [log-presentation-feedback](apps/log-presentation-feedback): Can be used to
+  log presentation feedback for all wl_surface commits.
 
 ## License
 
