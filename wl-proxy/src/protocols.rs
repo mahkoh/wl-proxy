@@ -6242,9 +6242,9 @@ impl ObjectInterface {
             #[cfg(feature = "protocol-pointer_warp_v1")]
             Self::WpPointerWarpV1 => 1,
             #[cfg(feature = "protocol-presentation_time")]
-            Self::WpPresentation => 2,
+            Self::WpPresentation => 3,
             #[cfg(feature = "protocol-presentation_time")]
-            Self::WpPresentationFeedback => 2,
+            Self::WpPresentationFeedback => 3,
             #[cfg(feature = "protocol-relative_pointer_unstable_v1")]
             Self::ZwpRelativePointerManagerV1 => 1,
             #[cfg(feature = "protocol-relative_pointer_unstable_v1")]
