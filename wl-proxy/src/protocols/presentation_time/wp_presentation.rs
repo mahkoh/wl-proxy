@@ -36,7 +36,7 @@ struct DefaultHandler;
 impl WpPresentationHandler for DefaultHandler { }
 
 impl ConcreteObject for WpPresentation {
-    const XML_VERSION: u32 = 2;
+    const XML_VERSION: u32 = 3;
     const INTERFACE: ObjectInterface = ObjectInterface::WpPresentation;
     const INTERFACE_NAME: &str = "wp_presentation";
 }
