@@ -102,6 +102,7 @@
     <enum name="breakpoint">
       <entry name="post_repaint" value="0" summary="after output repaint (filter type: wl_output)"/>
       <entry name="post_latch" value="1" summary="after output latch (filter type: wl_output)"/>
+      <entry name="immediate" value="2" summary="immediately"/>
     </enum>
   </interface>
   <interface name="weston_test_runner" version="1">
