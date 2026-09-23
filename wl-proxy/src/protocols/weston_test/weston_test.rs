@@ -1750,6 +1750,8 @@ impl WestonTest {
     pub const ENM__BREAKPOINT_POST_REPAINT__SINCE: u32 = 1;
     /// Since when the breakpoint.post_latch enum variant is available.
     pub const ENM__BREAKPOINT_POST_LATCH__SINCE: u32 = 1;
+    /// Since when the breakpoint.immediate enum variant is available.
+    pub const ENM__BREAKPOINT_IMMEDIATE__SINCE: u32 = 1;
 }
 
 #[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash)]
@@ -1779,6 +1781,9 @@ impl WestonTestBreakpoint {
 
     /// after output latch (filter type: wl_output)
     pub const POST_LATCH: Self = Self(1);
+
+    /// immediately
+    pub const IMMEDIATE: Self = Self(2);
 }
 
 impl Debug for WestonTestBreakpoint {
@@ -1786,6 +1791,7 @@ impl Debug for WestonTestBreakpoint {
         let name = match *self {
             Self::POST_REPAINT => "POST_REPAINT",
             Self::POST_LATCH => "POST_LATCH",
+            Self::IMMEDIATE => "IMMEDIATE",
             _ => return Debug::fmt(&self.0, f),
         };
         f.write_str(name)
