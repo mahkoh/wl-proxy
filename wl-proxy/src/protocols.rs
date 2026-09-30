@@ -141,6 +141,8 @@ pub mod xdg_toplevel_tag_v1;
 pub mod xwayland_keyboard_grab_unstable_v1;
 #[cfg(feature = "protocol-xwayland_shell_v1")]
 pub mod xwayland_shell_v1;
+#[cfg(feature = "protocol-xx_image_capture_color_management_v1")]
+pub mod xx_image_capture_color_management_v1;
 #[cfg(feature = "protocol-zwp_linux_explicit_synchronization_unstable_v1")]
 pub mod zwp_linux_explicit_synchronization_unstable_v1;
 #[cfg(feature = "protocol-wlr_data_control_unstable_v1")]
@@ -891,6 +893,12 @@ mod all_types {
     pub(super) use super::xwayland_shell_v1::xwayland_surface_v1::XwaylandSurfaceV1;
     #[cfg(feature = "protocol-xwayland_shell_v1")]
     pub(super) use super::xwayland_shell_v1::xwayland_surface_v1::XwaylandSurfaceV1Error;
+    #[cfg(feature = "protocol-xx_image_capture_color_management_v1")]
+    pub(super) use super::xx_image_capture_color_management_v1::xx_image_capture_color_manager_v1::XxImageCaptureColorManagerV1;
+    #[cfg(feature = "protocol-xx_image_capture_color_management_v1")]
+    pub(super) use super::xx_image_capture_color_management_v1::xx_image_capture_color_manager_v1::XxImageCaptureColorManagerV1Error;
+    #[cfg(feature = "protocol-xx_image_capture_color_management_v1")]
+    pub(super) use super::xx_image_capture_color_management_v1::xx_image_capture_source_colors_v1::XxImageCaptureSourceColorsV1;
     #[cfg(feature = "protocol-zwp_linux_explicit_synchronization_unstable_v1")]
     pub(super) use super::zwp_linux_explicit_synchronization_unstable_v1::zwp_linux_buffer_release_v1::ZwpLinuxBufferReleaseV1;
     #[cfg(feature = "protocol-zwp_linux_explicit_synchronization_unstable_v1")]
@@ -2040,6 +2048,14 @@ mod all_types {
                 "xwayland_surface_v1" => {
                     #[cfg(feature = "protocol-xwayland_shell_v1")] { Some(ObjectInterface::XwaylandSurfaceV1) }
                     #[cfg(not(feature = "protocol-xwayland_shell_v1"))] { None }
+                },
+                "xx_image_capture_color_manager_v1" => {
+                    #[cfg(feature = "protocol-xx_image_capture_color_management_v1")] { Some(ObjectInterface::XxImageCaptureColorManagerV1) }
+                    #[cfg(not(feature = "protocol-xx_image_capture_color_management_v1"))] { None }
+                },
+                "xx_image_capture_source_colors_v1" => {
+                    #[cfg(feature = "protocol-xx_image_capture_color_management_v1")] { Some(ObjectInterface::XxImageCaptureSourceColorsV1) }
+                    #[cfg(not(feature = "protocol-xx_image_capture_color_management_v1"))] { None }
                 },
                 "zwp_linux_buffer_release_v1" => {
                     #[cfg(feature = "protocol-zwp_linux_explicit_synchronization_unstable_v1")] { Some(ObjectInterface::ZwpLinuxBufferReleaseV1) }
@@ -3820,6 +3836,20 @@ mod all_types {
                     }
                     Ok(XwaylandSurfaceV1::new(state, version))
                 }
+                #[cfg(feature = "protocol-xx_image_capture_color_management_v1")]
+                Self::XxImageCaptureColorManagerV1 => {
+                    if version > XxImageCaptureColorManagerV1::XML_VERSION {
+                        return Err(ObjectError(ObjectErrorKind::MaxVersion(self, version)));
+                    }
+                    Ok(XxImageCaptureColorManagerV1::new(state, version))
+                }
+                #[cfg(feature = "protocol-xx_image_capture_color_management_v1")]
+                Self::XxImageCaptureSourceColorsV1 => {
+                    if version > XxImageCaptureSourceColorsV1::XML_VERSION {
+                        return Err(ObjectError(ObjectErrorKind::MaxVersion(self, version)));
+                    }
+                    Ok(XxImageCaptureSourceColorsV1::new(state, version))
+                }
                 #[cfg(feature = "protocol-zwp_linux_explicit_synchronization_unstable_v1")]
                 Self::ZwpLinuxBufferReleaseV1 => {
                     if version > ZwpLinuxBufferReleaseV1::XML_VERSION {
@@ -5098,6 +5128,12 @@ pub enum ObjectInterface {
     /// xwayland_surface_v1
     #[cfg(feature = "protocol-xwayland_shell_v1")]
     XwaylandSurfaceV1,
+    /// xx_image_capture_color_manager_v1
+    #[cfg(feature = "protocol-xx_image_capture_color_management_v1")]
+    XxImageCaptureColorManagerV1,
+    /// xx_image_capture_source_colors_v1
+    #[cfg(feature = "protocol-xx_image_capture_color_management_v1")]
+    XxImageCaptureSourceColorsV1,
     /// zwp_linux_buffer_release_v1
     #[cfg(feature = "protocol-zwp_linux_explicit_synchronization_unstable_v1")]
     ZwpLinuxBufferReleaseV1,
@@ -5777,6 +5813,10 @@ impl ObjectInterface {
             Self::XwaylandShellV1 => "xwayland_shell_v1",
             #[cfg(feature = "protocol-xwayland_shell_v1")]
             Self::XwaylandSurfaceV1 => "xwayland_surface_v1",
+            #[cfg(feature = "protocol-xx_image_capture_color_management_v1")]
+            Self::XxImageCaptureColorManagerV1 => "xx_image_capture_color_manager_v1",
+            #[cfg(feature = "protocol-xx_image_capture_color_management_v1")]
+            Self::XxImageCaptureSourceColorsV1 => "xx_image_capture_source_colors_v1",
             #[cfg(feature = "protocol-zwp_linux_explicit_synchronization_unstable_v1")]
             Self::ZwpLinuxBufferReleaseV1 => "zwp_linux_buffer_release_v1",
             #[cfg(feature = "protocol-zwp_linux_explicit_synchronization_unstable_v1")]
@@ -6357,6 +6397,10 @@ impl ObjectInterface {
             Self::XwaylandShellV1 => 1,
             #[cfg(feature = "protocol-xwayland_shell_v1")]
             Self::XwaylandSurfaceV1 => 1,
+            #[cfg(feature = "protocol-xx_image_capture_color_management_v1")]
+            Self::XxImageCaptureColorManagerV1 => 1,
+            #[cfg(feature = "protocol-xx_image_capture_color_management_v1")]
+            Self::XxImageCaptureSourceColorsV1 => 1,
             #[cfg(feature = "protocol-zwp_linux_explicit_synchronization_unstable_v1")]
             Self::ZwpLinuxBufferReleaseV1 => 1,
             #[cfg(feature = "protocol-zwp_linux_explicit_synchronization_unstable_v1")]
