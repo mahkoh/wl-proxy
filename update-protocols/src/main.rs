@@ -163,6 +163,7 @@ fn main() {
                 "xwayland_keyboard_grab_unstable_v1",
                 "xwayland_shell_v1",
                 "zwp_linux_explicit_synchronization_unstable_v1",
+                "xx_image_capture_color_management_v1",
             ],
             block: &[
                 "linux_dmabuf_unstable_v1",
