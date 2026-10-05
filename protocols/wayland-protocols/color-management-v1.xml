@@ -37,7 +37,7 @@
     look like.
 
     For an introduction, see the section "Color management" in the Wayland
-    documentation at https://wayland.freedesktop.org/docs/html/ .
+    documentation at https://wayland.freedesktop.org/docs/book/ .
 
     The color properties are represented as an image description object which
     is immutable after it has been created. A wl_output always has an
