@@ -14,6 +14,8 @@ pub mod hyprland_surface_v1;
 pub mod hyprland_toplevel_export_v1;
 #[cfg(feature = "protocol-hyprland_toplevel_mapping_v1")]
 pub mod hyprland_toplevel_mapping_v1;
+#[cfg(feature = "protocol-hyprland_workspace_image_capture_source_v1")]
+pub mod hyprland_workspace_image_capture_source_v1;
 #[cfg(feature = "protocol-jay_icon_surface_v1")]
 pub mod jay_icon_surface_v1;
 #[cfg(feature = "protocol-jay_popup_ext_v1")]
@@ -268,6 +270,12 @@ mod all_types {
     pub(super) use super::hyprland_toplevel_mapping_v1::hyprland_toplevel_mapping_manager_v1::HyprlandToplevelMappingManagerV1;
     #[cfg(feature = "protocol-hyprland_toplevel_mapping_v1")]
     pub(super) use super::hyprland_toplevel_mapping_v1::hyprland_toplevel_window_mapping_handle_v1::HyprlandToplevelWindowMappingHandleV1;
+    #[cfg(feature = "protocol-hyprland_workspace_image_capture_source_v1")]
+    pub(super) use super::hyprland_workspace_image_capture_source_v1::hyprland_workspace_image_capture_source_manager_v1::HyprlandWorkspaceImageCaptureSourceManagerV1;
+    #[cfg(feature = "protocol-hyprland_workspace_image_capture_source_v1")]
+    pub(super) use super::hyprland_workspace_image_capture_source_v1::hyprland_workspace_image_capture_source_manager_v1::HyprlandWorkspaceImageCaptureSourceManagerV1CaptureMode;
+    #[cfg(feature = "protocol-hyprland_workspace_image_capture_source_v1")]
+    pub(super) use super::hyprland_workspace_image_capture_source_v1::hyprland_workspace_image_capture_source_manager_v1::HyprlandWorkspaceImageCaptureSourceManagerV1Error;
     #[cfg(feature = "protocol-jay_icon_surface_v1")]
     pub(super) use super::jay_icon_surface_v1::jay_icon_surface_factory_v1::JayIconSurfaceFactoryV1;
     #[cfg(feature = "protocol-jay_icon_surface_v1")]
@@ -1377,6 +1385,10 @@ mod all_types {
                 "hyprland_toplevel_window_mapping_handle_v1" => {
                     #[cfg(feature = "protocol-hyprland_toplevel_mapping_v1")] { Some(ObjectInterface::HyprlandToplevelWindowMappingHandleV1) }
                     #[cfg(not(feature = "protocol-hyprland_toplevel_mapping_v1"))] { None }
+                },
+                "hyprland_workspace_image_capture_source_manager_v1" => {
+                    #[cfg(feature = "protocol-hyprland_workspace_image_capture_source_v1")] { Some(ObjectInterface::HyprlandWorkspaceImageCaptureSourceManagerV1) }
+                    #[cfg(not(feature = "protocol-hyprland_workspace_image_capture_source_v1"))] { None }
                 },
                 "jay_icon_surface_factory_v1" => {
                     #[cfg(feature = "protocol-jay_icon_surface_v1")] { Some(ObjectInterface::JayIconSurfaceFactoryV1) }
@@ -2563,6 +2575,13 @@ mod all_types {
                         return Err(ObjectError(ObjectErrorKind::MaxVersion(self, version)));
                     }
                     Ok(HyprlandToplevelWindowMappingHandleV1::new(state, version))
+                }
+                #[cfg(feature = "protocol-hyprland_workspace_image_capture_source_v1")]
+                Self::HyprlandWorkspaceImageCaptureSourceManagerV1 => {
+                    if version > HyprlandWorkspaceImageCaptureSourceManagerV1::XML_VERSION {
+                        return Err(ObjectError(ObjectErrorKind::MaxVersion(self, version)));
+                    }
+                    Ok(HyprlandWorkspaceImageCaptureSourceManagerV1::new(state, version))
                 }
                 #[cfg(feature = "protocol-jay_icon_surface_v1")]
                 Self::JayIconSurfaceFactoryV1 => {
@@ -4596,6 +4615,9 @@ pub enum ObjectInterface {
     /// hyprland_toplevel_window_mapping_handle_v1
     #[cfg(feature = "protocol-hyprland_toplevel_mapping_v1")]
     HyprlandToplevelWindowMappingHandleV1,
+    /// hyprland_workspace_image_capture_source_manager_v1
+    #[cfg(feature = "protocol-hyprland_workspace_image_capture_source_v1")]
+    HyprlandWorkspaceImageCaptureSourceManagerV1,
     /// jay_icon_surface_factory_v1
     #[cfg(feature = "protocol-jay_icon_surface_v1")]
     JayIconSurfaceFactoryV1,
@@ -5466,6 +5488,8 @@ impl ObjectInterface {
             Self::HyprlandToplevelMappingManagerV1 => "hyprland_toplevel_mapping_manager_v1",
             #[cfg(feature = "protocol-hyprland_toplevel_mapping_v1")]
             Self::HyprlandToplevelWindowMappingHandleV1 => "hyprland_toplevel_window_mapping_handle_v1",
+            #[cfg(feature = "protocol-hyprland_workspace_image_capture_source_v1")]
+            Self::HyprlandWorkspaceImageCaptureSourceManagerV1 => "hyprland_workspace_image_capture_source_manager_v1",
             #[cfg(feature = "protocol-jay_icon_surface_v1")]
             Self::JayIconSurfaceFactoryV1 => "jay_icon_surface_factory_v1",
             #[cfg(feature = "protocol-jay_icon_surface_v1")]
@@ -6050,6 +6074,8 @@ impl ObjectInterface {
             Self::HyprlandToplevelMappingManagerV1 => 1,
             #[cfg(feature = "protocol-hyprland_toplevel_mapping_v1")]
             Self::HyprlandToplevelWindowMappingHandleV1 => 1,
+            #[cfg(feature = "protocol-hyprland_workspace_image_capture_source_v1")]
+            Self::HyprlandWorkspaceImageCaptureSourceManagerV1 => 1,
             #[cfg(feature = "protocol-jay_icon_surface_v1")]
             Self::JayIconSurfaceFactoryV1 => 1,
             #[cfg(feature = "protocol-jay_icon_surface_v1")]
