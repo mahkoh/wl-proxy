@@ -41,6 +41,7 @@ fn main() {
                 "hyprland_surface_v1",
                 "hyprland_toplevel_export_v1",
                 "hyprland_toplevel_mapping_v1",
+                "hyprland_workspace_image_capture_source_v1",
             ],
             block: &[],
         },
