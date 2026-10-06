@@ -43,6 +43,7 @@ hyprland_toplevel_export_frame_v1 = 2
 hyprland_toplevel_export_manager_v1 = 2
 hyprland_toplevel_mapping_manager_v1 = 1
 hyprland_toplevel_window_mapping_handle_v1 = 1
+hyprland_workspace_image_capture_source_manager_v1 = 1
 ivi_application = 1
 ivi_hmi_controller = 1
 ivi_surface = 1
