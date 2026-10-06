@@ -459,3 +459,22 @@ fn suspend6() {
     assert_eq!(tp.proxy_state.dispatch_available().unwrap(), true);
     assert_eq!(h().0, true);
 }
+
+#[test]
+fn delete_id_for_unknown_object() {
+    let (server, proxy) =
+        uapi::socketpair(c::AF_UNIX, c::SOCK_STREAM | c::SOCK_CLOEXEC, 0).unwrap();
+    let state = State::builder(Baseline::ALL_OF_THEM)
+        .with_server_fd(&Rc::new(proxy.into()))
+        .build()
+        .unwrap();
+    // wl_display.delete_id(1234) for an object the proxy never created.
+    let msg = [1u32, (12 << 16) | 1, 1234];
+    uapi::write(server.raw(), &msg).unwrap();
+    // The first dispatch only registers the socket; the event is read in a later one.
+    for _ in 0..5 {
+        state.dispatch_available().unwrap();
+        std::thread::sleep(std::time::Duration::from_millis(10));
+    }
+    assert!(state.is_not_destroyed());
+}
