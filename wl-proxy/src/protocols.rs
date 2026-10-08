@@ -179,6 +179,8 @@ pub mod river_layer_shell_v1;
 pub mod river_libinput_config_v1;
 #[cfg(feature = "protocol-river_touch_gestures_v1")]
 pub mod river_touch_gestures_v1;
+#[cfg(feature = "protocol-river_virtual_keyboard_v1")]
+pub mod river_virtual_keyboard_v1;
 #[cfg(feature = "protocol-river_window_management_v1")]
 pub mod river_window_management_v1;
 #[cfg(feature = "protocol-river_xkb_bindings_v1")]
@@ -1115,6 +1117,10 @@ mod all_types {
     pub(super) use super::river_touch_gestures_v1::river_touch_gestures_v1::RiverTouchGesturesV1;
     #[cfg(feature = "protocol-river_touch_gestures_v1")]
     pub(super) use super::river_touch_gestures_v1::river_touch_gestures_v1::RiverTouchGesturesV1Error;
+    #[cfg(feature = "protocol-river_virtual_keyboard_v1")]
+    pub(super) use super::river_virtual_keyboard_v1::river_virtual_keyboard_manager_v1::RiverVirtualKeyboardManagerV1;
+    #[cfg(feature = "protocol-river_virtual_keyboard_v1")]
+    pub(super) use super::river_virtual_keyboard_v1::river_virtual_keyboard_manager_v1::RiverVirtualKeyboardManagerV1Error;
     #[cfg(feature = "protocol-river_window_management_v1")]
     pub(super) use super::river_window_management_v1::river_decoration_v1::RiverDecorationV1;
     #[cfg(feature = "protocol-river_window_management_v1")]
@@ -2264,6 +2270,10 @@ mod all_types {
                 "river_touch_gestures_v1" => {
                     #[cfg(feature = "protocol-river_touch_gestures_v1")] { Some(ObjectInterface::RiverTouchGesturesV1) }
                     #[cfg(not(feature = "protocol-river_touch_gestures_v1"))] { None }
+                },
+                "river_virtual_keyboard_manager_v1" => {
+                    #[cfg(feature = "protocol-river_virtual_keyboard_v1")] { Some(ObjectInterface::RiverVirtualKeyboardManagerV1) }
+                    #[cfg(not(feature = "protocol-river_virtual_keyboard_v1"))] { None }
                 },
                 "river_decoration_v1" => {
                     #[cfg(feature = "protocol-river_window_management_v1")] { Some(ObjectInterface::RiverDecorationV1) }
@@ -4212,6 +4222,13 @@ mod all_types {
                     }
                     Ok(RiverTouchGesturesV1::new(state, version))
                 }
+                #[cfg(feature = "protocol-river_virtual_keyboard_v1")]
+                Self::RiverVirtualKeyboardManagerV1 => {
+                    if version > RiverVirtualKeyboardManagerV1::XML_VERSION {
+                        return Err(ObjectError(ObjectErrorKind::MaxVersion(self, version)));
+                    }
+                    Ok(RiverVirtualKeyboardManagerV1::new(state, version))
+                }
                 #[cfg(feature = "protocol-river_window_management_v1")]
                 Self::RiverDecorationV1 => {
                     if version > RiverDecorationV1::XML_VERSION {
@@ -5303,6 +5320,9 @@ pub enum ObjectInterface {
     /// river_touch_gestures_v1
     #[cfg(feature = "protocol-river_touch_gestures_v1")]
     RiverTouchGesturesV1,
+    /// river_virtual_keyboard_manager_v1
+    #[cfg(feature = "protocol-river_virtual_keyboard_v1")]
+    RiverVirtualKeyboardManagerV1,
     /// river_decoration_v1
     #[cfg(feature = "protocol-river_window_management_v1")]
     RiverDecorationV1,
@@ -5939,6 +5959,8 @@ impl ObjectInterface {
             Self::RiverTouchGesturesSeatV1 => "river_touch_gestures_seat_v1",
             #[cfg(feature = "protocol-river_touch_gestures_v1")]
             Self::RiverTouchGesturesV1 => "river_touch_gestures_v1",
+            #[cfg(feature = "protocol-river_virtual_keyboard_v1")]
+            Self::RiverVirtualKeyboardManagerV1 => "river_virtual_keyboard_manager_v1",
             #[cfg(feature = "protocol-river_window_management_v1")]
             Self::RiverDecorationV1 => "river_decoration_v1",
             #[cfg(feature = "protocol-river_window_management_v1")]
@@ -6525,6 +6547,8 @@ impl ObjectInterface {
             Self::RiverTouchGesturesSeatV1 => 1,
             #[cfg(feature = "protocol-river_touch_gestures_v1")]
             Self::RiverTouchGesturesV1 => 1,
+            #[cfg(feature = "protocol-river_virtual_keyboard_v1")]
+            Self::RiverVirtualKeyboardManagerV1 => 1,
             #[cfg(feature = "protocol-river_window_management_v1")]
             Self::RiverDecorationV1 => 6,
             #[cfg(feature = "protocol-river_window_management_v1")]

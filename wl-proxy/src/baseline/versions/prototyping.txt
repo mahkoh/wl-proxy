@@ -84,6 +84,7 @@ river_shell_surface_v1 = 6
 river_touch_gesture_v1 = 1
 river_touch_gestures_seat_v1 = 1
 river_touch_gestures_v1 = 1
+river_virtual_keyboard_manager_v1 = 1
 river_window_manager_v1 = 6
 river_window_v1 = 6
 river_xkb_binding_v1 = 3
