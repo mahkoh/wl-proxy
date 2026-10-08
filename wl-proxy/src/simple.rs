@@ -13,6 +13,7 @@ use {
     parking_lot::Mutex,
     run_on_drop::on_drop,
     std::{
+        collections::HashMap,
         io,
         os::unix::prelude::ExitStatusExt,
         process::{Command, exit},
@@ -74,7 +75,8 @@ impl SimpleProxy {
     {
         static ID: AtomicUsize = AtomicUsize::new(1);
         let display_handler = &display_handler;
-        let destructors = Mutex::new(Some(vec![]));
+        // Keyed by client: an entry holds a pipe fd and must go away when its client's thread ends.
+        let destructors = Mutex::new(Some(HashMap::new()));
         let destructors = &destructors;
         let err = thread::scope(|s| {
             let _stop_all_proxies = on_drop(|| *destructors.lock() = None);
@@ -99,7 +101,9 @@ impl SimpleProxy {
                         };
                         match state.create_remote_destructor() {
                             Ok(d) => match &mut *destructors.lock() {
-                                Some(des) => des.push(d),
+                                Some(des) => {
+                                    des.insert(id, d);
+                                }
                                 _ => return,
                             },
                             Err(e) => {
@@ -110,6 +114,11 @@ impl SimpleProxy {
                                 return;
                             }
                         }
+                        let _remove_destructor = on_drop(|| {
+                            if let Some(des) = &mut *destructors.lock() {
+                                des.remove(&id);
+                            }
+                        });
                         let client = match state.add_client(&Rc::new(socket)) {
                             Ok(c) => c,
                             Err(e) => {
