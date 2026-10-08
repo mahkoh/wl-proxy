@@ -211,6 +211,7 @@ fn main() {
                 "river_xkb_bindings_v1",
                 "river_xkb_config_v1",
                 "river_touch_gestures_v1",
+                "river_virtual_keyboard_v1",
             ],
             block: &[],
         },
