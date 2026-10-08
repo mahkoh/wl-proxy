@@ -143,6 +143,7 @@ suite-river-protocols = [
     "protocol-river_layer_shell_v1",
     "protocol-river_libinput_config_v1",
     "protocol-river_touch_gestures_v1",
+    "protocol-river_virtual_keyboard_v1",
     "protocol-river_window_management_v1",
     "protocol-river_xkb_bindings_v1",
     "protocol-river_xkb_config_v1",
@@ -260,6 +261,7 @@ protocol-river_input_management_v1 = []
 protocol-river_layer_shell_v1 = ["protocol-river_window_management_v1"]
 protocol-river_libinput_config_v1 = ["protocol-river_input_management_v1"]
 protocol-river_touch_gestures_v1 = ["protocol-river_window_management_v1"]
+protocol-river_virtual_keyboard_v1 = ["protocol-virtual_keyboard_unstable_v1"]
 protocol-river_window_management_v1 = []
 protocol-river_xkb_bindings_v1 = ["protocol-river_window_management_v1"]
 protocol-river_xkb_config_v1 = ["protocol-river_input_management_v1"]
