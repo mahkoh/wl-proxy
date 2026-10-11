@@ -1,6 +1,6 @@
 [package]
 name = "wl-proxy"
-version = "0.1.4"
+version = "0.1.5"
 edition = "2024"
 rust-version = "1.89.0"
 license = "MIT OR Apache-2.0"
@@ -15,7 +15,7 @@ thiserror = "2.0.17"
 smallvec = "1.15.1"
 error_reporter = "1.0.0"
 log = "0.4.29"
-phf = { version = "0.13.1", features = ["macros"] }
+phf = { version = "0.14.0", features = ["macros"] }
 debug-fn = "1.0.0"
 run-on-drop = "1.0.0"
 linearize = { version = "0.1.5", features = ["derive"] }
