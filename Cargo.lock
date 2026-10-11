@@ -2897,7 +2897,7 @@ dependencies = [
 
 [[package]]
 name = "wl-proxy"
-version = "0.1.4"
+version = "0.1.5"
 dependencies = [
  "debug-fn",
  "env_logger",
