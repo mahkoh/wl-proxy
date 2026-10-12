@@ -151,7 +151,7 @@ impl ZwpPointerConstraintsV1 {
     ///
     /// The request creates a new object wp_locked_pointer which is used to
     /// interact with the lock as well as receive updates about its state. See
-    /// the the description of wp_locked_pointer for further information.
+    /// the description of wp_locked_pointer for further information.
     ///
     /// Note that while a pointer is locked, the wl_pointer objects of the
     /// corresponding seat will not emit any wl_pointer.motion events, but
@@ -276,7 +276,7 @@ impl ZwpPointerConstraintsV1 {
     ///
     /// The request creates a new object wp_locked_pointer which is used to
     /// interact with the lock as well as receive updates about its state. See
-    /// the the description of wp_locked_pointer for further information.
+    /// the description of wp_locked_pointer for further information.
     ///
     /// Note that while a pointer is locked, the wl_pointer objects of the
     /// corresponding seat will not emit any wl_pointer.motion events, but
@@ -341,7 +341,7 @@ impl ZwpPointerConstraintsV1 {
     ///
     /// The request creates a new object wp_locked_pointer which is used to
     /// interact with the lock as well as receive updates about its state. See
-    /// the the description of wp_locked_pointer for further information.
+    /// the description of wp_locked_pointer for further information.
     ///
     /// Note that while a pointer is locked, the wl_pointer objects of the
     /// corresponding seat will not emit any wl_pointer.motion events, but
@@ -403,7 +403,7 @@ impl ZwpPointerConstraintsV1 {
     ///
     /// The request creates a new object wp_locked_pointer which is used to
     /// interact with the lock as well as receive updates about its state. See
-    /// the the description of wp_locked_pointer for further information.
+    /// the description of wp_locked_pointer for further information.
     ///
     /// Note that while a pointer is locked, the wl_pointer objects of the
     /// corresponding seat will not emit any wl_pointer.motion events, but
@@ -456,7 +456,7 @@ impl ZwpPointerConstraintsV1 {
     ///
     /// The request will create a new object wp_confined_pointer which is used
     /// to interact with the confinement as well as receive updates about its
-    /// state. See the the description of wp_confined_pointer for further
+    /// state. See the description of wp_confined_pointer for further
     /// information.
     ///
     /// # Arguments
@@ -564,7 +564,7 @@ impl ZwpPointerConstraintsV1 {
     ///
     /// The request will create a new object wp_confined_pointer which is used
     /// to interact with the confinement as well as receive updates about its
-    /// state. See the the description of wp_confined_pointer for further
+    /// state. See the description of wp_confined_pointer for further
     /// information.
     ///
     /// # Arguments
@@ -612,7 +612,7 @@ impl ZwpPointerConstraintsV1 {
     ///
     /// The request will create a new object wp_confined_pointer which is used
     /// to interact with the confinement as well as receive updates about its
-    /// state. See the the description of wp_confined_pointer for further
+    /// state. See the description of wp_confined_pointer for further
     /// information.
     ///
     /// # Arguments
@@ -657,7 +657,7 @@ impl ZwpPointerConstraintsV1 {
     ///
     /// The request will create a new object wp_confined_pointer which is used
     /// to interact with the confinement as well as receive updates about its
-    /// state. See the the description of wp_confined_pointer for further
+    /// state. See the description of wp_confined_pointer for further
     /// information.
     ///
     /// # Arguments
@@ -744,7 +744,7 @@ pub trait ZwpPointerConstraintsV1Handler: Any {
     ///
     /// The request creates a new object wp_locked_pointer which is used to
     /// interact with the lock as well as receive updates about its state. See
-    /// the the description of wp_locked_pointer for further information.
+    /// the description of wp_locked_pointer for further information.
     ///
     /// Note that while a pointer is locked, the wl_pointer objects of the
     /// corresponding seat will not emit any wl_pointer.motion events, but
@@ -804,7 +804,7 @@ pub trait ZwpPointerConstraintsV1Handler: Any {
     ///
     /// The request will create a new object wp_confined_pointer which is used
     /// to interact with the confinement as well as receive updates about its
-    /// state. See the the description of wp_confined_pointer for further
+    /// state. See the description of wp_confined_pointer for further
     /// information.
     ///
     /// # Arguments

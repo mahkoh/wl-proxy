@@ -216,7 +216,7 @@ impl WpColorManagementSurfaceFeedbackV1 {
     /// wl_surface only if the image description is an exact match with the
     /// client content. Particularly if everything else matches, but the target
     /// color volume is greater than what the client needs, the client should
-    /// create its own parameric image description with its exact parameters.
+    /// create its own parametric image description with its exact parameters.
     ///
     /// If the interface version is inadequate for the preferred image
     /// description, meaning that the client does not support all the
@@ -302,7 +302,7 @@ impl WpColorManagementSurfaceFeedbackV1 {
     /// wl_surface only if the image description is an exact match with the
     /// client content. Particularly if everything else matches, but the target
     /// color volume is greater than what the client needs, the client should
-    /// create its own parameric image description with its exact parameters.
+    /// create its own parametric image description with its exact parameters.
     ///
     /// If the interface version is inadequate for the preferred image
     /// description, meaning that the client does not support all the
@@ -354,7 +354,7 @@ impl WpColorManagementSurfaceFeedbackV1 {
     /// wl_surface only if the image description is an exact match with the
     /// client content. Particularly if everything else matches, but the target
     /// color volume is greater than what the client needs, the client should
-    /// create its own parameric image description with its exact parameters.
+    /// create its own parametric image description with its exact parameters.
     ///
     /// If the interface version is inadequate for the preferred image
     /// description, meaning that the client does not support all the
@@ -400,7 +400,7 @@ impl WpColorManagementSurfaceFeedbackV1 {
     /// wl_surface only if the image description is an exact match with the
     /// client content. Particularly if everything else matches, but the target
     /// color volume is greater than what the client needs, the client should
-    /// create its own parameric image description with its exact parameters.
+    /// create its own parametric image description with its exact parameters.
     ///
     /// If the interface version is inadequate for the preferred image
     /// description, meaning that the client does not support all the
@@ -556,7 +556,7 @@ impl WpColorManagementSurfaceFeedbackV1 {
     ///
     /// This event sends the identity of the new preferred state as the argument,
     /// so clients who are aware of the image description already can reuse it.
-    /// Otherwise, if the client client wants to know what the preferred image
+    /// Otherwise, if the client wants to know what the preferred image
     /// description is, it shall use the get_preferred request.
     ///
     /// The preferred image description is not automatically used for anything.
@@ -625,7 +625,7 @@ impl WpColorManagementSurfaceFeedbackV1 {
     ///
     /// This event sends the identity of the new preferred state as the argument,
     /// so clients who are aware of the image description already can reuse it.
-    /// Otherwise, if the client client wants to know what the preferred image
+    /// Otherwise, if the client wants to know what the preferred image
     /// description is, it shall use the get_preferred request.
     ///
     /// The preferred image description is not automatically used for anything.
@@ -735,7 +735,7 @@ pub trait WpColorManagementSurfaceFeedbackV1Handler: Any {
     /// wl_surface only if the image description is an exact match with the
     /// client content. Particularly if everything else matches, but the target
     /// color volume is greater than what the client needs, the client should
-    /// create its own parameric image description with its exact parameters.
+    /// create its own parametric image description with its exact parameters.
     ///
     /// If the interface version is inadequate for the preferred image
     /// description, meaning that the client does not support all the
@@ -802,7 +802,7 @@ pub trait WpColorManagementSurfaceFeedbackV1Handler: Any {
     ///
     /// This event sends the identity of the new preferred state as the argument,
     /// so clients who are aware of the image description already can reuse it.
-    /// Otherwise, if the client client wants to know what the preferred image
+    /// Otherwise, if the client wants to know what the preferred image
     /// description is, it shall use the get_preferred request.
     ///
     /// The preferred image description is not automatically used for anything.
