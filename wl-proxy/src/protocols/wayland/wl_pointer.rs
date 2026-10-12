@@ -342,6 +342,11 @@ impl WlPointer {
     ///
     /// Notification that this seat's pointer is no longer focused on
     /// a certain surface.
+    /// Unless there is an enter event on another surface in the same frame,
+    /// the client should assume the button state is reset, in other words
+    /// that no buttons are pressed.
+    /// Note that this is different from the buttons being released, the
+    /// client should avoid triggering actions in response to this.
     ///
     /// The leave notification is sent before the enter notification
     /// for the new focus.
@@ -405,6 +410,11 @@ impl WlPointer {
     ///
     /// Notification that this seat's pointer is no longer focused on
     /// a certain surface.
+    /// Unless there is an enter event on another surface in the same frame,
+    /// the client should assume the button state is reset, in other words
+    /// that no buttons are pressed.
+    /// Note that this is different from the buttons being released, the
+    /// client should avoid triggering actions in response to this.
     ///
     /// The leave notification is sent before the enter notification
     /// for the new focus.
@@ -1815,6 +1825,11 @@ pub trait WlPointerHandler: Any {
     ///
     /// Notification that this seat's pointer is no longer focused on
     /// a certain surface.
+    /// Unless there is an enter event on another surface in the same frame,
+    /// the client should assume the button state is reset, in other words
+    /// that no buttons are pressed.
+    /// Note that this is different from the buttons being released, the
+    /// client should avoid triggering actions in response to this.
     ///
     /// The leave notification is sent before the enter notification
     /// for the new focus.

@@ -462,7 +462,7 @@ impl ZwpTextInputV3 {
     /// Tells the compositor why the text surrounding the cursor changed.
     ///
     /// Whenever the client detects an external change in text, cursor, or
-    /// anchor posision, it must issue this request to the compositor. This
+    /// anchor position, it must issue this request to the compositor. This
     /// request is intended to give the input method a chance to update the
     /// preedit text in an appropriate way, e.g. by removing it when the user
     /// starts typing with a keyboard.
@@ -524,7 +524,7 @@ impl ZwpTextInputV3 {
     /// Tells the compositor why the text surrounding the cursor changed.
     ///
     /// Whenever the client detects an external change in text, cursor, or
-    /// anchor posision, it must issue this request to the compositor. This
+    /// anchor position, it must issue this request to the compositor. This
     /// request is intended to give the input method a chance to update the
     /// preedit text in an appropriate way, e.g. by removing it when the user
     /// starts typing with a keyboard.
@@ -2225,7 +2225,7 @@ pub trait ZwpTextInputV3Handler: Any {
     /// Tells the compositor why the text surrounding the cursor changed.
     ///
     /// Whenever the client detects an external change in text, cursor, or
-    /// anchor posision, it must issue this request to the compositor. This
+    /// anchor position, it must issue this request to the compositor. This
     /// request is intended to give the input method a chance to update the
     /// preedit text in an appropriate way, e.g. by removing it when the user
     /// starts typing with a keyboard.
@@ -3561,7 +3561,7 @@ impl ZwpTextInputV3 {
 
 /// text change reason
 ///
-/// Reason for the change of surrounding text or cursor posision.
+/// Reason for the change of surrounding text or cursor position.
 #[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash)]
 pub struct ZwpTextInputV3ChangeCause(pub u32);
 

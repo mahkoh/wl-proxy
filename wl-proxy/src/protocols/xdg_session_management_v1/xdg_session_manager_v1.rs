@@ -127,7 +127,7 @@ impl XdgSessionManagerV1 {
     /// use".
     ///
     /// If an identifier string represents a session that is currently actively
-    /// in use by the the same client, an 'in_use' error is raised. If some
+    /// in use by the same client, an 'in_use' error is raised. If some
     /// other client is currently using the same session, the new session will
     /// replace managing the associated state.
     ///
@@ -217,7 +217,7 @@ impl XdgSessionManagerV1 {
     /// use".
     ///
     /// If an identifier string represents a session that is currently actively
-    /// in use by the the same client, an 'in_use' error is raised. If some
+    /// in use by the same client, an 'in_use' error is raised. If some
     /// other client is currently using the same session, the new session will
     /// replace managing the associated state.
     ///
@@ -265,7 +265,7 @@ impl XdgSessionManagerV1 {
     /// use".
     ///
     /// If an identifier string represents a session that is currently actively
-    /// in use by the the same client, an 'in_use' error is raised. If some
+    /// in use by the same client, an 'in_use' error is raised. If some
     /// other client is currently using the same session, the new session will
     /// replace managing the associated state.
     ///
@@ -310,7 +310,7 @@ impl XdgSessionManagerV1 {
     /// use".
     ///
     /// If an identifier string represents a session that is currently actively
-    /// in use by the the same client, an 'in_use' error is raised. If some
+    /// in use by the same client, an 'in_use' error is raised. If some
     /// other client is currently using the same session, the new session will
     /// replace managing the associated state.
     ///
@@ -385,7 +385,7 @@ pub trait XdgSessionManagerV1Handler: Any {
     /// use".
     ///
     /// If an identifier string represents a session that is currently actively
-    /// in use by the the same client, an 'in_use' error is raised. If some
+    /// in use by the same client, an 'in_use' error is raised. If some
     /// other client is currently using the same session, the new session will
     /// replace managing the associated state.
     ///

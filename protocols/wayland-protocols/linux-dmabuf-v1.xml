@@ -299,7 +299,7 @@
         Upon receiving this event, the client should destroy the
         zwp_linux_buffer_params_v1 object.
       </description>
-      <arg name="buffer" type="new_id" interface="wl_buffer" summary="id for the the newly created wl_buffer"/>
+      <arg name="buffer" type="new_id" interface="wl_buffer" summary="id for the newly created wl_buffer"/>
     </event>
     <event name="failed">
       <description summary="buffer creation failed">

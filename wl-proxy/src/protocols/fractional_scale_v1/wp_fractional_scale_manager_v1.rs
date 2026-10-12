@@ -114,7 +114,7 @@ impl WpFractionalScaleManagerV1 {
 
     /// extend surface interface for scale information
     ///
-    /// Create an add-on object for the the wl_surface to let the compositor
+    /// Create an add-on object for the wl_surface to let the compositor
     /// request fractional scales. If the given wl_surface already has a
     /// wp_fractional_scale_v1 object associated, the fractional_scale_exists
     /// protocol error is raised.
@@ -181,7 +181,7 @@ impl WpFractionalScaleManagerV1 {
 
     /// extend surface interface for scale information
     ///
-    /// Create an add-on object for the the wl_surface to let the compositor
+    /// Create an add-on object for the wl_surface to let the compositor
     /// request fractional scales. If the given wl_surface already has a
     /// wp_fractional_scale_v1 object associated, the fractional_scale_exists
     /// protocol error is raised.
@@ -207,7 +207,7 @@ impl WpFractionalScaleManagerV1 {
 
     /// extend surface interface for scale information
     ///
-    /// Create an add-on object for the the wl_surface to let the compositor
+    /// Create an add-on object for the wl_surface to let the compositor
     /// request fractional scales. If the given wl_surface already has a
     /// wp_fractional_scale_v1 object associated, the fractional_scale_exists
     /// protocol error is raised.
@@ -230,7 +230,7 @@ impl WpFractionalScaleManagerV1 {
 
     /// extend surface interface for scale information
     ///
-    /// Create an add-on object for the the wl_surface to let the compositor
+    /// Create an add-on object for the wl_surface to let the compositor
     /// request fractional scales. If the given wl_surface already has a
     /// wp_fractional_scale_v1 object associated, the fractional_scale_exists
     /// protocol error is raised.
@@ -284,7 +284,7 @@ pub trait WpFractionalScaleManagerV1Handler: Any {
 
     /// extend surface interface for scale information
     ///
-    /// Create an add-on object for the the wl_surface to let the compositor
+    /// Create an add-on object for the wl_surface to let the compositor
     /// request fractional scales. If the given wl_surface already has a
     /// wp_fractional_scale_v1 object associated, the fractional_scale_exists
     /// protocol error is raised.

@@ -495,7 +495,7 @@ impl ZwpLinuxBufferParamsV1 {
     ///
     /// # Arguments
     ///
-    /// - `buffer`: id for the the newly created wl_buffer
+    /// - `buffer`: id for the newly created wl_buffer
     #[inline]
     pub fn try_send_created(
         &self,
@@ -553,7 +553,7 @@ impl ZwpLinuxBufferParamsV1 {
     ///
     /// # Arguments
     ///
-    /// - `buffer`: id for the the newly created wl_buffer
+    /// - `buffer`: id for the newly created wl_buffer
     #[inline]
     pub fn send_created(
         &self,
@@ -1211,7 +1211,7 @@ pub trait ZwpLinuxBufferParamsV1Handler: Any {
     ///
     /// # Arguments
     ///
-    /// - `buffer`: id for the the newly created wl_buffer
+    /// - `buffer`: id for the newly created wl_buffer
     #[inline]
     fn handle_created(
         &mut self,
