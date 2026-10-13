@@ -28,7 +28,7 @@ struct DefaultHandler;
 impl WpPresentationFeedbackHandler for DefaultHandler { }
 
 impl ConcreteObject for WpPresentationFeedback {
-    const XML_VERSION: u32 = 2;
+    const XML_VERSION: u32 = 3;
     const INTERFACE: ObjectInterface = ObjectInterface::WpPresentationFeedback;
     const INTERFACE_NAME: &str = "wp_presentation_feedback";
 }
@@ -187,6 +187,11 @@ impl WpPresentationFeedback {
     /// For version 1, if the output does not have a constant refresh rate,
     /// the refresh argument must be zero.
     ///
+    /// If the 'fixed_rate' flag is set, then the refresh argument is
+    /// the output's constant refresh rate. If the 'variable_rate' flag
+    /// is set, then the refresh argument is the output's fastest refresh
+    /// rate.
+    ///
     /// The 64-bit value combined from seq_hi and seq_lo is the value
     /// of the output's vertical retrace counter when the content
     /// update was first scanned out to the display. This value must
@@ -312,6 +317,11 @@ impl WpPresentationFeedback {
     /// compositor (e.g. fastest rate), or 0 if no such rate exists.
     /// For version 1, if the output does not have a constant refresh rate,
     /// the refresh argument must be zero.
+    ///
+    /// If the 'fixed_rate' flag is set, then the refresh argument is
+    /// the output's constant refresh rate. If the 'variable_rate' flag
+    /// is set, then the refresh argument is the output's fastest refresh
+    /// rate.
     ///
     /// The 64-bit value combined from seq_hi and seq_lo is the value
     /// of the output's vertical retrace counter when the content
@@ -504,6 +514,11 @@ pub trait WpPresentationFeedbackHandler: Any {
     /// compositor (e.g. fastest rate), or 0 if no such rate exists.
     /// For version 1, if the output does not have a constant refresh rate,
     /// the refresh argument must be zero.
+    ///
+    /// If the 'fixed_rate' flag is set, then the refresh argument is
+    /// the output's constant refresh rate. If the 'variable_rate' flag
+    /// is set, then the refresh argument is the output's fastest refresh
+    /// rate.
     ///
     /// The 64-bit value combined from seq_hi and seq_lo is the value
     /// of the output's vertical retrace counter when the content
@@ -770,6 +785,10 @@ impl WpPresentationFeedback {
     pub const ENM__KIND_HW_COMPLETION__SINCE: u32 = 1;
     /// Since when the kind.zero_copy enum variant is available.
     pub const ENM__KIND_ZERO_COPY__SINCE: u32 = 1;
+    /// Since when the kind.fixed_rate enum variant is available.
+    pub const ENM__KIND_FIXED_RATE__SINCE: u32 = 3;
+    /// Since when the kind.variable_rate enum variant is available.
+    pub const ENM__KIND_VARIABLE_RATE__SINCE: u32 = 3;
 }
 
 /// bitmask of flags in presented event
@@ -823,6 +842,24 @@ impl WpPresentationFeedbackKind {
     /// Possible zero-copy cases include direct scanout of a
     /// fullscreen surface and a surface on a hardware overlay.
     pub const ZERO_COPY: Self = Self(0x8);
+
+    /// presentation is at a fixed refresh rate
+    ///
+    /// The display hardware is operating at a fixed refresh rate.
+    /// The presentation was aligned to a multiple of this event's
+    /// 'refresh' argument.
+    /// If this is set, the refresh argument must not be 0.
+    pub const FIXED_RATE: Self = Self(0x10);
+
+    /// presentation is at a variable refresh rate
+    ///
+    /// The display hardware is operating at a variable refresh rate driven
+    /// by the surface.
+    /// The content update was displayed as soon as possible after it became
+    /// ready, but no sooner than 'refresh' nanoseconds after the previous
+    /// presentation on this surface.
+    /// If this is set, the refresh argument must not be 0.
+    pub const VARIABLE_RATE: Self = Self(0x20);
 }
 
 impl WpPresentationFeedbackKind {
@@ -906,7 +943,7 @@ impl WpPresentationFeedbackKind {
     #[inline]
     pub const fn all_known() -> Self {
         #[allow(clippy::eq_op, clippy::identity_op)]
-        Self(0 | 0x1 | 0x2 | 0x4 | 0x8)
+        Self(0 | 0x1 | 0x2 | 0x4 | 0x8 | 0x10 | 0x20)
     }
 }
 
@@ -1035,6 +1072,24 @@ impl Debug for WpPresentationFeedbackKind {
                 f.write_str(" | ")?;
             }
             f.write_str("ZERO_COPY")?;
+        }
+        if v & 0x10 == 0x10 {
+            v &= !0x10;
+            if first {
+                first = false;
+            } else {
+                f.write_str(" | ")?;
+            }
+            f.write_str("FIXED_RATE")?;
+        }
+        if v & 0x20 == 0x20 {
+            v &= !0x20;
+            if first {
+                first = false;
+            } else {
+                f.write_str(" | ")?;
+            }
+            f.write_str("VARIABLE_RATE")?;
         }
         if v != 0 {
             if first {

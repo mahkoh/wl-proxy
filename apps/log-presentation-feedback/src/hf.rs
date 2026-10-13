@@ -90,7 +90,7 @@ impl WlRegistryHandler for ProxyRegistry {
     ) {
         match interface {
             ObjectInterface::WpPresentation => {
-                let obj = slf.state().create_object::<WpPresentation>(version.min(2));
+                let obj = slf.state().create_object::<WpPresentation>(version.min(3));
                 slf.send_bind(name, obj.clone());
                 self.display
                     .get_handler_mut::<WlDisplayHandlerImpl>()
@@ -220,6 +220,12 @@ impl WpPresentationFeedbackHandler for Feedback {
             }
             if flags.contains(WpPresentationFeedbackKind::ZERO_COPY) {
                 f.write_str(",zero_copy")?;
+            }
+            if flags.contains(WpPresentationFeedbackKind::FIXED_RATE) {
+                f.write_str(",fixed_rate")?;
+            }
+            if flags.contains(WpPresentationFeedbackKind::VARIABLE_RATE) {
+                f.write_str(",variable_rate")?;
             }
             Ok(())
         });
