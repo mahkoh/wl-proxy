@@ -1,17 +1,23 @@
 use {
     crate::{
+        client::ClientHandler,
         object::ObjectUtils,
         protocols::wlproxy_test::{
             wlproxy_test_array_echo::{WlproxyTestArrayEcho, WlproxyTestArrayEchoHandler},
             wlproxy_test_fd_echo::{WlproxyTestFdEcho, WlproxyTestFdEchoHandler},
         },
-        test_framework::proxy::{test_proxy, test_proxy_no_log},
+        test_framework::proxy::{TestProxy, test_proxy, test_proxy_no_log},
         trans::{HEADER_SIZE, MAX_MESSAGE_SIZE},
     },
     std::{
-        os::fd::{AsRawFd, OwnedFd},
+        cell::Cell,
+        mem::MaybeUninit,
+        os::fd::{AsRawFd, OwnedFd, RawFd},
         rc::Rc,
+        slice, thread,
+        time::Duration,
     },
+    uapi::{Msghdr, c, sockaddr_none_ref},
 };
 
 fn weird_message_size(size: u16) {
@@ -153,4 +159,50 @@ fn echo_fd() {
     echo.set_handler(Handler(fd1, fd2, false));
     tp.sync();
     assert!(echo.get_handler_mut::<Handler>().2);
+}
+
+/// Runs only the proxy (the test client is not dispatched, so nothing it receives matters) and reports whether
+/// the proxy disconnected the client.
+fn disconnected_by_proxy(tp: &TestProxy) -> bool {
+    struct H(Rc<Cell<bool>>);
+    impl ClientHandler for H {
+        fn disconnected(self: Box<Self>) {
+            self.0.set(true);
+        }
+    }
+    let disconnected = Rc::new(Cell::new(false));
+    tp.client.proxy_client.set_handler(H(disconnected.clone()));
+    for _ in 0..50 {
+        tp.proxy_state.dispatch_available().unwrap();
+        if disconnected.get() {
+            return true;
+        }
+        thread::sleep(Duration::from_millis(10));
+    }
+    false
+}
+
+#[test]
+fn truncated_control_message() {
+    let tp = test_proxy();
+    // 60 file descriptors, more than the control buffer holds, with the first 4 bytes of a message: without the
+    // check the excess fds would be dropped silently and the proxy would just wait for the rest of the message.
+    let fds: Vec<OwnedFd> = (0..60)
+        .map(|_| uapi::memfd_create("", c::MFD_CLOEXEC).unwrap().into())
+        .collect();
+    let raw: Vec<RawFd> = fds.iter().map(|f| f.as_raw_fd()).collect();
+    let mut control = vec![MaybeUninit::<u8>::uninit(); uapi::cmsg_space(size_of_val(&raw[..]))];
+    let mut hdr: c::cmsghdr = uapi::pod_zeroed();
+    hdr.cmsg_level = c::SOL_SOCKET;
+    hdr.cmsg_type = c::SCM_RIGHTS;
+    uapi::cmsg_write(&mut &mut control[..], hdr, &raw[..]).unwrap();
+    let msg = [1u32];
+    let iov = uapi::as_bytes(&msg);
+    let msghdr = Msghdr {
+        iov: slice::from_ref(&iov),
+        control: Some(&control[..]),
+        name: sockaddr_none_ref(),
+    };
+    uapi::sendmsg(tp.client.fd.as_raw_fd(), &msghdr, 0).unwrap();
+    assert!(disconnected_by_proxy(&tp));
 }
