@@ -669,7 +669,7 @@ impl ZwlrForeignToplevelHandleV1 {
 
     /// the toplevel state changed
     ///
-    /// This event is emitted immediately after the zlw_foreign_toplevel_handle_v1
+    /// This event is emitted immediately after the zwlr_foreign_toplevel_handle_v1
     /// is created and each time the toplevel state changes, either because of a
     /// compositor action or because of a request in this protocol.
     ///
@@ -720,7 +720,7 @@ impl ZwlrForeignToplevelHandleV1 {
 
     /// the toplevel state changed
     ///
-    /// This event is emitted immediately after the zlw_foreign_toplevel_handle_v1
+    /// This event is emitted immediately after the zwlr_foreign_toplevel_handle_v1
     /// is created and each time the toplevel state changes, either because of a
     /// compositor action or because of a request in this protocol.
     ///
@@ -1592,7 +1592,7 @@ pub trait ZwlrForeignToplevelHandleV1Handler: Any {
 
     /// the toplevel state changed
     ///
-    /// This event is emitted immediately after the zlw_foreign_toplevel_handle_v1
+    /// This event is emitted immediately after the zwlr_foreign_toplevel_handle_v1
     /// is created and each time the toplevel state changes, either because of a
     /// compositor action or because of a request in this protocol.
     ///
