@@ -343,8 +343,10 @@ impl HyprlandCtmControlManagerV1 {
     }
 
     /// Since when the blocked message is available.
-    pub const MSG__BLOCKED__SINCE: u32 = 1;
+    pub const MSG__BLOCKED__SINCE: u32 = 2;
 
+    /// blocked by another client
+    ///
     /// This event is sent if another manager was bound by any client
     /// at the time the current manager was bound.
     /// Any set_ctm_for_output requests from a blocked manager will be
@@ -386,6 +388,8 @@ impl HyprlandCtmControlManagerV1 {
         Ok(())
     }
 
+    /// blocked by another client
+    ///
     /// This event is sent if another manager was bound by any client
     /// at the time the current manager was bound.
     /// Any set_ctm_for_output requests from a blocked manager will be
@@ -519,6 +523,8 @@ pub trait HyprlandCtmControlManagerV1Handler: Any {
         }
     }
 
+    /// blocked by another client
+    ///
     /// This event is sent if another manager was bound by any client
     /// at the time the current manager was bound.
     /// Any set_ctm_for_output requests from a blocked manager will be
