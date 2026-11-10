@@ -81,10 +81,10 @@
   </interface>
   <interface name="weston_capture_source_v1" version="2">
     <description summary="image capturing source">
-      An object representing image capturing functionality for a single
-      source. When created, it sends the initial events if and only if the
-      output still exists and the specified pixel source is available on
-      the output.
+      An object representing image capturing functionality for a single source.
+      When created, it sends the initial events. If the output no longer exists
+      or the pixel source is unavailable, clients will receive only the
+      'formats_done' initial event.
     </description>
     <request name="destroy" type="destructor">
       <description summary="cancel the capture, and destroy">
@@ -137,7 +137,8 @@
         This is an initial event, and sent whenever the supported formats
         change.
 
-        This event may be send multiple times, followed by a format_done event.
+        This event may be send multiple times, followed by a 'formats_done'
+        event.
       </description>
       <arg name="drm_format" type="uint" summary="DRM pixel format code"/>
     </event>

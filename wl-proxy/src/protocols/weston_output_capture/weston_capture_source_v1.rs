@@ -1,9 +1,9 @@
 //! image capturing source
 //!
-//! An object representing image capturing functionality for a single
-//! source. When created, it sends the initial events if and only if the
-//! output still exists and the specified pixel source is available on
-//! the output.
+//! An object representing image capturing functionality for a single source.
+//! When created, it sends the initial events. If the output no longer exists
+//! or the pixel source is unavailable, clients will receive only the
+//! 'formats_done' initial event.
 
 use crate::protocol_helpers::prelude::*;
 use super::super::all_types::*;
@@ -257,7 +257,8 @@ impl WestonCaptureSourceV1 {
     /// This is an initial event, and sent whenever the supported formats
     /// change.
     ///
-    /// This event may be send multiple times, followed by a format_done event.
+    /// This event may be send multiple times, followed by a 'formats_done'
+    /// event.
     ///
     /// # Arguments
     ///
@@ -315,7 +316,8 @@ impl WestonCaptureSourceV1 {
     /// This is an initial event, and sent whenever the supported formats
     /// change.
     ///
-    /// This event may be send multiple times, followed by a format_done event.
+    /// This event may be send multiple times, followed by a 'formats_done'
+    /// event.
     ///
     /// # Arguments
     ///
@@ -794,7 +796,8 @@ pub trait WestonCaptureSourceV1Handler: Any {
     /// This is an initial event, and sent whenever the supported formats
     /// change.
     ///
-    /// This event may be send multiple times, followed by a format_done event.
+    /// This event may be send multiple times, followed by a 'formats_done'
+    /// event.
     ///
     /// # Arguments
     ///
