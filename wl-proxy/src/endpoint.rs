@@ -28,6 +28,8 @@ pub(crate) struct Endpoint {
     pub(crate) flush_queued: Cell<bool>,
     pub(crate) unregistered: Cell<bool>,
     pub(crate) objects: RefCell<HashMap<u32, Rc<dyn Object>>>,
+    /// The highest object id the client has chosen so far.
+    pub(crate) highest_client_id: Cell<u32>,
     pub(crate) idl: FreeList<u32, 3>,
     pub(crate) current_interest: Cell<u32>,
     pub(crate) desired_interest: Cell<u32>,
@@ -102,6 +104,7 @@ impl Endpoint {
             flush_queued: Default::default(),
             unregistered: Default::default(),
             objects: Default::default(),
+            highest_client_id: Default::default(),
             idl: Default::default(),
             current_interest: Default::default(),
             desired_interest: Default::default(),

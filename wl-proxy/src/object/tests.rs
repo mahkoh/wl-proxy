@@ -1,6 +1,7 @@
 use {
     crate::{
         baseline::Baseline,
+        client::ClientHandler,
         object::{Object, ObjectCoreApi, ObjectRcUtils, ObjectUtils},
         protocols::{
             wayland::wl_keyboard::WlKeyboard,
@@ -13,7 +14,7 @@ use {
         state::State,
         test_framework::proxy::test_proxy,
     },
-    std::rc::Rc,
+    std::{cell::Cell, os::fd::AsRawFd, rc::Rc, thread, time::Duration},
 };
 
 #[test]
@@ -312,4 +313,38 @@ fn reuse_normal() {
     tp.sync();
     tp.client.test.try_send_create_server_sent(&c1).unwrap();
     tp.sync();
+}
+
+/// Sends wl_display.sync with the given new id directly on the client socket, runs only the proxy (the test
+/// client is not dispatched, so the reply does not matter) and checks that the proxy disconnects the client.
+fn sync_with_client_id(id: u32) {
+    struct H(Rc<Cell<bool>>);
+    impl ClientHandler for H {
+        fn disconnected(self: Box<Self>) {
+            self.0.set(true);
+        }
+    }
+    let tp = test_proxy();
+    let disconnected = Rc::new(Cell::new(false));
+    tp.client.proxy_client.set_handler(H(disconnected.clone()));
+    let msg = [1u32, (12 << 16), id];
+    uapi::write(tp.client.fd.as_raw_fd(), &msg).unwrap();
+    for _ in 0..50 {
+        tp.proxy_state.dispatch_available().unwrap();
+        if disconnected.get() {
+            return;
+        }
+        thread::sleep(Duration::from_millis(10));
+    }
+    panic!("the proxy accepted client id {id}");
+}
+
+#[test]
+fn client_id_zero() {
+    sync_with_client_id(0);
+}
+
+#[test]
+fn client_id_not_next() {
+    sync_with_client_id(100_000);
 }
