@@ -24,7 +24,7 @@ struct DefaultHandler;
 impl RiverWindowV1Handler for DefaultHandler { }
 
 impl ConcreteObject for RiverWindowV1 {
-    const XML_VERSION: u32 = 6;
+    const XML_VERSION: u32 = 7;
     const INTERFACE: ObjectInterface = ObjectInterface::RiverWindowV1;
     const INTERFACE_NAME: &str = "river_window_v1";
 }
