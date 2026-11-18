@@ -34,7 +34,7 @@ struct DefaultHandler;
 impl RiverSeatV1Handler for DefaultHandler { }
 
 impl ConcreteObject for RiverSeatV1 {
-    const XML_VERSION: u32 = 6;
+    const XML_VERSION: u32 = 7;
     const INTERFACE: ObjectInterface = ObjectInterface::RiverSeatV1;
     const INTERFACE_NAME: &str = "river_seat_v1";
 }
@@ -2158,6 +2158,154 @@ impl RiverSeatV1 {
             log_send("river_seat_v1.op_end_touch", &e);
         }
     }
+
+    /// Since when the notify_next_keyboard_input message is available.
+    pub const MSG__NOTIFY_NEXT_KEYBOARD_INPUT__SINCE: u32 = 7;
+
+    /// get notified of the next keyboard input
+    ///
+    /// Request that the keyboard_input event be sent when the next non-modifier
+    /// key is pressed on any physical keyboard assigned to the seat. Key presses
+    /// from virtual keyboards (e.g. on-screen keyboards) are ignored.
+    ///
+    /// This request has no effect on keyboard input routing. The next keyboard
+    /// event will be routed to the client with keyboard focus or consumed by a
+    /// keyboard binding created through the river-xkb-bindings-v1 protocol as
+    /// usual.
+    ///
+    /// Rationale: this event is necessary for window managers implementing a
+    /// "hide cursor when typing" feature. This use-case requires a notification
+    /// that the user has started typing to know when to hide the cursor.
+    ///
+    /// This request modifies window management state and may only be made as
+    /// part of a manage sequence, see the river_window_manager_v1 description.
+    #[inline]
+    pub fn try_send_notify_next_keyboard_input(
+        &self,
+    ) -> Result<(), ObjectError> {
+        let core = self.core();
+        let Some(id) = core.server_obj_id.get() else {
+            return Err(ObjectError(ObjectErrorKind::ReceiverNoServerId));
+        };
+        #[cfg(feature = "logging")]
+        if self.core.state.log {
+            #[cold]
+            fn log(state: &State, id: u32) {
+                let (millis, micros) = time_since_epoch();
+                let prefix = &state.log_prefix;
+                let args = format_args!("[{millis:7}.{micros:03}] {prefix}server      <= river_seat_v1#{}.notify_next_keyboard_input()\n", id);
+                state.log(args);
+            }
+            log(&self.core.state, id);
+        }
+        let Some(endpoint) = &self.core.state.server else {
+            return Ok(());
+        };
+        if !endpoint.flush_queued.replace(true) {
+            self.core.state.add_flushable_endpoint(endpoint, None);
+        }
+        let mut outgoing_ref = endpoint.outgoing.borrow_mut();
+        let outgoing = &mut *outgoing_ref;
+        let mut fmt = outgoing.formatter();
+        fmt.words([
+            id,
+            11,
+        ]);
+        Ok(())
+    }
+
+    /// get notified of the next keyboard input
+    ///
+    /// Request that the keyboard_input event be sent when the next non-modifier
+    /// key is pressed on any physical keyboard assigned to the seat. Key presses
+    /// from virtual keyboards (e.g. on-screen keyboards) are ignored.
+    ///
+    /// This request has no effect on keyboard input routing. The next keyboard
+    /// event will be routed to the client with keyboard focus or consumed by a
+    /// keyboard binding created through the river-xkb-bindings-v1 protocol as
+    /// usual.
+    ///
+    /// Rationale: this event is necessary for window managers implementing a
+    /// "hide cursor when typing" feature. This use-case requires a notification
+    /// that the user has started typing to know when to hide the cursor.
+    ///
+    /// This request modifies window management state and may only be made as
+    /// part of a manage sequence, see the river_window_manager_v1 description.
+    #[inline]
+    pub fn send_notify_next_keyboard_input(
+        &self,
+    ) {
+        let res = self.try_send_notify_next_keyboard_input(
+        );
+        if let Err(e) = res {
+            log_send("river_seat_v1.notify_next_keyboard_input", &e);
+        }
+    }
+
+    /// Since when the keyboard_input message is available.
+    pub const MSG__KEYBOARD_INPUT__SINCE: u32 = 7;
+
+    /// a non-modifier key was pressed
+    ///
+    /// This event is sent once in response to the notify_next_keyboard_input
+    /// request when the next non-modifier key is pressed on any physical
+    /// keyboard assigned to the seat.
+    ///
+    /// This event will be followed by a manage_start event after all other new
+    /// state has been sent by the server.
+    #[inline]
+    pub fn try_send_keyboard_input(
+        &self,
+    ) -> Result<(), ObjectError> {
+        let core = self.core();
+        let client_ref = core.client.borrow();
+        let Some(client) = &*client_ref else {
+            return Err(ObjectError(ObjectErrorKind::ReceiverNoClient));
+        };
+        let id = core.client_obj_id.get().unwrap_or(0);
+        #[cfg(feature = "logging")]
+        if self.core.state.log {
+            #[cold]
+            fn log(state: &State, client_id: u64, id: u32) {
+                let (millis, micros) = time_since_epoch();
+                let prefix = &state.log_prefix;
+                let args = format_args!("[{millis:7}.{micros:03}] {prefix}client#{:<4} <= river_seat_v1#{}.keyboard_input()\n", client_id, id);
+                state.log(args);
+            }
+            log(&self.core.state, client.endpoint.id, id);
+        }
+        let endpoint = &client.endpoint;
+        if !endpoint.flush_queued.replace(true) {
+            self.core.state.add_flushable_endpoint(endpoint, Some(client));
+        }
+        let mut outgoing_ref = endpoint.outgoing.borrow_mut();
+        let outgoing = &mut *outgoing_ref;
+        let mut fmt = outgoing.formatter();
+        fmt.words([
+            id,
+            12,
+        ]);
+        Ok(())
+    }
+
+    /// a non-modifier key was pressed
+    ///
+    /// This event is sent once in response to the notify_next_keyboard_input
+    /// request when the next non-modifier key is pressed on any physical
+    /// keyboard assigned to the seat.
+    ///
+    /// This event will be followed by a manage_start event after all other new
+    /// state has been sent by the server.
+    #[inline]
+    pub fn send_keyboard_input(
+        &self,
+    ) {
+        let res = self.try_send_keyboard_input(
+        );
+        if let Err(e) = res {
+            log_send("river_seat_v1.keyboard_input", &e);
+        }
+    }
 }
 
 /// A message handler for [`RiverSeatV1`] proxies.
@@ -2939,6 +3087,61 @@ pub trait RiverSeatV1Handler: Any {
             log_forward("river_seat_v1.op_end_touch", &e);
         }
     }
+
+    /// get notified of the next keyboard input
+    ///
+    /// Request that the keyboard_input event be sent when the next non-modifier
+    /// key is pressed on any physical keyboard assigned to the seat. Key presses
+    /// from virtual keyboards (e.g. on-screen keyboards) are ignored.
+    ///
+    /// This request has no effect on keyboard input routing. The next keyboard
+    /// event will be routed to the client with keyboard focus or consumed by a
+    /// keyboard binding created through the river-xkb-bindings-v1 protocol as
+    /// usual.
+    ///
+    /// Rationale: this event is necessary for window managers implementing a
+    /// "hide cursor when typing" feature. This use-case requires a notification
+    /// that the user has started typing to know when to hide the cursor.
+    ///
+    /// This request modifies window management state and may only be made as
+    /// part of a manage sequence, see the river_window_manager_v1 description.
+    #[inline]
+    fn handle_notify_next_keyboard_input(
+        &mut self,
+        slf: &Rc<RiverSeatV1>,
+    ) {
+        if !slf.core.forward_to_server.get() {
+            return;
+        }
+        let res = slf.try_send_notify_next_keyboard_input(
+        );
+        if let Err(e) = res {
+            log_forward("river_seat_v1.notify_next_keyboard_input", &e);
+        }
+    }
+
+    /// a non-modifier key was pressed
+    ///
+    /// This event is sent once in response to the notify_next_keyboard_input
+    /// request when the next non-modifier key is pressed on any physical
+    /// keyboard assigned to the seat.
+    ///
+    /// This event will be followed by a manage_start event after all other new
+    /// state has been sent by the server.
+    #[inline]
+    fn handle_keyboard_input(
+        &mut self,
+        slf: &Rc<RiverSeatV1>,
+    ) {
+        if !slf.core.forward_to_client.get() {
+            return;
+        }
+        let res = slf.try_send_keyboard_input(
+        );
+        if let Err(e) = res {
+            log_forward("river_seat_v1.keyboard_input", &e);
+        }
+    }
 }
 
 impl ObjectPrivate for RiverSeatV1 {
@@ -3247,6 +3450,27 @@ impl ObjectPrivate for RiverSeatV1 {
                     (**handler).handle_op_end_touch(&self, arg0);
                 } else {
                     DefaultHandler.handle_op_end_touch(&self, arg0);
+                }
+            }
+            11 => {
+                if msg.len() != 2 {
+                    return Err(ObjectError(ObjectErrorKind::WrongMessageSize(msg.len() as u32 * 4, 8)));
+                }
+                #[cfg(feature = "logging")]
+                if self.core.state.log {
+                    #[cold]
+                    fn log(state: &State, client_id: u64, id: u32) {
+                        let (millis, micros) = time_since_epoch();
+                        let prefix = &state.log_prefix;
+                        let args = format_args!("[{millis:7}.{micros:03}] {prefix}client#{:<4} -> river_seat_v1#{}.notify_next_keyboard_input()\n", client_id, id);
+                        state.log(args);
+                    }
+                    log(&self.core.state, client.endpoint.id, msg[0]);
+                }
+                if let Some(handler) = handler {
+                    (**handler).handle_notify_next_keyboard_input(&self);
+                } else {
+                    DefaultHandler.handle_notify_next_keyboard_input(&self);
                 }
             }
             n => {
@@ -3576,6 +3800,27 @@ impl ObjectPrivate for RiverSeatV1 {
                     DefaultHandler.handle_op_cancel_touch(&self, arg0);
                 }
             }
+            12 => {
+                if msg.len() != 2 {
+                    return Err(ObjectError(ObjectErrorKind::WrongMessageSize(msg.len() as u32 * 4, 8)));
+                }
+                #[cfg(feature = "logging")]
+                if self.core.state.log {
+                    #[cold]
+                    fn log(state: &State, id: u32) {
+                        let (millis, micros) = time_since_epoch();
+                        let prefix = &state.log_prefix;
+                        let args = format_args!("[{millis:7}.{micros:03}] {prefix}server      -> river_seat_v1#{}.keyboard_input()\n", id);
+                        state.log(args);
+                    }
+                    log(&self.core.state, msg[0]);
+                }
+                if let Some(handler) = handler {
+                    (**handler).handle_keyboard_input(&self);
+                } else {
+                    DefaultHandler.handle_keyboard_input(&self);
+                }
+            }
             n => {
                 let _ = server;
                 let _ = msg;
@@ -3600,6 +3845,7 @@ impl ObjectPrivate for RiverSeatV1 {
             8 => "pointer_warp",
             9 => "op_start_touch",
             10 => "op_end_touch",
+            11 => "notify_next_keyboard_input",
             _ => return None,
         };
         Some(name)
@@ -3619,6 +3865,7 @@ impl ObjectPrivate for RiverSeatV1 {
             9 => "op_delta_touch",
             10 => "op_release_touch",
             11 => "op_cancel_touch",
+            12 => "keyboard_input",
             _ => return None,
         };
         Some(name)
