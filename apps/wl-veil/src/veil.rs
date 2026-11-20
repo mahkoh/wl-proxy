@@ -1,18 +1,14 @@
 use {
     crate::VeilError,
     linearize::StaticMap,
-    std::{
-        collections::{HashMap, HashSet},
-        process::Command,
-        rc::Rc,
-        sync::Arc,
-    },
+    std::{collections::HashMap, process::Command, rc::Rc, sync::Arc},
     wl_proxy::{
         baseline::Baseline,
+        object::{Object, ObjectCoreApi},
         protocols::{
             ObjectInterface,
             wayland::{
-                wl_display::{WlDisplay, WlDisplayHandler},
+                wl_display::{WlDisplay, WlDisplayError, WlDisplayHandler},
                 wl_registry::{WlRegistry, WlRegistryHandler},
             },
         },
@@ -76,7 +72,7 @@ impl WlDisplayHandler for WlDisplayHandlerImpl {
     fn handle_get_registry(&mut self, slf: &Rc<WlDisplay>, registry: &Rc<WlRegistry>) {
         registry.set_handler(WlRegistryHandlerImpl {
             filter: self.filter.clone(),
-            filtered_globals: Default::default(),
+            announced: Default::default(),
         });
         slf.send_get_registry(registry);
     }
@@ -84,10 +80,32 @@ impl WlDisplayHandler for WlDisplayHandlerImpl {
 
 struct WlRegistryHandlerImpl {
     filter: Arc<StaticMap<ObjectInterface, Disposition>>,
-    filtered_globals: HashSet<u32>,
+    announced: HashMap<u32, u32>,
 }
 
 impl WlRegistryHandler for WlRegistryHandlerImpl {
+    fn handle_bind(&mut self, slf: &Rc<WlRegistry>, name: u32, id: Rc<dyn Object>) {
+        let interface = id.interface().name();
+        let message = match self.announced.get(&name) {
+            None => format!("global {} ({}) is unavailable", interface, name),
+            Some(&version) if id.version() > version => format!(
+                "invalid version for global {} ({}): expected at most {}, got {}",
+                interface,
+                name,
+                version,
+                id.version(),
+            ),
+            Some(_) => {
+                slf.send_bind(name, id);
+                return;
+            }
+        };
+        if let Some(client) = slf.client() {
+            let error = WlDisplayError::INVALID_OBJECT.0;
+            client.display().send_error(slf.clone(), error, &message);
+        }
+    }
+
     fn handle_global(
         &mut self,
         slf: &Rc<WlRegistry>,
@@ -97,21 +115,20 @@ impl WlRegistryHandler for WlRegistryHandlerImpl {
     ) {
         match self.filter[interface] {
             Disposition::Forward => {
+                self.announced.insert(name, version);
                 slf.send_global(name, interface, version);
             }
-            Disposition::Hide => {
-                self.filtered_globals.insert(name);
-            }
+            Disposition::Hide => {}
             Disposition::ReduceVersion(max) => {
+                self.announced.insert(name, version.min(max));
                 slf.send_global(name, interface, version.min(max));
             }
         }
     }
 
     fn handle_global_remove(&mut self, slf: &Rc<WlRegistry>, name: u32) {
-        if self.filtered_globals.remove(&name) {
-            return;
+        if self.announced.contains_key(&name) {
+            slf.send_global_remove(name);
         }
-        slf.send_global_remove(name);
     }
 }
