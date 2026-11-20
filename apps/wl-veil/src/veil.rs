@@ -77,7 +77,6 @@ impl WlDisplayHandler for WlDisplayHandlerImpl {
     fn handle_get_registry(&mut self, slf: &Rc<WlDisplay>, registry: &Rc<WlRegistry>) {
         registry.set_handler(WlRegistryHandlerImpl {
             filter: self.filter.clone(),
-            filtered_globals: Default::default(),
             announced: Default::default(),
         });
         slf.send_get_registry(registry);
@@ -86,9 +85,10 @@ impl WlDisplayHandler for WlDisplayHandlerImpl {
 
 struct WlRegistryHandlerImpl {
     filter: Arc<StaticMap<ObjectInterface, Disposition>>,
-    filtered_globals: HashSet<u32>,
     // The names of the globals announced to the client. A client can bind
-    // any name, so only binds of these are forwarded.
+    // any name, so only binds of these are forwarded. A name stays here after
+    // the global's removal, since the client can bind it until it has seen
+    // the removal.
     announced: HashSet<u32>,
 }
 
@@ -119,7 +119,7 @@ impl WlRegistryHandler for WlRegistryHandlerImpl {
                 slf.send_global(name, interface, version);
             }
             Disposition::Hide => {
-                self.filtered_globals.insert(name);
+                self.announced.remove(&name);
             }
             Disposition::ReduceVersion(max) => {
                 self.announced.insert(name);
@@ -129,10 +129,9 @@ impl WlRegistryHandler for WlRegistryHandlerImpl {
     }
 
     fn handle_global_remove(&mut self, slf: &Rc<WlRegistry>, name: u32) {
-        if self.filtered_globals.remove(&name) {
-            return;
+        if self.announced.contains(&name) {
+            slf.send_global_remove(name);
         }
-        slf.send_global_remove(name);
     }
 }
 
