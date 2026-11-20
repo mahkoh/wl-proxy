@@ -1,12 +1,7 @@
 use {
     crate::VeilError,
     linearize::StaticMap,
-    std::{
-        collections::{HashMap, HashSet},
-        process::Command,
-        rc::Rc,
-        sync::Arc,
-    },
+    std::{collections::HashMap, process::Command, rc::Rc, sync::Arc},
     wl_proxy::{
         baseline::Baseline,
         object::{Object, ObjectCoreApi},
@@ -85,16 +80,26 @@ impl WlDisplayHandler for WlDisplayHandlerImpl {
 
 struct WlRegistryHandlerImpl {
     filter: Arc<StaticMap<ObjectInterface, Disposition>>,
-    announced: HashSet<u32>,
+    announced: HashMap<u32, u32>,
 }
 
 impl WlRegistryHandler for WlRegistryHandlerImpl {
     fn handle_bind(&mut self, slf: &Rc<WlRegistry>, name: u32, id: Rc<dyn Object>) {
-        if self.announced.contains(&name) {
-            slf.send_bind(name, id);
-            return;
-        }
-        let message = format!("invalid global {} ({})", id.interface().name(), name);
+        let interface = id.interface().name();
+        let message = match self.announced.get(&name) {
+            None => format!("invalid global {} ({})", interface, name),
+            Some(&version) if id.version() > version => format!(
+                "invalid version for global {} ({}): have {}, wanted {}",
+                interface,
+                name,
+                version,
+                id.version(),
+            ),
+            Some(_) => {
+                slf.send_bind(name, id);
+                return;
+            }
+        };
         if let Some(client) = slf.client() {
             let error = WlDisplayError::INVALID_OBJECT.0;
             client.display().send_error(slf.clone(), error, &message);
@@ -110,19 +115,19 @@ impl WlRegistryHandler for WlRegistryHandlerImpl {
     ) {
         match self.filter[interface] {
             Disposition::Forward => {
-                self.announced.insert(name);
+                self.announced.insert(name, version);
                 slf.send_global(name, interface, version);
             }
             Disposition::Hide => {}
             Disposition::ReduceVersion(max) => {
-                self.announced.insert(name);
+                self.announced.insert(name, version.min(max));
                 slf.send_global(name, interface, version.min(max));
             }
         }
     }
 
     fn handle_global_remove(&mut self, slf: &Rc<WlRegistry>, name: u32) {
-        if self.announced.contains(&name) {
+        if self.announced.contains_key(&name) {
             slf.send_global_remove(name);
         }
     }
