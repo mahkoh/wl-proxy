@@ -207,7 +207,6 @@ mod tests {
             .without_server()
             .build()
             .unwrap();
-        compositor.set_default_forward_to_server(false);
         let (compositor_client, compositor_fd) = compositor.connect().unwrap();
         let bound = Rc::new(Cell::new(false));
         compositor_client
@@ -228,7 +227,6 @@ mod tests {
             .with_server_fd(&Rc::new(veil_fd))
             .build()
             .unwrap();
-        client.set_default_forward_to_client(false);
         let error = Rc::new(RefCell::new(None));
         client.set_handler(Error(error.clone()));
         let display = client.display();
