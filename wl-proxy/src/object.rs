@@ -405,6 +405,10 @@ pub(crate) enum IdError {
     NotClientId(u32),
     #[error("the client id {0} is already in use")]
     ClientIdInUse(u32),
+    #[error(
+        "the client id {0} is not the next id (it must be non-zero and at most one above the highest used)"
+    )]
+    NotNextClientId(u32),
 }
 
 const MIN_SERVER_ID: u32 = 0xff000000;
@@ -529,11 +533,18 @@ impl ObjectCore {
         if id >= MIN_SERVER_ID {
             return Err(IdError::NotClientId(id));
         }
+        // As in libwayland-server: 0 is the null object, and a new id is at most one above the highest id
+        // the client has used, so ids stay dense.
+        let highest = client.endpoint.highest_client_id.get();
+        if id == 0 || id > highest.saturating_add(1) {
+            return Err(IdError::NotNextClientId(id));
+        }
         let objects = &mut *client.endpoint.objects.borrow_mut();
         let Entry::Vacant(entry) = objects.entry(id) else {
             return Err(IdError::ClientIdInUse(id));
         };
         entry.insert(slf);
+        client.endpoint.highest_client_id.set(highest.max(id));
         self.set_client_id_(client, id);
         Ok(())
     }
