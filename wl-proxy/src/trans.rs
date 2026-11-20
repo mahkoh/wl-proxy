@@ -78,6 +78,10 @@ pub enum TransError {
     MessageTooLarge(usize),
     #[error("message has a supposed length {0} that is not a multiple of {WORD_SIZE}")]
     MessageNotAligned(usize),
+    #[error("ancillary data was truncated (MSG_CTRUNC), file descriptors were lost")]
+    ControlTruncated,
+    #[error("malformed ancillary data")]
+    MalformedControl,
 }
 
 pub(crate) fn read_message<'a>(
@@ -158,17 +162,29 @@ fn read_from_socket(
             }
         };
     buffer.valid_bytes += init.len();
+    // If the control buffer was too small, the kernel closed the file descriptors that did not fit and the
+    // queue no longer matches the messages. Take over the ones that did fit (so they are closed with the
+    // endpoint), then fail.
+    let truncated = header.flags & c::MSG_CTRUNC != 0;
     while control.is_not_empty() {
-        let (_, hdr, data) = uapi::cmsg_read(&mut control).unwrap();
+        let Ok((_, hdr, data)) = uapi::cmsg_read(&mut control) else {
+            return Err(TransError::MalformedControl);
+        };
         if hdr.cmsg_level != c::SOL_SOCKET || hdr.cmsg_type != c::SCM_RIGHTS {
             continue;
         }
-        for fd in uapi::pod_iter::<RawFd, _>(data).unwrap() {
+        let Ok(received) = uapi::pod_iter::<RawFd, _>(data) else {
+            return Err(TransError::MalformedControl);
+        };
+        for fd in received {
             // SAFETY: The kernel guarantees that fd is valid
             unsafe {
                 fds.push_back(Rc::new(OwnedFd::from_raw_fd(fd)));
             }
         }
+    }
+    if truncated {
+        return Err(TransError::ControlTruncated);
     }
     Ok(())
 }
