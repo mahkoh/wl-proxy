@@ -249,7 +249,6 @@ mod tests {
                 assert!(error.borrow().is_some(), "{e}");
             }
         }
-        compositor.dispatch_available().unwrap();
 
         assert_eq!(
             error.borrow().as_deref(),
