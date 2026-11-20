@@ -145,7 +145,7 @@ mod tests {
         },
         wl_proxy::{
             baseline::Baseline,
-            object::{Object, ObjectCoreApi},
+            object::Object,
             protocols::{
                 ObjectInterface,
                 wayland::{
@@ -165,7 +165,6 @@ mod tests {
     impl WlDisplayHandler for Compositor {
         fn handle_sync(&mut self, _slf: &Rc<WlDisplay>, callback: &Rc<WlCallback>) {
             callback.send_done(0);
-            callback.delete_id();
         }
 
         fn handle_get_registry(&mut self, _slf: &Rc<WlDisplay>, registry: &Rc<WlRegistry>) {
