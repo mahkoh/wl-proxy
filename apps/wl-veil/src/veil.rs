@@ -87,9 +87,9 @@ impl WlRegistryHandler for WlRegistryHandlerImpl {
     fn handle_bind(&mut self, slf: &Rc<WlRegistry>, name: u32, id: Rc<dyn Object>) {
         let interface = id.interface().name();
         let message = match self.announced.get(&name) {
-            None => format!("invalid global {} ({})", interface, name),
+            None => format!("global {} ({}) is unavailable", interface, name),
             Some(&version) if id.version() > version => format!(
-                "invalid version for global {} ({}): have {}, wanted {}",
+                "invalid version for global {} ({}): expected at most {}, got {}",
                 interface,
                 name,
                 version,
