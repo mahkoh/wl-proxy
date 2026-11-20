@@ -118,9 +118,7 @@ impl WlRegistryHandler for WlRegistryHandlerImpl {
                 self.announced.insert(name);
                 slf.send_global(name, interface, version);
             }
-            Disposition::Hide => {
-                self.announced.remove(&name);
-            }
+            Disposition::Hide => {}
             Disposition::ReduceVersion(max) => {
                 self.announced.insert(name);
                 slf.send_global(name, interface, version.min(max));
