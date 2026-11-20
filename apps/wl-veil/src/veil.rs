@@ -99,7 +99,6 @@ impl WlRegistryHandler for WlRegistryHandlerImpl {
             return;
         }
         let message = format!("invalid global {} ({})", id.interface().name(), name);
-        log::warn!("Refusing to bind: {message}");
         if let Some(client) = slf.client() {
             let error = WlDisplayError::INVALID_OBJECT.0;
             client.display().send_error(slf.clone(), error, &message);
