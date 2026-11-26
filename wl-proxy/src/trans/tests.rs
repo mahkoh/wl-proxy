@@ -125,6 +125,8 @@ fn array() {
 fn echo_fd() {
     let fd1 = Rc::new(uapi::memfd_create("", 0).unwrap().into());
     let fd2 = Rc::new(uapi::memfd_create("", 0).unwrap().into());
+    let fd3 = Rc::new(uapi::memfd_create("", 0).unwrap().into());
+    let fd4 = Rc::new(uapi::memfd_create("", 0).unwrap().into());
     let tp = test_proxy();
     struct Handler(Rc<OwnedFd>, Rc<OwnedFd>, bool);
     impl WlproxyTestFdEchoHandler for Handler {
@@ -149,8 +151,11 @@ fn echo_fd() {
             self.2 = true;
         }
     }
-    let echo = tp.client.test.new_send_echo_fd(&fd1, &fd2);
-    echo.set_handler(Handler(fd1, fd2, false));
+    let echo1 = tp.client.test.new_send_echo_fd(&fd1, &fd2);
+    echo1.set_handler(Handler(fd1, fd2, false));
+    let echo2 = tp.client.test.new_send_echo_fd(&fd3, &fd4);
+    echo2.set_handler(Handler(fd3, fd4, false));
     tp.sync();
-    assert!(echo.get_handler_mut::<Handler>().2);
+    assert!(echo1.get_handler_mut::<Handler>().2);
+    assert!(echo2.get_handler_mut::<Handler>().2);
 }
