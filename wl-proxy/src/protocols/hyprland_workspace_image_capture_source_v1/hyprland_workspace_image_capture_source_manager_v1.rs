@@ -56,9 +56,9 @@ impl HyprlandWorkspaceImageCaptureSourceManagerV1 {
     ///
     /// Create an ICC capture source from a given workspace handle.
     ///
-    /// This source does not own the workspace handle. If the workspace is
-    /// removed, further attempts to share this source's contents will produce
-    /// a transparent, empty image.
+    /// Depending on compositor policy, the workspace may be removed while this
+    /// source exists. If the workspace is removed, further attempts to share
+    /// this source's contents will produce a transparent, empty image.
     ///
     /// # Arguments
     ///
@@ -129,9 +129,9 @@ impl HyprlandWorkspaceImageCaptureSourceManagerV1 {
     ///
     /// Create an ICC capture source from a given workspace handle.
     ///
-    /// This source does not own the workspace handle. If the workspace is
-    /// removed, further attempts to share this source's contents will produce
-    /// a transparent, empty image.
+    /// Depending on compositor policy, the workspace may be removed while this
+    /// source exists. If the workspace is removed, further attempts to share
+    /// this source's contents will produce a transparent, empty image.
     ///
     /// # Arguments
     ///
@@ -159,9 +159,9 @@ impl HyprlandWorkspaceImageCaptureSourceManagerV1 {
     ///
     /// Create an ICC capture source from a given workspace handle.
     ///
-    /// This source does not own the workspace handle. If the workspace is
-    /// removed, further attempts to share this source's contents will produce
-    /// a transparent, empty image.
+    /// Depending on compositor policy, the workspace may be removed while this
+    /// source exists. If the workspace is removed, further attempts to share
+    /// this source's contents will produce a transparent, empty image.
     ///
     /// # Arguments
     ///
@@ -186,9 +186,9 @@ impl HyprlandWorkspaceImageCaptureSourceManagerV1 {
     ///
     /// Create an ICC capture source from a given workspace handle.
     ///
-    /// This source does not own the workspace handle. If the workspace is
-    /// removed, further attempts to share this source's contents will produce
-    /// a transparent, empty image.
+    /// Depending on compositor policy, the workspace may be removed while this
+    /// source exists. If the workspace is removed, further attempts to share
+    /// this source's contents will produce a transparent, empty image.
     ///
     /// # Arguments
     ///
@@ -282,9 +282,9 @@ pub trait HyprlandWorkspaceImageCaptureSourceManagerV1Handler: Any {
     ///
     /// Create an ICC capture source from a given workspace handle.
     ///
-    /// This source does not own the workspace handle. If the workspace is
-    /// removed, further attempts to share this source's contents will produce
-    /// a transparent, empty image.
+    /// Depending on compositor policy, the workspace may be removed while this
+    /// source exists. If the workspace is removed, further attempts to share
+    /// this source's contents will produce a transparent, empty image.
     ///
     /// # Arguments
     ///

@@ -1608,6 +1608,8 @@ impl XdgToplevel {
     /// compositor needs to configure the state of the surface but doesn't
     /// have any information about any previous or expected dimension.
     ///
+    /// The width and height must be greater than or equal to zero.
+    ///
     /// The states listed in the event specify how the width/height
     /// arguments should be interpreted, and possibly how it should be
     /// drawn.
@@ -1687,6 +1689,8 @@ impl XdgToplevel {
     /// should decide its own window dimension. This may happen when the
     /// compositor needs to configure the state of the surface but doesn't
     /// have any information about any previous or expected dimension.
+    ///
+    /// The width and height must be greater than or equal to zero.
     ///
     /// The states listed in the event specify how the width/height
     /// arguments should be interpreted, and possibly how it should be
@@ -2628,6 +2632,8 @@ pub trait XdgToplevelHandler: Any {
     /// should decide its own window dimension. This may happen when the
     /// compositor needs to configure the state of the surface but doesn't
     /// have any information about any previous or expected dimension.
+    ///
+    /// The width and height must be greater than or equal to zero.
     ///
     /// The states listed in the event specify how the width/height
     /// arguments should be interpreted, and possibly how it should be
