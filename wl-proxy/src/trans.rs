@@ -213,8 +213,8 @@ fn write_to_socket(socket: RawFd, buffer: &mut OutputBuffer) -> Result<FlushResu
         hdr.cmsg_level = c::SOL_SOCKET;
         hdr.cmsg_type = c::SCM_RIGHTS;
         let mut fds = SmallVec::<[RawFd; 128 / 4]>::new();
-        for idx in 0..fdo.num_fds {
-            fds.push(buffer.fds[idx].as_raw_fd());
+        for fd in buffer.fds.iter().take(fdo.num_fds) {
+            fds.push(fd.as_raw_fd());
         }
         let mut buf = &mut control_buf[..];
         uapi::cmsg_write(&mut buf, hdr, &fds[..]).unwrap();

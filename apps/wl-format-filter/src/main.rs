@@ -1,4 +1,4 @@
-#![expect(clippy::from_str_radix_10)]
+#![expect(clippy::from_str_radix_10, clippy::needless_bool)]
 
 use {error_reporter::Report, std::io, thiserror::Error, wl_proxy::simple::SimpleProxyError};
 
