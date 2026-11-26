@@ -255,7 +255,10 @@ impl State {
     }
 
     pub(crate) fn handle_delete_id(&self, server: &Endpoint, id: u32) {
-        let object = server.objects.borrow_mut().remove(&id).unwrap();
+        let Some(object) = server.objects.borrow_mut().remove(&id) else {
+            log::warn!("Ignoring wl_display.delete_id for unknown object {id}");
+            return;
+        };
         let core = object.core();
         core.server_obj_id.take();
         server.idl.release(id);
